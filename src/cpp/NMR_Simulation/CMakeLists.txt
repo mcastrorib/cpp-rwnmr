@@ -47,6 +47,7 @@ if (CUDA_FOUND)
   execute_process(COMMAND ${OUTPUTFILE}
                   RESULT_VARIABLE CUDA_RETURN_CODE
                   OUTPUT_VARIABLE ARCH)
+  execute_process(COMMAND rm ${OUTPUTFILE})
 
   if(${CUDA_RETURN_CODE} EQUAL 0)
     set(CUDA_SUCCESS "TRUE")
