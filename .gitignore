@@ -2,6 +2,4 @@
 /config/*
 /db/*
 /rwnmr
-/python/*
-/src/frontend/*
-/src/backend/NMR_Simulation/cuda_check
+/src/cpp/NMR_Simulation/cuda_check
