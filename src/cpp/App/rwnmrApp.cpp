@@ -26,13 +26,21 @@
 rwnmrApp::rwnmrApp(int argc, char *argv[], string _root) : project_root(_root), args(argc, argv), NMR(NULL)
 {
     (*this).setConfigRoot((*this).getProjectRoot() + CONFIG_ROOT);
-    (*this).buildEssentials(); 
+
+    if(this->args.commands.size() > 2 and this->args.commands[2] == "--test") 
+        (*this).runUnitTest(2);
+    else 
+        (*this).buildEssentials();   
 }
 
 rwnmrApp::rwnmrApp(ArgsParser _args, string _root) : project_root(_root), args(_args), NMR(NULL)
 {
     (*this).setConfigRoot((*this).getProjectRoot() + CONFIG_ROOT);
-    (*this).buildEssentials(); 
+    
+    if(this->args.commands.size() > 2 and this->args.commands[2] == "--test") 
+        (*this).runUnitTest(2);
+    else 
+        (*this).buildEssentials();   
 }
 
 void rwnmrApp::buildEssentials()
@@ -148,4 +156,9 @@ void rwnmrApp::MultiTau(uint command_idx)
     multitau.run();
     cout << "- multitau sequence executed succesfully" << endl << endl;
     // -----
+}
+
+void rwnmrApp::runUnitTest(uint command_idx)
+{
+    cout << "-- RWNMR app unit test " << (*this).getArgsPath(command_idx) << "." << endl;
 }

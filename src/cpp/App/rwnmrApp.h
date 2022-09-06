@@ -36,7 +36,7 @@ public:
     // default destructor
     virtual ~rwnmrApp()
     {
-        delete NMR;
+        if(NMR != NULL) delete NMR;
         NMR = NULL;
     }
 
@@ -47,6 +47,7 @@ public:
     void PFGSE(uint command_idx);
     void GA(uint command_idx);
     void MultiTau(uint command_idx);
+    void runUnitTest(uint command_idx);
 
 
     string getProjectRoot() { return this->project_root; }
