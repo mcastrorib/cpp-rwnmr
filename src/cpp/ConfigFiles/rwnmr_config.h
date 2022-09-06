@@ -63,7 +63,7 @@ public:
 
     // default constructors
     rwnmr_config(){};
-    rwnmr_config(const string configFile);
+    rwnmr_config(const string configFile, const string croot);
 
     //copy constructors
     rwnmr_config(const rwnmr_config &otherConfig);    

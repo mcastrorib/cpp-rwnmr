@@ -49,7 +49,7 @@ public:
 
     // default constructors
     cpmg_config(){};
-    cpmg_config(const string configFile);
+    cpmg_config(const string configFile, const string croot);
 
     //copy constructors
     cpmg_config(const cpmg_config &otherConfig);

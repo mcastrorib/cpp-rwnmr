@@ -127,3 +127,8 @@ install(TARGETS RWNMR DESTINATION bin)
 install(FILES "${PROJECT_BINARY_DIR}/RWNMR_Config.h"
   DESTINATION include
   )
+
+enable_testing()
+
+# does the application run
+add_test(NAME Runs COMMAND RWNMR)

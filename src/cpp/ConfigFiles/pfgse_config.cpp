@@ -14,11 +14,11 @@
 using namespace std;
 
 // default constructors
-pfgse_config::pfgse_config(const string configFile) : config_filepath(configFile), THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0)
+pfgse_config::pfgse_config(const string configFile, const string croot) : config_filepath(configFile), THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0)
 {
     vector<double> TIME_VALUES();
 
-    string default_dirpath = CONFIG_ROOT;
+    string default_dirpath = croot;
     string default_filename = PFGSE_CONFIG_DEFAULT;
     (*this).readConfigFile(default_dirpath + default_filename);
 	(*this).readConfigFile(configFile);

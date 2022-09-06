@@ -49,8 +49,8 @@ void rwnmrApp::buildEssentials()
     if((*this).getArgsPath(1) != "default") uct_config_path = (*this).getArgsPath(1);
     else uct_config_path = UCT_CONFIG_DEFAULT;
 
-    rwnmr_config rwNMR_Config((*this).getConfigRoot() + rwnmr_config_path);     
-    uct_config uCT_Config((*this).getConfigRoot() + uct_config_path); 
+    rwnmr_config rwNMR_Config((*this).getConfigRoot() + rwnmr_config_path, (*this).getConfigRoot());     
+    uct_config uCT_Config((*this).getConfigRoot() + uct_config_path, (*this).getConfigRoot()); 
     // // -----
 
     // -- Create NMR_Simulation object
@@ -93,7 +93,7 @@ void rwnmrApp::CPMG(uint command_idx)
     string cpmg_config_path;
     if((*this).getArgsPath(command_idx) != "default") cpmg_config_path = (*this).getArgsPath(command_idx);
     else cpmg_config_path = (*this).getConfigRoot() + CPMG_CONFIG_DEFAULT;
-    cpmg_config cpmg_Config(cpmg_config_path);
+    cpmg_config cpmg_Config(cpmg_config_path, (*this).getConfigRoot());
     // --
 
     // -- Create cpmg object
@@ -110,7 +110,7 @@ void rwnmrApp::PFGSE(uint command_idx)
     string pfgse_config_path;
     if((*this).getArgsPath(command_idx) != "default") pfgse_config_path = (*this).getArgsPath(command_idx);
     else pfgse_config_path = (*this).getConfigRoot() + PFGSE_CONFIG_DEFAULT;
-    pfgse_config pfgse_Config(pfgse_config_path);
+    pfgse_config pfgse_Config(pfgse_config_path, (*this).getConfigRoot());
     // --
     
     // pfgse_config pfgse_Config((*this).getConfigRoot() + + this->args->getPath(command_idx));
@@ -134,14 +134,14 @@ void rwnmrApp::MultiTau(uint command_idx)
     string multitau_config_path;
     if((*this).getArgsPath(command_idx) != "default") multitau_config_path = (*this).getArgsPath(command_idx);
     else multitau_config_path = (*this).getConfigRoot() + MULTITAU_CONFIG_DEFAULT;
-    multitau_config multitau_Config(multitau_config_path);
+    multitau_config multitau_Config(multitau_config_path, (*this).getConfigRoot());
     // --
 
     // -- Read CPMG routine config files
     string cpmg_config_path;
     if((*this).getArgsPath(command_idx + 1) != "default") cpmg_config_path = (*this).getArgsPath(command_idx + 1);
     else cpmg_config_path = (*this).getConfigRoot() + CPMG_CONFIG_DEFAULT;
-    cpmg_config cpmg_Config(cpmg_config_path);
+    cpmg_config cpmg_Config(cpmg_config_path, (*this).getConfigRoot());
     // --
     
     NMR_multitau multitau((*this).getNMR(), multitau_Config, cpmg_Config);

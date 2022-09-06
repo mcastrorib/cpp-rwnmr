@@ -12,12 +12,12 @@
 using namespace std;
 
 // default constructors
-uct_config::uct_config(const string configFile) : config_filepath(configFile)
+uct_config::uct_config(const string configFile, const string croot) : config_filepath(configFile), configRoot(croot)
 {
 	this->IMG_FILES_LIST = "Empty";
 	vector<string> IMG_FILES();
 
-	string default_dirpath = CONFIG_ROOT;
+	string default_dirpath = croot;
 	string default_filename = UCT_CONFIG_DEFAULT;
 	(*this).readConfigFile(default_dirpath + default_filename);
 	if(configFile != (default_dirpath + default_filename)) (*this).readConfigFile(configFile);
@@ -39,6 +39,7 @@ uct_config::uct_config(const uct_config &otherConfig)
     this->VOXEL_DIVISION = otherConfig.VOXEL_DIVISION;
 	this->IMG_FILES_LIST = otherConfig.IMG_FILES_LIST;
 	this->IMG_FILES = otherConfig.IMG_FILES;
+	this->configRoot = otherConfig.configRoot;
 }
 
 // read config file
@@ -160,7 +161,7 @@ void uct_config::readImgFiles()
 
 void uct_config::createImgFileList()
 {
-    string dirpath = CONFIG_ROOT;
+    string dirpath = (*this).getConfigRoot();
 	string filepath = dirpath + ".ImagesList.txt";
 
     ofstream fileObject;

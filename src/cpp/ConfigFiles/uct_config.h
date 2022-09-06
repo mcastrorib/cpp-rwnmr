@@ -30,7 +30,7 @@ public:
 
     // default constructors
     uct_config(){};
-    uct_config(const string configFile);
+    uct_config(const string configFile, const string croot);
 
     //copy constructors
     uct_config(const uct_config &otherConfig);
@@ -76,6 +76,10 @@ public:
         result << std::setfill('0') << std::setw(digits) << id;
         return result.str();
     }
+
+    string configRoot;
+    void setConfigRoot(string _croot){ this->configRoot = _croot;}
+    string getConfigRoot(){return this->configRoot;}
 };
 
 #endif

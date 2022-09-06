@@ -7,12 +7,14 @@
 procs=$(nproc --all)
 
 # Source code path
+ROOT_DIR=${pwd}
 SRC_DIR='./src/cpp'
 APP_EXECUTABLE='rwnmr'
 
 # Assign compilation mode from command line args
 TARGET_MODE="Release"
 TARGET_DIR="./build/release"
+TEST_MODE="false"
 
 for i in "$@"; do
 	case $1 in
@@ -26,6 +28,12 @@ for i in "$@"; do
 			TARGET_DIR="./build/debug"
 			shift
 			;;
+		-t|--build-and-test)
+			TARGET_MODE="Release"
+			TARGET_DIR="./build/release"
+			TEST_MODE="true"
+			shift
+			;;
 		*)
 			TARGET_MODE="Release"
 			TARGET_DIR="./build/release"
@@ -34,7 +42,7 @@ for i in "$@"; do
 done
 
 ## BUILDING RWNMR
-echo "Building RWNMR (${TARGET_MODE}) with ${procs} processors..."
+echo "::Building RWNMR (${TARGET_MODE}) with ${procs} processors..."
 # Configure the build
 cmake -S ${SRC_DIR} -B ${TARGET_DIR} -D CMAKE_BUILD_TYPE=${TARGET_MODE}
 # Actually build the binaries
@@ -43,6 +51,15 @@ cmake --build ${TARGET_DIR} -j${procs}
 if [ ${TARGET_MODE} == "Release" ] 
 then
 	# Create symbolic link in root directory
-	echo "Creating symbolic link to executable RWNMR"
 	ln -sf ${TARGET_DIR}/RWNMR ${APP_EXECUTABLE}
+
+	if [ ${TEST_MODE} == "true" ]
+	then
+		echo ""
+		echo "::Now testing build"
+		cd ${TARGET_DIR}
+		ctest
+		cd ${ROOT_DIR}
+	fi
 fi
+

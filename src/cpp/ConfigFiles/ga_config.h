@@ -52,7 +52,7 @@ public:
 
     // default constructors
     ga_config(){};
-    ga_config(const string configFile);
+    ga_config(const string configFile, const string croot);
 
     //copy constructors
     ga_config(const ga_config &otherConfig);

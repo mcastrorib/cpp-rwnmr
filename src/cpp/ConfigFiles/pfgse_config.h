@@ -50,7 +50,7 @@ public:
 
     // default constructors
     pfgse_config(){};
-    pfgse_config(const string configFile);
+    pfgse_config(const string configFile, const string croot);
 
     //copy constructors
     pfgse_config(const pfgse_config &otherConfig);

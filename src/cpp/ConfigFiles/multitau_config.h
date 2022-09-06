@@ -29,7 +29,7 @@ public:
     
     // default constructors
     multitau_config(){};
-    multitau_config(const string configFile);
+    multitau_config(const string configFile, const string croot);
 
     //copy constructors
     multitau_config(const multitau_config &otherConfig);

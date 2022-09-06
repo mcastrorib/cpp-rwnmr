@@ -8,15 +8,16 @@
 #include <stdint.h>
 
 #include "rwnmr_config.h"
+// #include "config_defs.h"
 
 using namespace std;
 
 // default constructors
-rwnmr_config::rwnmr_config(const string configFile) : config_filepath(configFile), WALKER_SAMPLES(1)
+rwnmr_config::rwnmr_config(const string configFile, const string croot) : config_filepath(configFile), WALKER_SAMPLES(1)
 {
 	vector<double> RHO();
 	
-	string default_dirpath = CONFIG_ROOT;
+	string default_dirpath = croot;
 	string default_filename = RWNMR_CONFIG_DEFAULT;
 	(*this).readConfigFile(default_dirpath + default_filename);
 	if(configFile != (default_dirpath + default_filename)) (*this).readConfigFile(configFile);
