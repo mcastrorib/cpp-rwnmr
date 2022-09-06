@@ -161,7 +161,7 @@ void uct_config::readImgFiles()
 void uct_config::createImgFileList()
 {
     string dirpath = CONFIG_ROOT;
-	string filepath = dirpath + "/imgs/ImagesList.txt";
+	string filepath = dirpath + ".ImagesList.txt";
 
     ofstream fileObject;
     fileObject.open(filepath, ios::out);
