@@ -1,0 +1,7 @@
+/build/*
+/config/*
+/db/*
+/rwnmr
+/python/*
+/src/frontend/*
+/src/backend/NMR_Simulation/cuda_check
