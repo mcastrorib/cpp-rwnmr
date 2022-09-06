@@ -23,6 +23,7 @@ option(USE_FILEHANDLER "Use provided implementation for handling external files"
 option(USE_CONFIGFILES "Use provided implementation for reading configuration files" ON)
 option(USE_MATH "Use provided implementation for math and linear algebra computations" ON)
 option(USE_UTILS "Use provided implementation for system utils" ON)
+option(USE_UNITTEST "Use provided implementation for app testing" ON)
 
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -108,6 +109,11 @@ endif()
 if(USE_UTILS)
   add_subdirectory(Utils)
   list(APPEND EXTRA_LIBS Utils)
+endif()
+
+if(USE_UNITTEST)
+  add_subdirectory(UnitTest)
+  list(APPEND EXTRA_LIBS UnitTest)
 endif()
 
 # add the executable

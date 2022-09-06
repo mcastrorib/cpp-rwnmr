@@ -18,6 +18,7 @@
 #include "../NMR_Simulation/NMR_pfgse.h"
 #include "../NMR_Simulation/NMR_cpmg.h"
 #include "../NMR_Simulation/NMR_multitau.h"
+#include "../UnitTest/UnitTest.h"
 
 
 // include class header file
@@ -161,4 +162,8 @@ void rwnmrApp::MultiTau(uint command_idx)
 void rwnmrApp::runUnitTest(uint command_idx)
 {
     cout << "-- RWNMR app unit test " << (*this).getArgsPath(command_idx) << "." << endl;
+    UnitTest *uTest = new UnitTest((*this).getProjectRoot());
+    uTest->runTest((*this).getArgsPath(command_idx));
+    delete uTest;
+    uTest = NULL;    
 }
