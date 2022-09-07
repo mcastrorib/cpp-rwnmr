@@ -1,16 +1,25 @@
 // include C++ standard libraries
 #include <iostream>
+#include <sstream>
+#include <cstdint>
 #include <vector>
 #include <string>
 
+// include project files
+#include "../Utils/ArgsParser.h"
+#include "../App/rwnmrApp.h"
+
+
+#include "ArgsParserTest.h"
 #include "UnitTest.h"
 
-using namespace std;
+UnitTest::UnitTest(string proot) : project_root(proot), sucessResult(true)
+{}
 
 void UnitTest::runTest(string tag)
 {
 	if(tag == "all") (*this).runAll();
-	else cout << "running test " << tag << endl; 
+	else if(tag == "argsparser") ArgsParserTest((*this).getProjectRoot());  
 }
 
 void UnitTest::runAll()

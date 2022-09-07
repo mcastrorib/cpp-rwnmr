@@ -22,7 +22,7 @@ public:
 
     // default constructors
     rwnmrApp(){};
-    rwnmrApp(int argc, char *argv[], string _root);
+    rwnmrApp(int argc, char **argv, string _root);
     rwnmrApp(ArgsParser _args, string _root);
 
     //copy constructors

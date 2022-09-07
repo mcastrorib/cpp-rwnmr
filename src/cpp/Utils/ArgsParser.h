@@ -16,20 +16,16 @@ public:
      
     // default constructors
     ArgsParser(){};
-    ArgsParser(int argc, char *argv[]);
-
+    ArgsParser(int argc, char **argv);
+    
     //copy constructors
     ArgsParser(const ArgsParser &_otherParser);
 
     // default destructor
-    virtual ~ArgsParser()
-    {
-        // cout << "ArgParser object destroyed succesfully" << endl;
-    }
+    virtual ~ArgsParser(){}
 
     string getCommand(uint idx) {return this->commands[idx];}
     string getPath(uint idx) {return this->paths[idx];}
-
       
 };
 

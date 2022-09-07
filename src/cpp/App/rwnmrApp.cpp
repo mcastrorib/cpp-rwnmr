@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-// include CMake Configuration file
+// include configuration files
 #include "../ConfigFiles/rwnmr_config.h"
 #include "../ConfigFiles/uct_config.h"
 #include "../ConfigFiles/pfgse_config.h"
@@ -18,22 +18,18 @@
 #include "../NMR_Simulation/NMR_pfgse.h"
 #include "../NMR_Simulation/NMR_cpmg.h"
 #include "../NMR_Simulation/NMR_multitau.h"
-#include "../UnitTest/UnitTest.h"
-
 
 // include class header file
 #include "rwnmrApp.h"
 
-rwnmrApp::rwnmrApp(int argc, char *argv[], string _root) : project_root(_root), args(argc, argv), NMR(NULL)
+rwnmrApp::rwnmrApp(int argc, char **argv, string _root) : project_root(_root), args(argc, argv), NMR(NULL)
 {
-    (*this).setConfigRoot((*this).getProjectRoot() + CONFIG_ROOT);
-    (*this).buildEssentials();   
+    (*this).setConfigRoot((*this).getProjectRoot() + CONFIG_ROOT);   
 }
 
 rwnmrApp::rwnmrApp(ArgsParser _args, string _root) : project_root(_root), args(_args), NMR(NULL)
 {
-    (*this).setConfigRoot((*this).getProjectRoot() + CONFIG_ROOT);
-    (*this).buildEssentials();   
+    (*this).setConfigRoot((*this).getProjectRoot() + CONFIG_ROOT); 
 }
 
 void rwnmrApp::buildEssentials()
@@ -74,6 +70,8 @@ void rwnmrApp::buildEssentials()
 
 void rwnmrApp::exec()
 {
+    (*this).buildEssentials();
+
     uint commands = this->args.commands.size();
     uint current = 2;
     while(current < commands)

@@ -55,6 +55,11 @@ include_directories(/usr/include/eigen3)
 
 
 # list libraries
+if(USE_UNITTEST)
+  add_subdirectory(UnitTest)
+  list(APPEND EXTRA_LIBS UnitTest)
+endif()
+
 if(USE_RWNMRAPP)
   add_subdirectory(App)
   list(APPEND EXTRA_LIBS App)
@@ -105,10 +110,6 @@ if(USE_UTILS)
   list(APPEND EXTRA_LIBS Utils)
 endif()
 
-if(USE_UNITTEST)
-  add_subdirectory(UnitTest)
-  list(APPEND EXTRA_LIBS UnitTest)
-endif()
 
 # add the executable
 add_executable(rwnmr main.cpp)
@@ -123,10 +124,6 @@ target_include_directories(rwnmr PUBLIC
                            "${PROJECT_BINARY_DIR}"
                            )
 
-install(TARGETS rwnmr DESTINATION bin)
-install(FILES "${PROJECT_BINARY_DIR}/RWNMR_Config.h"
-  DESTINATION include
-  )
 
 # Testing
 # add the executable
@@ -142,6 +139,14 @@ target_include_directories(test-rwnmr PUBLIC
                            "${PROJECT_BINARY_DIR}"
                            )
 
+# Installation
+install(TARGETS rwnmr DESTINATION bin)
+install(TARGETS test-rwnmr DESTINATION bin)
+install(FILES "${PROJECT_BINARY_DIR}/RWNMR_Config.h"
+  DESTINATION include
+  )
+
+# Enabling testing
 enable_testing()
 
 # does the application run

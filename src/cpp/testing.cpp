@@ -12,17 +12,16 @@ using namespace std;
 
 // Main program
 int main(int argc, char *argv[])
-{    	
-    UnitTest *testApp = new UnitTest(PROJECT_ROOT_DIR);
+{   	
     
-    if(argc == 1) testApp->runAll();
+    UnitTest testApp(PROJECT_ROOT_DIR);
+    
+    if(argc == 1) testApp.runAll();
 	else 
 	{
 		for(int t = 1; t < argc; t++)
-			testApp->runTest(argv[t]);
+			testApp.runTest(argv[t]);
 	}
 
-    delete testApp;
-    testApp = NULL; 
 	return 0;
 }

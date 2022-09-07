@@ -7,7 +7,7 @@
 
 #include "ArgsParser.h"
 
-ArgsParser::ArgsParser(int argc, char *argv[])
+ArgsParser::ArgsParser(int argc, char **argv)
 {
     vector<string> commands();
     vector<string> paths();

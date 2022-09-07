@@ -1,9 +1,15 @@
-#ifndef UNIT_TEST_H_
-#define UNIT_TEST_H_
+#ifndef UNITTEST_H_
+#define UNITTEST_H_
 
 #include <iostream>
 #include <string>
-#include "UnitTest_includes.h"
+#include <vector>
+
+#include "../Utils/ArgsParser.h"
+#include "../ConfigFiles/configFiles_defs.h"
+#include "../NMR_Simulation/NMR_Simulation.h"
+
+// #include "UnitTest_includes.h"
 
 using namespace std;
 
@@ -13,8 +19,7 @@ public:
 	string project_root;
 	bool sucessResult;
 
-	UnitTest(string proot) : project_root(proot), sucessResult(true)
-	{}
+	UnitTest(string proot);
 	UnitTest(const UnitTest& otherTest)
 	{
 		this->project_root = otherTest.project_root;
