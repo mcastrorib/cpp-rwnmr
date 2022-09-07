@@ -47,7 +47,6 @@ public:
     void PFGSE(uint command_idx);
     void GA(uint command_idx);
     void MultiTau(uint command_idx);
-    void runUnitTest(uint command_idx);
 
 
     string getProjectRoot() { return this->project_root; }
@@ -55,7 +54,6 @@ public:
     NMR_Simulation& getNMR() { return (*this->NMR); }
     ArgsParser& getArgs() { return this->args; }
     string getArgsPath(uint idx) { return this->args.getPath(idx); }
-
     void setConfigRoot(string _croot) { this->config_root = _croot; }
 };
 

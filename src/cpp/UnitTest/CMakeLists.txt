@@ -5,4 +5,4 @@ target_include_directories(UnitTest
           )
 target_compile_options(UnitTest PUBLIC -O3)
 install(TARGETS UnitTest DESTINATION lib)
-install(FILES UnitTest.h UnitTest_defs.h DESTINATION include)
+install(FILES UnitTest.h UnitTest_includes.h DESTINATION include)

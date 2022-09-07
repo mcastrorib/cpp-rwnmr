@@ -10,7 +10,7 @@ using namespace std;
 void UnitTest::runTest(string tag)
 {
 	if(tag == "all") (*this).runAll();
-	else cout << "running " << tag << " test" << endl; 
+	else cout << "running test " << tag << endl; 
 }
 
 void UnitTest::runAll()

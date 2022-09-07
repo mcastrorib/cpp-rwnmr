@@ -51,7 +51,7 @@ cmake --build ${TARGET_DIR} -j${procs}
 if [ ${TARGET_MODE} == "Release" ] 
 then
 	# Create symbolic link in root directory
-	ln -sf ${TARGET_DIR}/RWNMR ${APP_EXECUTABLE}
+	ln -sf ${TARGET_DIR}/rwnmr ${APP_EXECUTABLE}
 
 	if [ ${TEST_MODE} == "true" ]
 	then

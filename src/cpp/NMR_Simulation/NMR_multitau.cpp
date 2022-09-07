@@ -15,7 +15,7 @@
 #include "NMR_multitau.h"
 #include "NMR_cpmg.h"
 #include "../Walker/walker.h"
-#include "../FileHandler/fileHandler.h"
+#include "../Utils/fileHandler.h"
 
 using namespace std;
 

@@ -19,7 +19,7 @@ option(USE_BITBLOCK "Use provided blockMap class implementation" ON)
 option(USE_RNG "Use provided RNG implementations for random number generation" ON)
 option(USE_LAPLACE "Use provided Tikhonov solver for Laplace inverse transform" ON)
 option(USE_GA "Use provided Genetic Algorithm implementation for optimization" OFF)
-option(USE_FILEHANDLER "Use provided implementation for handling external files" ON)
+# option(USE_FILEHANDLER "Use provided implementation for handling external files" ON)
 option(USE_CONFIGFILES "Use provided implementation for reading configuration files" ON)
 option(USE_MATH "Use provided implementation for math and linear algebra computations" ON)
 option(USE_UTILS "Use provided implementation for system utils" ON)
@@ -91,10 +91,10 @@ endif()
 #  list(APPEND EXTRA_LIBS GA)
 #endif()
 
-if(USE_FILEHANDLER)
-  add_subdirectory(FileHandler)
-  list(APPEND EXTRA_LIBS FileHandler)
-endif()
+#if(USE_FILEHANDLER)
+#  add_subdirectory(FileHandler)
+#  list(APPEND EXTRA_LIBS FileHandler)
+#endif()
 
 if(USE_MATH)
   add_subdirectory(Math)
@@ -117,24 +117,38 @@ if(USE_UNITTEST)
 endif()
 
 # add the executable
-add_executable(RWNMR main.cpp)
-target_compile_options(RWNMR PUBLIC -O3)
-target_link_libraries(RWNMR PUBLIC ${EXTRA_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
-target_link_libraries(RWNMR PRIVATE CUDA::cudart)
+add_executable(rwnmr main.cpp)
+target_compile_options(rwnmr PUBLIC -O3)
+target_link_libraries(rwnmr PUBLIC ${EXTRA_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
+target_link_libraries(rwnmr PRIVATE CUDA::cudart)
 
 
 # add the binary tree to the search path for include files
 # so that we will find RandomWalkConfig.h
-target_include_directories(RWNMR PUBLIC
+target_include_directories(rwnmr PUBLIC
                            "${PROJECT_BINARY_DIR}"
                            )
 
-install(TARGETS RWNMR DESTINATION bin)
+install(TARGETS rwnmr DESTINATION bin)
 install(FILES "${PROJECT_BINARY_DIR}/RWNMR_Config.h"
   DESTINATION include
   )
 
+# Testing
+# add the executable
+add_executable(test-rwnmr testing.cpp)
+target_compile_options(test-rwnmr PUBLIC -O3)
+target_link_libraries(test-rwnmr PUBLIC ${EXTRA_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
+target_link_libraries(test-rwnmr PRIVATE CUDA::cudart)
+
+
+# add the binary tree to the search path for include files
+# so that we will find RandomWalkConfig.h
+target_include_directories(test-rwnmr PUBLIC
+                           "${PROJECT_BINARY_DIR}"
+                           )
+
 enable_testing()
 
 # does the application run
-add_test(NAME Runs COMMAND RWNMR)
+add_test(NAME Runs COMMAND test-rwnmr)

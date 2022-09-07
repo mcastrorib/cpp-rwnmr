@@ -145,19 +145,6 @@ ArgsParser::ArgsParser(int argc, char *argv[])
                 }  
             }
 
-            else if(argument == "--test")
-            {
-                this->commands.push_back("--test");
-
-                if((arg_idx + 1) < argc)
-                {
-                    string testID = argv[arg_idx + 1];
-                    this->paths.push_back(testID);  
-                } else
-                {
-                    this->paths.push_back("all");
-                }
-            }
             // increment argument
             arg_idx++;
         }

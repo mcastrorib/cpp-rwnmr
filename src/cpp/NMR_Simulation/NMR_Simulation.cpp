@@ -26,7 +26,7 @@
 #include "../RNG/myRNG.h"
 #include "../BitBlock/bitBlock.h"
 #include "../RNG/xorshift.h"
-#include "../FileHandler/fileHandler.h"
+#include "../Utils/fileHandler.h"
 #include "../Laplace/tikhonov.h"
 #include "../Laplace/include/nmrinv_core.h"
 #include "NMR_Simulation.h"

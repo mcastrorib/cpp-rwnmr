@@ -19,7 +19,7 @@
 #include "bitBlock.h"
 #include "../Walker/walker.h"
 #include "../RNG/xorshift.h"
-#include "../FileHandler/fileHandler.h"
+#include "../Utils/fileHandler.h"
 #include "../NMR_Simulation/NMR_Simulation.h"
 #include "../Utils/ProgressBar.h"
 
