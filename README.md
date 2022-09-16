@@ -41,7 +41,7 @@ sudo apt update && sudo apt install libeigen3-dev
 sudo apt update && sudo apt install libopencv-dev python3-opencv
 ```
 
-### **CUDA Toolkit** (GPU programming):
+### **CUDA Toolkit** (GPU programming)
 A complete step-by-step installation guide of CUDA Toolkit can be found [here](https://developer.nvidia.com/cuda-downloads/).
 After installation is completed, CUDA paths must be added to the enviroment variables in order to compile the project.
 This action must be repeated every time a new terminal window is open. In order to automatize this process, we recommend creating a file in ``/etc/profile.d/`` such as:
