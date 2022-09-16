@@ -34,8 +34,8 @@ private:
 	void testArgsPFGSE();
 	void testArgsMultiTau();
 	void testUnknownArgs();
+	void testMissingArgs();
 	void testAllKnownArgs();
-	void testDisorderedArgs();
 };
 
 #endif
