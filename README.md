@@ -2,47 +2,47 @@
 
 **cpp-rwnmr** is an open-source terminal Linux (Ubuntu) application for image based random walk (RW) simulations of nuclear magnetic resonance (NMR) response. It explores GPUs for parallel computing and performance accelearation.
 
-## Features
+# Features
 **cpp-rwnmr** includes simulations for some well-known NMR experiments:
 
 + CPMG
 + PFGSE
 + MultiTau
 
-## Requirements
-# Hardware
+# Requirements
+## Hardware
 **cpp-rwnmr** requires a NVIDIA Graphical Processing Unit (GPU).
 
-# Software
+## Software
 The following software and libraries are required:
 + [CMake (3.17 or greater)](https://cmake.org/);
-+ [OpenMPI] (https://www.open-mpi.org/);
-+ [Eigen3] (https://eigen.tuxfamily.org/);
++ [OpenMPI](https://www.open-mpi.org/);
++ [Eigen3](https://eigen.tuxfamily.org/);
 + [OpenCV](https://opencv.org/);
-+ [CUDA Toolkit] (https://developer.nvidia.com/cuda-toolkit);
++ [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit);
 
-## Installation
+# Installation
 **cpp-rwnmr** execution requires two steps: C++ dependencies installation and Project build/compilation.
 
-# C++ requirements
+## C++ requirements
 
--- OpenMPI (message protocol for multi process applications) 
+**OpenMPI** (message protocol for multi process applications) 
 ``` 
 sudo apt update && sudo apt-get install libopenmpi-dev openmpi-bin
 ```
 
--- Eigen3 (linear algebra and matrix operations) 
+**Eigen3** (linear algebra and matrix operations) 
 ```
 sudo apt update && sudo apt install libeigen3-dev
 ```
 
--- OpenCV (image manipulation)
+**OpenCV** (image manipulation)
 ```
 sudo apt update && sudo apt install libopencv-dev python3-opencv
 ```
 
--- CUDA Toolkit (GPU programming)
-We recommend following the step-by-step installation guide of [CUDA Toolkit] (https://developer.nvidia.com/cuda-downloads).
+**CUDA Toolkit** (GPU programming)
+We recommend following the step-by-step installation guide of [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads/).
 After installation is completed, CUDA paths must be added to the enviroment variables in order to compile the project.
 This action must be repeated every time a new terminal window is open. In order to automatize this process, we recommend creating a file in ``/etc/profile.d/`` such as:
 ``` 
@@ -53,7 +53,7 @@ echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64" >> ~/cuda.s
 sudo mv ~/cuda.sh /etc/profile.d/cuda.sh
 ```
 
-# Project build 
+## Project build 
 **cpp-rwnmr** uses CMake (3.17 or greater) to build its project.
 If current version of CMake is 3.16 or lower, we recommend uninstalling it
 ```
@@ -102,11 +102,11 @@ To build **cpp-rwnmr**, run  ``build.sh`` from the project's root directory:
 ./build.sh
 ```
 
-## Dockerized
-Due to its dependencies, we recommend using [Docker] (https://www.docker.com/) for an isolated environment.
-For this purpose, Docker and [NVIDIA Container Toolkit] (https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) must be installed in the host machine.
+# Dockerized
+Due to its dependencies, we recommend using [Docker](https://www.docker.com/) for an isolated environment.
+For this purpose, Docker and [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) must be installed in the host machine.
 
-# NVIDIA Container Toolkit installation
+## NVIDIA Container Toolkit installation
 Setting up NVIDIA Container Toolkit
 ```
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
@@ -126,12 +126,12 @@ Restart the Docker daemon to complete the installation:
 sudo systemctl restart docker
 ```
 
-# Build cpp-rwnmr Docker Image
+## Build cpp-rwnmr Docker Image
 ```
 docker build -t rwnmr .
 ```
 
-# Run Docker Container:
+## Run Docker Container:
 ```
 docker run -it --rm --gpus all -v $(pwd)/db:/app/db -v $(pwd)/config:/app/config -v $(pwd)/input:/app/input rwnmr
 ```
