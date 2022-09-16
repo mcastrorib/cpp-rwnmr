@@ -31,3 +31,6 @@ RUN rm -rf /var/cache/apt/*
 
 # Copy source code to container workspace
 COPY . .
+
+# Build CMake Project
+RUN ./build.sh
