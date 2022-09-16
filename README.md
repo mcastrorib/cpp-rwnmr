@@ -26,17 +26,17 @@ The following software and libraries are required:
 
 ## C++ requirements
 
-**OpenMPI** (message protocol for multi process applications) 
+### **OpenMPI** (message protocol for multi process applications) 
 ``` 
 sudo apt update && sudo apt-get install libopenmpi-dev openmpi-bin
 ```
 
-**Eigen3** (linear algebra and matrix operations) 
+### **Eigen3** (linear algebra and matrix operations) 
 ```
 sudo apt update && sudo apt install libeigen3-dev
 ```
 
-**OpenCV** (image manipulation)
+### **OpenCV** (image manipulation)
 ```
 sudo apt update && sudo apt install libopencv-dev python3-opencv
 ```
@@ -55,6 +55,8 @@ sudo mv ~/cuda.sh /etc/profile.d/cuda.sh
 
 ## Project build 
 **cpp-rwnmr** uses CMake (3.17 or greater) to build its project.
+
+### CMake (latest version)
 If current version of CMake is 3.16 or lower, we recommend uninstalling it
 ```
 sudo apt remove --purge --auto-remove cmake
@@ -96,7 +98,7 @@ Update and install CMake package:
 sudo apt update && apt install -y cmake
 ```
 
-
+### Build
 To build **cpp-rwnmr**, run  ``build.sh`` from the project's root directory:
 ```
 ./build.sh
