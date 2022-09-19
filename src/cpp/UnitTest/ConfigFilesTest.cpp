@@ -51,7 +51,6 @@ void ConfigFilesTest::TestRWNMRConfigFile()
 	Assert::check(config.getBatchTag(), (uint) 3000, "rwnmr: NMR_BATCH_TAG");
 	Assert::check(config.getT2Tag(), (uint) 4000, "rwnmr: NMR_T2_TAG");
 	Assert::check(config.getEndTag(), (uint) 5000, "rwnmr: NMR_END_TAG");
-
 	
 	cout << "Ok." << endl;
 	return;
@@ -61,6 +60,18 @@ void ConfigFilesTest::TestUCTConfigFile()
 {
 	cout << "executing uct_config test...";
 
+	string config_path = "tuct.config";
+	uct_config config;
+	config.readConfigFile((*this).getInputDir() + config_path);
+	Assert::check(config.getDirPath(), (string)"./input/images/sphere_2.5voxels/", "uct: DirPath");
+	Assert::check(config.getFilename(), (string)"sphere_r=2.5voxels_", "uct: Filename");
+	Assert::check(config.getFirstIdx(), (uint) 0, "uct: FirstIdx");
+	Assert::check(config.getDigits(), (uint) 1, "uct: Digits");
+	Assert::check(config.getExtension(), (string)".png", "uct: Extension");
+	Assert::check(config.getSlices(), (uint) 7, "uct: Slices");
+	Assert::check(config.getResolution(), (double) 1.0, "uct: Resolution");
+	Assert::check(config.getVoxelDivision(), (uint) 0, "uct: VoxelDivision");
+	
 	cout << "Ok." << endl;
 	return;
 }
