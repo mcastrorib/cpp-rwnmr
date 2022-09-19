@@ -151,3 +151,4 @@ enable_testing()
 
 # does the application run
 add_test(NAME Runs COMMAND test-rwnmr)
+add_test(NAME ArgsParserTest COMMAND test-rwnmr argsparser)

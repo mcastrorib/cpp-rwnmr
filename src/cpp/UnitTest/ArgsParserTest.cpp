@@ -12,43 +12,57 @@ void ArgsParserTest::run()
 	(*this).testAllKnownArgs();
 }
 
-void ArgsParserTest::testNoArgs()
+void ArgsParserTest::checkParser(int argc, char *argv[], vector<string> _expectedCommands, vector<string> _expectedPaths, string _msg)
 {
-	cout << "executing no args test...";
-	
-	// Create parser object
-	int argc = 1;
-	char *argv[] = {(char*)"rwnmr", NULL};
 	ArgsParser *parser = new ArgsParser(argc, argv);
 
-	// Test args parse
-	if(parser->commands.size() != 2)
+	if(parser->commands.size() != _expectedCommands.size())
 	{
-		cout << endl << "Error: commands size is incorrect" << endl;
+		cout << endl << "Error(" << _msg << "): commands size is incorrect" << endl;
 		exit(1);
 	} 
 
-	if(parser->paths.size() != 2)
+	if(parser->paths.size() != _expectedPaths.size())
 	{
-		cout << endl << "Error: paths size is incorrect" << endl;
+		cout << endl << "Error(" << _msg << "): paths size is incorrect" << endl;
 		exit(1);
 	}
 
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct")
+	for(int idx = 0; idx < parser->commands.size(); idx++)
 	{
-		cout << endl << "Error: default commands are incorrect" << endl;
-		exit(1);
+		if(parser->commands[idx] != _expectedCommands[idx])
+		{
+			cout << endl << "Error(" << _msg << "): command(" << idx << ") is incorrect" << endl;
+			exit(1);		
+		}
 	}
 
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default")
+	for(int idx = 0; idx < parser->paths.size(); idx++)
 	{
-		cout << endl << "Error: default paths are incorrect" << endl;
-		exit(1);
-	}
-	cout << "Ok." << endl;
+		if(parser->paths[idx] != _expectedPaths[idx])
+		{
+			cout << endl << "Error(" << _msg << "): path(" << idx << ") is incorrect" << endl;
+			exit(1);		
+		}
+	} 
 
 	delete parser; parser = NULL;
 	return;
+}
+
+void ArgsParserTest::testNoArgs()
+{
+	cout << "executing no args test...";
+
+	// Create default args
+	int argc = 1;
+	char *argv[] = {(char*)"rwnmr", NULL};
+	vector<string> expectedCommands = {"rwnmr", "uct"};
+	vector<string> expectedPaths = {"default", "default"};
+	string message = "DEFAULT";
+	(*this).checkParser(argc, argv, expectedCommands, expectedPaths, message);
+
+	cout << "Ok." << endl; return;
 }
 
 void ArgsParserTest::testArgsCPMG()
@@ -56,91 +70,22 @@ void ArgsParserTest::testArgsCPMG()
 	cout << "executing cpmg args test...";
 
 	// Create default args
-	int argc = 2;
-	char *argv[] = {(char*)"rwnmr", (char*)"cpmg", NULL};
+	int argc1 = 2;
+	char *argv1[] = {(char*)"rwnmr", (char*)"cpmg", NULL};
+	vector<string> xCommands1 = {"rwnmr", "uct", "cpmg"};
+	vector<string> xPaths1 = {"default", "default", "default"};
+	string msg1 = "CPMG-DEFAULT";
+	(*this).checkParser(argc1, argv1, xCommands1, xPaths1, msg1);
 	
-	// Create parser object
-	ArgsParser *parser = new ArgsParser(argc, argv);
-
-	// Test args parse
-	if(parser->commands.size() != 3)
-	{
-		cout << endl << "Error: commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 3)
-	{
-		cout << endl << "Error: paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct" or parser->commands[2] != "cpmg")
-	{
-		cout << endl << "Error: default commands are incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default" or  parser->paths[2] != "default")
-	{
-		cout << endl << "Error: default paths are incorrect" << endl;
-		exit(1);
-	}
-
 	// Create complete args
-	argc = 8;
-	char *argv_complete[] = {(char*)"rwnmr", 
-							 (char*)"cpmg", 
-							 (char*)"-config", 
-							 (char*)"cpmg_path",
-							 (char*)"-rwconfig",
-							 (char*)"rw_path", 
-							 (char*)"-uctconfig",
-							 (char*)"uct_path", 
-							 NULL};
-	// Create parser object
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argv_complete);
-
-	// Test args parse
-	if(parser->commands.size() != 3)
-	{
-		cout << endl << "Error: complete commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 3)
-	{
-		cout << endl << "Error: complete paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct" or parser->commands[2] != "cpmg")
-	{
-		cout << endl << "Error: complete commands parse is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "rw_path")
-	{
-		cout << endl << "Error: rw path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[1] != "uct_path")
-	{
-		cout << endl << "Error: uct path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[2] != "cpmg_path")
-	{
-		cout << endl << "Error: cpmg path is incorrect" << endl;
-		exit(1);
-	}
+	int argc2 = 8;
+	char *argv2[] = {(char*)"rwnmr", (char*)"cpmg", (char*)"-config", (char*)"cpmg_path", (char*)"-rwconfig", (char*)"rw_path", (char*)"-uctconfig", (char*)"uct_path", NULL};
+	vector<string> xCommands2 = {"rwnmr", "uct", "cpmg"};
+	vector<string> xPaths2 = {"rw_path", "uct_path", "cpmg_path"};
+	string msg2 = "CPMG-COMPLETE";
+	(*this).checkParser(argc2, argv2, xCommands2, xPaths2, msg2);
+	
 	cout << "Ok." << endl;
-
-	delete parser; parser = NULL;
 	return;
 }
 
@@ -149,317 +94,89 @@ void ArgsParserTest::testArgsPFGSE()
 	cout << "executing pfgse args test...";
 
 	// Create default args
-	int argc = 2;
-	char *argv[] = {(char*)"rwnmr", (char*)"pfgse", NULL};
-	
-	// Create parser object
-	ArgsParser *parser = new ArgsParser(argc, argv);
+	int argc1 = 2;
+	char *argv1[] = {(char*)"rwnmr", (char*)"pfgse", NULL};
+	vector<string> xCommands1 = {"rwnmr", "uct", "pfgse"};
+	vector<string> xPaths1 = {"default", "default", "default"};
+	string msg1 = "PFGSE-DEFAULT";
+	(*this).checkParser(argc1, argv1, xCommands1, xPaths1, msg1);
 
-	// Test args parse
-	if(parser->commands.size() != 3)
-	{
-		cout << endl << "Error: commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 3)
-	{
-		cout << endl << "Error: paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct" or parser->commands[2] != "pfgse")
-	{
-		cout << endl << "Error: default commands are incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default" or  parser->paths[2] != "default")
-	{
-		cout << endl << "Error: default paths are incorrect" << endl;
-		exit(1);
-	}
-	
 	// Create complete args
-	argc = 8;
-	char *argv_complete[] = {(char*)"rwnmr", 
-							 (char*)"pfgse", 
-							 (char*)"-config", 
-							 (char*)"pfgse_path",
-							 (char*)"-rwconfig",
-							 (char*)"rw_path", 
-							 (char*)"-uctconfig",
-							 (char*)"uct_path", 
-							 NULL};
-	// Create parser object
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argv_complete);
-
-	// Test args parse
-	if(parser->commands.size() != 3)
-	{
-		cout << endl << "Error: complete commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 3)
-	{
-		cout << endl << "Error: complete paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct" or parser->commands[2] != "pfgse")
-	{
-		cout << endl << "Error: complete commands parse is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "rw_path")
-	{
-		cout << endl << "Error: rw path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[1] != "uct_path")
-	{
-		cout << endl << "Error: uct path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[2] != "pfgse_path")
-	{
-		cout << endl << "Error: pfgse path is incorrect" << endl;
-		exit(1);
-	}
+	int argc2 = 8;
+	char *argv2[] = {(char*)"rwnmr", (char*)"pfgse", (char*)"-config", (char*)"pfgse_path", (char*)"-rwconfig", (char*)"rw_path", (char*)"-uctconfig", (char*)"uct_path", NULL};
+	vector<string> xCommands2 = {"rwnmr", "uct", "pfgse"};
+	vector<string> xPaths2 = {"rw_path", "uct_path", "pfgse_path"};
+	string msg2 = "PFGSE-COMPLETE";
+	(*this).checkParser(argc2, argv2, xCommands2, xPaths2, msg2);
+	
 	cout << "Ok." << endl;
-
-	delete parser; parser = NULL;
 	return;
 }
 
 void ArgsParserTest::testArgsMultiTau()
 {
-	cout << "executing multitau args test";
-		// Create default args
-	int argc = 2;
-	char *argv[] = {(char*)"rwnmr", (char*)"multitau", NULL};
-	
-	// Create parser object
-	ArgsParser *parser = new ArgsParser(argc, argv);
+	cout << "executing multitau args test...";
 
-	// Test args parse
-	if(parser->commands.size() != 4)
-	{
-		cout << endl << "Error: commands size is incorrect" << endl;
-		exit(1);
-	} 
+	// Create default args
+	int argc1 = 2;
+	char *argv1[] = {(char*)"rwnmr", 
+					 (char*)"multitau", 
+					 NULL};
+	vector<string> xCommands1 = {"rwnmr", "uct", "multitau", "mtoff"};
+	vector<string> xPaths1 = {"default", "default", "default", "default"};
+	string msg1 = "MULTITAU-DEFAULT";
+	(*this).checkParser(argc1, argv1, xCommands1, xPaths1, msg1);
 
-	if(parser->paths.size() != 4)
-	{
-		cout << endl << "Error: paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct" or parser->commands[2] != "multitau" or parser->commands[3] != "mtoff")
-	{
-		cout << endl << "Error: default commands are incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default" or  parser->paths[2] != "default" or  parser->paths[3] != "default")
-	{
-		cout << endl << "Error: default paths are incorrect" << endl;
-		exit(1);
-	}
 
 	// Create MT1 args
-	argc = 8;
-	char *argvMT1[] = {(char*)"rwnmr", 
-					   (char*)"multitau", 
-					   (char*)"-mtconfig", 
-					   (char*)"mt_path",
-					   (char*)"-rwconfig",
-					   (char*)"rw_path", 
-					   (char*)"-uctconfig",
-					   (char*)"uct_path", 
-					   NULL};
-
-	// Create mt1args parser object
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argvMT1);
-
-	// Test mt1args args parse
-	if(parser->commands.size() != 4)
-	{
-		cout << endl << "Error: -mt1args commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 4)
-	{
-		cout << endl << "Error: -mt1args paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  
-	   parser->commands[1] != "uct" or 
-	   parser->commands[2] != "multitau" or 
-	   parser->commands[3] != "mtoff")
-	{
-		cout << endl << "Error: -mt1args commands parse is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "rw_path")
-	{
-		cout << endl << "Error: -mt1args rw path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[1] != "uct_path")
-	{
-		cout << endl << "Error: -mt1args uct path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[2] != "mt_path")
-	{
-		cout << endl << "Error: -mt1args multitau path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[3] != "default")
-	{
-		cout << endl << "Error: -mt1args cpmg path is incorrect" << endl;
-		exit(1);
-	}
-
+	int argc2 = 8;
+	char *argv2[] = {(char*)"rwnmr", 
+					 (char*)"multitau", 
+					 (char*)"-mtconfig", 
+					 (char*)"mt_path", 
+					 (char*)"-rwconfig", 
+					 (char*)"rw_path", 
+					 (char*)"-uctconfig", 
+					 (char*)"uct_path", 
+					 NULL};
+	vector<string> xCommands2 = {"rwnmr", "uct", "multitau", "mtoff"};
+	vector<string> xPaths2 = {"rw_path", "uct_path", "mt_path", "default"};
+	string msg2 = "MULTITAU-CP1";
+	(*this).checkParser(argc2, argv2, xCommands2, xPaths2, msg2);
+	
 	// Create MT2 args
-	argc = 8;
-	char *argvMT2[] = {(char*)"rwnmr", 
-					   (char*)"multitau", 
-					   (char*)"-cpmgconfig", 
-					   (char*)"cpmg_path",
-					   (char*)"-rwconfig",
-					   (char*)"rw_path", 
-					   (char*)"-uctconfig",
-					   (char*)"uct_path", 
-					   NULL};
-
-	// Create mt2args parser object
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argvMT2);
-
-	// Test mt2args args parse
-	if(parser->commands.size() != 4)
-	{
-		cout << endl << "Error: -mt2args commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 4)
-	{
-		cout << endl << "Error: -mt2args paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  
-	   parser->commands[1] != "uct" or 
-	   parser->commands[2] != "multitau" or 
-	   parser->commands[3] != "mtoff")
-	{
-		cout << endl << "Error: -mt2args commands parse is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "rw_path")
-	{
-		cout << endl << "Error: -mt2args rw path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[1] != "uct_path")
-	{
-		cout << endl << "Error: -mt2args uct path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[2] != "default")
-	{
-		cout << endl << "Error: -mt2args multitau path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[3] != "cpmg_path")
-	{
-		cout << endl << "Error: -mt2args cpmg path is incorrect" << endl;
-		exit(1);
-	}
+	int argc3 = 8;
+	char *argv3[] = {(char*)"rwnmr", 
+					 (char*)"multitau", 
+					 (char*)"-cpmgconfig", 
+					 (char*)"cpmg_path", 
+					 (char*)"-rwconfig", 
+					 (char*)"rw_path", 
+					 (char*)"-uctconfig", 
+					 (char*)"uct_path", NULL};
+	vector<string> xCommands3 = {"rwnmr", "uct", "multitau", "mtoff"};
+	vector<string> xPaths3 = {"rw_path", "uct_path", "default", "cpmg_path"};
+	string msg3 = "MULTITAU-CP2";
+	(*this).checkParser(argc3, argv3, xCommands3, xPaths3, msg3);
+	
 	
 	// Create MT3 args
-	argc = 9;
-	char *argvMT3[] = {(char*)"rwnmr", 
-					   (char*)"multitau", 
-					   (char*)"-config", 
-					   (char*)"mt_path", 
-					   (char*)"cpmg_path",
-					   (char*)"-rwconfig",
-					   (char*)"rw_path", 
-					   (char*)"-uctconfig",
-					   (char*)"uct_path", 
-					   NULL};
+	int argc4 = 9;
+	char *argv4[] = {(char*)"rwnmr", 
+					 (char*)"multitau", 
+					 (char*)"-config", 
+					 (char*)"mt_path", 
+					 (char*)"cpmg_path",
+					 (char*)"-rwconfig",
+					 (char*)"rw_path", 
+					 (char*)"-uctconfig",
+					 (char*)"uct_path", 
+					 NULL};
+	vector<string> xCommands4 = {"rwnmr", "uct", "multitau", "mtoff"};
+	vector<string> xPaths4 = {"rw_path", "uct_path", "mt_path", "cpmg_path"};
+	string msg4 = "MULTITAU-CP3";
+	(*this).checkParser(argc4, argv4, xCommands4, xPaths4, msg4);
 
-	// Create mt3args parser object
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argvMT3);
-
-	// Test mt3args args parse
-	if(parser->commands.size() != 4)
-	{
-		cout << endl << "Error: -mt3args commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 4)
-	{
-		cout << endl << "Error: -mt3args paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  
-	   parser->commands[1] != "uct" or 
-	   parser->commands[2] != "multitau" or 
-	   parser->commands[3] != "mtoff")
-	{
-		cout << endl << "Error: -mt3args commands parse is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "rw_path")
-	{
-		cout << endl << "Error: -mt3args rw path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[1] != "uct_path")
-	{
-		cout << endl << "Error: -mt3args uct path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[2] != "mt_path")
-	{
-		cout << endl << "Error: -mt3args multitau path is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[3] != "cpmg_path")
-	{
-		cout << endl << "Error: -mt3args cpmg path is incorrect" << endl;
-		exit(1);
-	}
-
-	delete parser; parser = NULL;
 	cout << "Ok." << endl;
 	return;
 }
@@ -470,35 +187,19 @@ void ArgsParserTest::testUnknownArgs()
 	// Create parser object
 	int argc = 2;
 	char *argv[] = {(char*)"rwnmr", (char*)"unknown", NULL};
-	ArgsParser *parser = new ArgsParser(argc, argv);
+	vector<string> xCommands = {"rwnmr", "uct"};
+	vector<string> xPaths = {"default", "default"};
+	string msg = "UNKONWN-ARGS1";
+	(*this).checkParser(argc, argv, xCommands, xPaths, msg);
 
-	// Test args parse
-	if(parser->commands.size() != 2)
-	{
-		cout << endl << "Error: commands size is incorrect" << endl;
-		exit(1);
-	} 
+	// Create parser object with known cmd and unknown cmd
+	int argc2 = 3;
+	char *argv2[] = {(char*)"rwnmr", (char*)"unknown", (char*)"cpmg", NULL};
+	vector<string> xCommands2 = {"rwnmr", "uct", "cpmg"};
+	vector<string> xPaths2 = {"default", "default", "default"};
+	string msg2 = "UNKONWN-ARGS2";
+	(*this).checkParser(argc2, argv2, xCommands2, xPaths2, msg2);
 
-	if(parser->paths.size() != 2)
-	{
-		cout << endl << "Error: paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct")
-	{
-		cout << endl << "Error: default commands are incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default")
-	{
-		cout << endl << "Error: default paths are incorrect" << endl;
-		exit(1);
-	}
-
-	
-	delete parser; parser = NULL;
 	cout << "Ok." << endl;
 	return;
 }
@@ -508,221 +209,148 @@ void ArgsParserTest::testMissingArgs()
 	cout << "executing missing args test...";
 
 	// Create missing rwconfig parser object
-	int argc = 2;
-	char *argv[] = {(char*)"rwnmr", (char*)"-rwconfig", NULL};
-	ArgsParser *parser = new ArgsParser(argc, argv);
+	int argc1 = 2;
+	char *argv1[] = {(char*)"rwnmr", (char*)"-rwconfig", NULL};
+	vector<string> xCommands1 = {"rwnmr", "uct"};
+	vector<string> xPaths1 = {"default", "default"};
+	string msg1 = "MISSING-ARGS1";
+	(*this).checkParser(argc1, argv1, xCommands1, xPaths1, msg1);
 
-	// Test args parse
-	if(parser->commands.size() != 2)
-	{
-		cout << endl << "Error: missing -rwconfig commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 2)
-	{
-		cout << endl << "Error: missing -rwconfig paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct")
-	{
-		cout << endl << "Error: missing -rwconfig default commands are incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default")
-	{
-		cout << endl << "Error: missing -rwconfig default paths are incorrect" << endl;
-		exit(1);
-	}
 
 	// Create missing uctconfig parser object
+	int argc2 = 2;
 	char *argv2[] = {(char*)"rwnmr", (char*)"-uctconfig", NULL};
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argv2);
-
-	// Test args parse
-	if(parser->commands.size() != 2)
-	{
-		cout << endl << "Error: missing -uctconfig commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 2)
-	{
-		cout << endl << "Error: missing -uctconfig paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct")
-	{
-		cout << endl << "Error: missing -uctconfig default commands are incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default")
-	{
-		cout << endl << "Error: missing -uctconfig default paths are incorrect" << endl;
-		exit(1);
-	}
+	vector<string> xCommands2 = {"rwnmr", "uct"};
+	vector<string> xPaths2 = {"default", "default"};
+	string msg2 = "MISSING-ARGS2";
+	(*this).checkParser(argc2, argv2, xCommands2, xPaths2, msg2);
 
 	// Create missing cpmgconfig parser object
-	argc = 3;
-	char *argvCPMG[] = {(char*)"rwnmr", (char*)"cpmg", (char*)"-config", NULL};
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argvCPMG);
-
-	// Test args parse
-	if(parser->commands.size() != 3)
-	{
-		cout << endl << "Error: missing -cpmgconfig commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 3)
-	{
-		cout << endl << "Error: missing -cpmgconfig paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct" or  parser->commands[2] != "cpmg")
-	{
-		cout << endl << "Error: missing -cpmgconfig default commands are incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default" or  parser->paths[2] != "default")
-	{
-		cout << endl << "Error: missing -cpmgconfig default paths are incorrect" << endl;
-		exit(1);
-	}
+	int argc3 = 3;
+	char *argv3[] = {(char*)"rwnmr", (char*)"cpmg", (char*)"-config", NULL};
+	vector<string> xCommands3 = {"rwnmr", "uct", "cpmg"};
+	vector<string> xPaths3 = {"default", "default", "default"};
+	string msg3 = "MISSING-ARGS3";
+	(*this).checkParser(argc3, argv3, xCommands3, xPaths3, msg3);
 	
 	// Create missing pfgseconfig parser object
-	char *argvPFGSE[] = {(char*)"rwnmr", (char*)"pfgse", (char*)"-config", NULL};
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argvPFGSE);
-
-	// Test args parse
-	if(parser->commands.size() != 3)
-	{
-		cout << endl << "Error: missing -pfgseconfig commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 3)
-	{
-		cout << endl << "Error: missing -pfgseconfig paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct" or  parser->commands[2] != "pfgse")
-	{
-		cout << endl << "Error: missing -pfgseconfig default commands are incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default" or  parser->paths[2] != "default")
-	{
-		cout << endl << "Error: missing -pfgseconfig default paths are incorrect" << endl;
-		exit(1);
-	}
+	int argc4 = 3;
+	char *argv4[] = {(char*)"rwnmr", (char*)"pfgse", (char*)"-config", NULL};
+	vector<string> xCommands4 = {"rwnmr", "uct", "pfgse"};
+	vector<string> xPaths4 = {"default", "default", "default"};
+	string msg4 = "MISSING-ARGS4";
+	(*this).checkParser(argc4, argv4, xCommands4, xPaths4, msg4);
 
 	// Create missing multitauconfig parser object
-	char *argvMT1[] = {(char*)"rwnmr", (char*)"multitau", (char*)"-config", NULL};
-	char *argvMT2[] = {(char*)"rwnmr", (char*)"multitau", (char*)"-mtconfig", NULL};
-	char *argvMT3[] = {(char*)"rwnmr", (char*)"multitau", (char*)"-cpmgconfig", NULL};
-	
-	// Test MT1 argv
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argvMT1);
-	// Test args parse
-	if(parser->commands.size() != 4)
-	{
-		cout << endl << "Error: missing -mt1config commands size is incorrect" << endl;
-		exit(1);
-	} 
+	int argc5 = 3;
+	char *argv5[] = {(char*)"rwnmr", (char*)"multitau", (char*)"-config", NULL};
+	vector<string> xCommands5 = {"rwnmr", "uct", "multitau", "mtoff"};
+	vector<string> xPaths5 = {"default", "default", "default", "default"};
+	string msg5 = "MISSING-ARGS5";
+	(*this).checkParser(argc5, argv5, xCommands5, xPaths5, msg5);
 
-	if(parser->paths.size() != 4)
-	{
-		cout << endl << "Error: missing -mt1config paths size is incorrect" << endl;
-		exit(1);
-	}
+	int argc6 = 3;
+	char *argv6[] = {(char*)"rwnmr", (char*)"multitau", (char*)"-mtconfig", NULL};
+	vector<string> xCommands6 = {"rwnmr", "uct", "multitau", "mtoff"};
+	vector<string> xPaths6 = {"default", "default", "default", "default"};
+	string msg6 = "MISSING-ARGS6";
+	(*this).checkParser(argc6, argv6, xCommands6, xPaths6, msg6);
 
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct" or  parser->commands[2] != "multitau" or  parser->commands[3] != "mtoff")
-	{
-		cout << endl << "Error: missing -mt1config default commands are incorrect" << endl;
-		exit(1);
-	}
+	int argc7 = 3;
+	char *argv7[] = {(char*)"rwnmr", (char*)"multitau", (char*)"-cpmgconfig", NULL};
+	vector<string> xCommands7 = {"rwnmr", "uct", "multitau", "mtoff"};
+	vector<string> xPaths7 = {"default", "default", "default", "default"};
+	string msg7 = "MISSING-ARGS7";
+	(*this).checkParser(argc7, argv7, xCommands7, xPaths7, msg7);
 
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default" or  parser->paths[2] != "default" or  parser->paths[3] != "default")
-	{
-		cout << endl << "Error: missing -mt1config default paths are incorrect" << endl;
-		exit(1);
-	}
-
-	// Test MT3 argv
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argvMT2);
-	// Test args parse
-	if(parser->commands.size() != 4)
-	{
-		cout << endl << "Error: missing -mt2config commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 4)
-	{
-		cout << endl << "Error: missing -mt2config paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct" or  parser->commands[2] != "multitau" or  parser->commands[3] != "mtoff")
-	{
-		cout << endl << "Error: missing -mt2config default commands are incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default" or  parser->paths[2] != "default" or  parser->paths[3] != "default")
-	{
-		cout << endl << "Error: missing -mt2config default paths are incorrect" << endl;
-		exit(1);
-	}
-
-	// Test MT3 argv
-	delete parser; parser = NULL;
-	parser = new ArgsParser(argc, argvMT3);
-	// Test args parse
-	if(parser->commands.size() != 4)
-	{
-		cout << endl << "Error: missing -mt3config commands size is incorrect" << endl;
-		exit(1);
-	} 
-
-	if(parser->paths.size() != 4)
-	{
-		cout << endl << "Error: missing -mt3config paths size is incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->commands[0] != "rwnmr" or  parser->commands[1] != "uct" or  parser->commands[2] != "multitau" or  parser->commands[3] != "mtoff")
-	{
-		cout << endl << "Error: missing -mt3config default commands are incorrect" << endl;
-		exit(1);
-	}
-
-	if(parser->paths[0] != "default" or  parser->paths[1] != "default" or  parser->paths[2] != "default" or  parser->paths[3] != "default")
-	{
-		cout << endl << "Error: missing -mt3config default paths are incorrect" << endl;
-		exit(1);
-	}
-
-	delete parser; parser = NULL;
 	cout << "Ok." << endl;
 	return;
 }
 
 void ArgsParserTest::testAllKnownArgs()
 {
-	cout << "executing all args test" << endl;
+	cout << "executing all args test...";
+
+	/*
+		Test all methods
+	*/
+	int argc1 = 4;
+	char *argv1[] = {(char*)"rwnmr", (char*)"cpmg", (char*)"pfgse", (char*)"multitau", NULL};
+	vector<string> xCommands1 = {"rwnmr", "uct", "cpmg", "pfgse", "multitau", "mtoff"};
+	vector<string> xPaths1 = {"default", "default", "default", "default", "default", "default"};
+	string msg1 = "ALLARGS-1";
+	(*this).checkParser(argc1, argv1, xCommands1, xPaths1, msg1);
+
+	/*
+		Test all methods, multitau in the middle
+	*/
+	int argc2 = 4;
+	char *argv2[] = {(char*)"rwnmr", (char*)"multitau", (char*)"cpmg", (char*)"pfgse", NULL};
+	vector<string> xCommands2 = {"rwnmr", "uct", "multitau", "mtoff", "cpmg", "pfgse"};
+	vector<string> xPaths2 = {"default", "default", "default", "default", "default", "default"};
+	string msg2 = "ALLARGS-2";
+	(*this).checkParser(argc2, argv2, xCommands2, xPaths2, msg2);
+
+	/*
+		Test all methods + paths
+	*/
+	int argc3 = 15;
+	char *argv3[] = {(char*)"rwnmr", 
+					 (char*)"-rwconfig", (char*)"rw_path", 
+					 (char*)"-uctconfig", (char*)"uct_path", 
+					 (char*)"cpmg", (char*)"-config", (char*)"cpmg_path",
+					 (char*)"pfgse", (char*)"-config", (char*)"pfgse_path",
+					 (char*)"multitau", (char*)"-config", (char*)"mt_path", (char*)"mt_cpmg_path", NULL};
+	vector<string> xCommands3 = {"rwnmr", "uct", "cpmg", "pfgse", "multitau", "mtoff"};
+	vector<string> xPaths3 = {"rw_path", "uct_path", "cpmg_path", "pfgse_path", "mt_path", "mt_cpmg_path"};
+	string msg3 = "ALLARGS-3";
+	(*this).checkParser(argc3, argv3, xCommands3, xPaths3, msg3);
+
+	/*
+		Test all methods + paths (multitau in the middle)
+	*/
+	int argc4 = 15;
+	char *argv4[] = {(char*)"rwnmr", 
+					 (char*)"-rwconfig", (char*)"rw_path", 
+					 (char*)"-uctconfig", (char*)"uct_path", 
+					 (char*)"cpmg", (char*)"-config", (char*)"cpmg_path",
+					 (char*)"multitau", (char*)"-config", (char*)"mt_path", (char*)"mt_cpmg_path",
+					 (char*)"pfgse", (char*)"-config", (char*)"pfgse_path", NULL};
+	vector<string> xCommands4 = {"rwnmr", "uct", "cpmg", "multitau", "mtoff", "pfgse"};
+	vector<string> xPaths4 = {"rw_path", "uct_path", "cpmg_path", "mt_path", "mt_cpmg_path", "pfgse_path"};
+	string msg4 = "ALLARGS-4";
+	(*this).checkParser(argc4, argv4, xCommands4, xPaths4, msg4);
+
+	/*
+		Test all methods + paths (multitau in the middle)
+	*/
+	int argc5 = 14;
+	char *argv5[] = {(char*)"rwnmr", 
+					 (char*)"-rwconfig", (char*)"rw_path", 
+					 (char*)"-uctconfig", (char*)"uct_path", 
+					 (char*)"multitau", (char*)"-cpmgconfig", (char*)"mt_cpmg_path",
+					 (char*)"cpmg", (char*)"-config", (char*)"cpmg_path",
+					 (char*)"pfgse", (char*)"-config", (char*)"pfgse_path", NULL};
+	vector<string> xCommands5 = {"rwnmr", "uct", "multitau", "mtoff", "cpmg", "pfgse"};
+	vector<string> xPaths5 = {"rw_path", "uct_path", "default", "mt_cpmg_path", "cpmg_path", "pfgse_path"};
+	string msg5 = "ALLARGS-5";
+	(*this).checkParser(argc5, argv5, xCommands5, xPaths5, msg5);
+
+	/*
+		Test all methods + paths (multitau in the middle)
+	*/
+	int argc6 = 14;
+	char *argv6[] = {(char*)"rwnmr", 
+					 (char*)"-rwconfig", (char*)"rw_path", 
+					 (char*)"-uctconfig", (char*)"uct_path", 
+					 (char*)"cpmg", (char*)"-config", (char*)"cpmg_path",
+					 (char*)"multitau", (char*)"-mtconfig", (char*)"mt_path",
+					 (char*)"pfgse", (char*)"-config", (char*)"pfgse_path", NULL};
+	vector<string> xCommands6 = {"rwnmr", "uct", "cpmg", "multitau", "mtoff", "pfgse"};
+	vector<string> xPaths6 = {"rw_path", "uct_path", "cpmg_path", "mt_path", "default", "pfgse_path"};
+	string msg6 = "ALLARGS-6";
+	(*this).checkParser(argc6, argv6, xCommands6, xPaths6, msg6);
+
+	cout << "Ok." << endl;
+	return;
 }

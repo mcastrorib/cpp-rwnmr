@@ -29,6 +29,7 @@ public:
 	void run();
 
 private:
+	void checkParser(int _argc, char *_argv[], vector<string> _expectedCommands, vector<string> _expectedPaths, string _msg);
 	void testNoArgs();
 	void testArgsCPMG();
 	void testArgsPFGSE();
