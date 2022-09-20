@@ -2,7 +2,9 @@
 find_package(CUDAToolkit)
 
 # Add library to main program
-add_library(NMR_Simulation 
+add_library(NMR_Simulation
+      Walker.cpp
+      BitBlock.cpp
 			NMR_Simulation.cpp 
 			NMR_Simulation_cuda.cpp 
 			CollisionHistogram.cpp 
@@ -77,6 +79,9 @@ target_link_libraries(NMR_Simulation PRIVATE CUDA::cudart)
 # Install lib in project tree
 install(TARGETS NMR_Simulation DESTINATION lib)
 install(FILES 
+    Point3D.h
+    Walker.h 
+    BitBlock.h
 		CollisionHistogram.h
 		ChordLengthHistogram.h
 		InternalField.h
@@ -87,4 +92,5 @@ install(FILES
 		NMR_pfgse.h
 		NMR_pfgse_cuda.h
 		NMR_multitau.h
+    Walker_defs.h
 		NMR_defs.h DESTINATION include)

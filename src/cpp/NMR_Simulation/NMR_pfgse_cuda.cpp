@@ -22,9 +22,9 @@
 #include "../Utils/myAllocator.h"
 
 //include
+#include "../Math/RNG/xorshift.h"
 #include "NMR_defs.h"
-#include "../Walker/walker.h"
-#include "../RNG/xorshift.h"
+#include "Walker.h"
 #include "NMR_Simulation.h"
 #include "NMR_pfgse.h"
 #include "NMR_pfgse_cuda.h"
@@ -726,9 +726,9 @@ void NMR_PFGSE::simulation_cuda()
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    h_walker_x0[id] = this->NMR.walkers[id + packOffset].initialPosition.x;
-                    h_walker_y0[id] = this->NMR.walkers[id + packOffset].initialPosition.y;
-                    h_walker_z0[id] = this->NMR.walkers[id + packOffset].initialPosition.z;
+                    h_walker_x0[id] = this->NMR.walkers[id + packOffset].initialPosition.getX();
+                    h_walker_y0[id] = this->NMR.walkers[id + packOffset].initialPosition.getY();
+                    h_walker_z0[id] = this->NMR.walkers[id + packOffset].initialPosition.getZ();
                     h_walker_px[id] = this->NMR.walkers[id + packOffset].position_x;
                     h_walker_py[id] = this->NMR.walkers[id + packOffset].position_y;
                     h_walker_pz[id] = this->NMR.walkers[id + packOffset].position_z;
@@ -743,9 +743,9 @@ void NMR_PFGSE::simulation_cuda()
         {
             for (uint id = 0; id < walkersPerKernel; id++)
             {
-                h_walker_x0[id] = this->NMR.walkers[id + packOffset].initialPosition.x;
-                h_walker_y0[id] = this->NMR.walkers[id + packOffset].initialPosition.y;
-                h_walker_z0[id] = this->NMR.walkers[id + packOffset].initialPosition.z;
+                h_walker_x0[id] = this->NMR.walkers[id + packOffset].initialPosition.getX();
+                h_walker_y0[id] = this->NMR.walkers[id + packOffset].initialPosition.getY();
+                h_walker_z0[id] = this->NMR.walkers[id + packOffset].initialPosition.getZ();
                 h_walker_px[id] = this->NMR.walkers[id + packOffset].position_x;
                 h_walker_py[id] = this->NMR.walkers[id + packOffset].position_y;
                 h_walker_pz[id] = this->NMR.walkers[id + packOffset].position_z;
@@ -1002,9 +1002,9 @@ void NMR_PFGSE::simulation_cuda()
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    h_walker_x0[id] = this->NMR.walkers[id + packOffset].initialPosition.x;
-                    h_walker_y0[id] = this->NMR.walkers[id + packOffset].initialPosition.y;
-                    h_walker_z0[id] = this->NMR.walkers[id + packOffset].initialPosition.z;
+                    h_walker_x0[id] = this->NMR.walkers[id + packOffset].initialPosition.getX();
+                    h_walker_y0[id] = this->NMR.walkers[id + packOffset].initialPosition.getY();
+                    h_walker_z0[id] = this->NMR.walkers[id + packOffset].initialPosition.getZ();
                     h_walker_px[id] = this->NMR.walkers[id + packOffset].position_x;
                     h_walker_py[id] = this->NMR.walkers[id + packOffset].position_y;
                     h_walker_pz[id] = this->NMR.walkers[id + packOffset].position_z;
@@ -1019,9 +1019,9 @@ void NMR_PFGSE::simulation_cuda()
         {
             for (uint id = 0; id < lastWalkerPackSize; id++)
             {
-                h_walker_x0[id] = this->NMR.walkers[id + packOffset].initialPosition.x;
-                h_walker_y0[id] = this->NMR.walkers[id + packOffset].initialPosition.y;
-                h_walker_z0[id] = this->NMR.walkers[id + packOffset].initialPosition.z;
+                h_walker_x0[id] = this->NMR.walkers[id + packOffset].initialPosition.getX();
+                h_walker_y0[id] = this->NMR.walkers[id + packOffset].initialPosition.getY();
+                h_walker_z0[id] = this->NMR.walkers[id + packOffset].initialPosition.getZ();
                 h_walker_px[id] = this->NMR.walkers[id + packOffset].position_x;
                 h_walker_py[id] = this->NMR.walkers[id + packOffset].position_y;
                 h_walker_pz[id] = this->NMR.walkers[id + packOffset].position_z;
@@ -1537,9 +1537,9 @@ void NMR_PFGSE::computeMktSmallPopulation(double **Mkt_samples, bool time_verbos
         uint bufferOffset = sample * (trueWalkersPerSample + fakeWalkersPerSample);
         for(int idx = 0; idx < trueWalkersPerSample; idx++)
         {
-            h_walker_x0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.x;
-            h_walker_y0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.y;
-            h_walker_z0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.z;
+            h_walker_x0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.getX();
+            h_walker_y0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.getY();
+            h_walker_z0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.getZ();
             h_walker_xF[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].position_x;
             h_walker_yF[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].position_y;
             h_walker_zF[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].position_z;
@@ -1827,9 +1827,9 @@ void NMR_PFGSE::computeMktSmallPopulation2(double **Mkt_samples, bool time_verbo
         uint bufferOffset = sample * (trueWalkersPerSample + fakeWalkersPerSample);
         for(int idx = 0; idx < trueWalkersPerSample; idx++)
         {
-            h_walker_x0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.x;
-            h_walker_y0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.y;
-            h_walker_z0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.z;
+            h_walker_x0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.getX();
+            h_walker_y0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.getY();
+            h_walker_z0[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].initialPosition.getZ();
             h_walker_xF[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].position_x;
             h_walker_yF[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].position_y;
             h_walker_zF[bufferOffset + idx] = this->NMR.walkers[nativeOffset + idx].position_z;
@@ -2164,9 +2164,9 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < trueWalkersPerSample; idx++)
             {
                 int finalWalkerIndex = kernelWalkerOffset + nativeOffset + idx;
-                h_walker_x0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.x;
-                h_walker_y0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.y;
-                h_walker_z0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.z;
+                h_walker_x0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getX();
+                h_walker_y0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getY();
+                h_walker_z0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getZ();
                 h_walker_xF[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].position_x;
                 h_walker_yF[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].position_y;
                 h_walker_zF[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].position_z;
@@ -2299,9 +2299,9 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < trueWalkersPerSample; idx++)
             {
                 int finalWalkerIndex = kernelWalkerOffset + nativeOffset + idx;
-                h_walker_x0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.x;
-                h_walker_y0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.y;
-                h_walker_z0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.z;
+                h_walker_x0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getX();
+                h_walker_y0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getY();
+                h_walker_z0[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getZ();
                 h_walker_xF[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].position_x;
                 h_walker_yF[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].position_y;
                 h_walker_zF[bufferOffset + idx] = this->NMR.walkers[finalWalkerIndex].position_z;
@@ -2620,9 +2620,9 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < walkersPerKernel; idx++)
             {
                 int finalWalkerIndex = sampleWalkerOffset + kernelWalkerOffset + idx;
-                h_walker_x0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.x;
-                h_walker_y0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.y;
-                h_walker_z0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.z;
+                h_walker_x0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getX();
+                h_walker_y0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getY();
+                h_walker_z0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getZ();
                 h_walker_xF[idx] = this->NMR.walkers[finalWalkerIndex].position_x;
                 h_walker_yF[idx] = this->NMR.walkers[finalWalkerIndex].position_y;
                 h_walker_zF[idx] = this->NMR.walkers[finalWalkerIndex].position_z;
@@ -2745,9 +2745,9 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < trueWalkersInLastKernel; idx++)
             {
                 int finalWalkerIndex = sampleWalkerOffset + kernelWalkerOffset + idx;
-                h_walker_x0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.x;
-                h_walker_y0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.y;
-                h_walker_z0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.z;
+                h_walker_x0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getX();
+                h_walker_y0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getY();
+                h_walker_z0[idx] = this->NMR.walkers[finalWalkerIndex].initialPosition.getZ();
                 h_walker_xF[idx] = this->NMR.walkers[finalWalkerIndex].position_x;
                 h_walker_yF[idx] = this->NMR.walkers[finalWalkerIndex].position_y;
                 h_walker_zF[idx] = this->NMR.walkers[finalWalkerIndex].position_z;

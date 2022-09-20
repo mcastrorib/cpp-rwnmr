@@ -24,6 +24,6 @@ typedef enum Direction
 
 #define LOG_XIRATE false
 #define WALKER_INITIAL_ENERGY 1.0
-#define WALKER_DEFAULT_RHO 20.0
+#define WALKER_DEFAULT_RHO 1.0
 
 #endif

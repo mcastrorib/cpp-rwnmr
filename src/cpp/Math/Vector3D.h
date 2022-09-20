@@ -11,13 +11,10 @@ using namespace std;
 
 class Vector3D
 {
-public:
-    // pore position
+private:
     double x;
     double y;
     double z;
-
-private:
     double _norm;
 
 public:

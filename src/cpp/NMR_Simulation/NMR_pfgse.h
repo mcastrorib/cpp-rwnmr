@@ -10,7 +10,7 @@
 
 #include "NMR_defs.h"
 #include "NMR_Simulation.h"
-#include "../Walker/walker.h"
+#include "Walker.h"
 #include "../Math/Vector3D.h"
 
 

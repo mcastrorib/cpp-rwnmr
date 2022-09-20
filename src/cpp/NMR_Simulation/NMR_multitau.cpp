@@ -10,12 +10,12 @@
 #include <omp.h>
 
 //include
+#include "../Utils/BaseFunctions.h"
 #include "NMR_defs.h"
 #include "NMR_Simulation.h"
 #include "NMR_multitau.h"
 #include "NMR_cpmg.h"
-#include "../Walker/walker.h"
-#include "../Utils/fileHandler.h"
+#include "Walker.h"
 
 using namespace std;
 
@@ -70,7 +70,7 @@ void NMR_multitau::setName()
 void NMR_multitau::createDirectoryForData()
 {
 	string path = this->NMR.getDBPath();
-    createDirectory(path, this->NMR.simulationName + "/" + this->name);
+    BaseFunctions::createDirectory(path, this->NMR.simulationName + "/" + this->name);
     this->dir = (path + this->NMR.simulationName + "/" + this->name);
 }
 

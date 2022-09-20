@@ -8,40 +8,55 @@ using namespace std;
 
 class LeastSquareAdjust
 {
-public:
-    vector<double> &X;
-    vector<double> &Y;
-    bool intercept;
-    bool verbose;
-    
+public:    
     LeastSquareAdjust(vector<double> &_x, vector<double> &_y, bool _intercept = true);
     virtual ~LeastSquareAdjust(){}
+    void solve();
 
     void setX(vector<double> &_x);
     void setY(vector<double> &_y);
-    void setThreshold(double _threshold);
-    void setPoints(int _points);
-    void setLimits();
+    void setIntercept(bool _intercept){ this->intercept = _intercept; }
     void setVerbose(bool _verbose) { this->verbose = _verbose; }
+    void setPoints(int _points);
+    void setThreshold(double _threshold);
+    void setLimits();
+
     bool isVerbose() { return this->verbose; }
 
-    void solve();    
-
+    vector<double> &getX(){ return this->X; }
+    vector<double> &getY(){ return this->Y; }
+    bool getIntercept(){ return this->intercept; }
+    bool getVerbose(){ return this->verbose; }
     double getMeanX(){ return this->meanX; }
     double getMeanY(){ return this->meanY; }
     double getA();
     double getB();
-    double getMSE();
-    double getSMSE();
+    double getResidual(){ return this->residual; }
+    bool getSolved(){ return this->solved; }
+    int getBegin(){ return this->begin; }
+    int getEnd(){ return this->end; }
+    int getPoints(){ return this->points; }
+    double getThreshold(){ return this->threshold; }
+
     bool isSolved() { return this->solved; }
     bool hasIntercept() { return this->intercept; }
+    double getMSE();
+    double getSMSE();
 
-private:
-    double meanX, meanY;
-    double A, B, residual;
+private:    
+    vector<double> &X;
+    vector<double> &Y;
+    bool intercept;
+    bool verbose;
+    double meanX;
+    double meanY;
+    double A;
+    double B;
+    double residual;
     bool solved;
 
-    int begin, end;
+    int begin;
+    int end;
     int points;
     double threshold;
 
@@ -52,6 +67,9 @@ private:
     void computeA();
     void computeAWithIntercept();
     void computeAWithoutIntercept();
+    void setA(double _a){ this->A = _a; }
+    void setB(double _b){ this->B = _b; }
+    void setResidual(double _res){ this->residual = _res; }
     void setSolved(bool isSolved);
     void computeMeanSquaredResiduals(); 
     double evaluate(double point);

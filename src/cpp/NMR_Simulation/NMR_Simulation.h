@@ -19,12 +19,13 @@
 // include configuration file classes
 #include "../ConfigFiles/rwnmr_config.h"
 #include "../ConfigFiles/uct_config.h"
+#include "../Utils/ImagePath.h"
 
 #include "NMR_defs.h"
 #include "CollisionHistogram.h"
-#include "../Utils/ImagePath.h"
-#include "../BitBlock/bitBlock.h"
-#include "../Walker/walker.h"
+#include "BitBlock.h"
+#include "Point3D.h"
+#include "Walker.h"
 
 using namespace std;
 using namespace cv;
@@ -60,7 +61,7 @@ public:
     uint walkerSamples;
 
     // vector objects
-    vector<Pore> pores;
+    vector<Point3D> pores;
     vector<uint> walkersIDList;
     vector<Walker> walkers;
 
@@ -273,7 +274,7 @@ public:
     void save(string _otherDir);
 
     uint pickRandomIndex(uint _minValue, uint _maxValue);
-    Pore removeRandomPore(vector<Pore> &_pores, uint _randomIndex);
+    Point3D removeRandomPore(vector<Point3D> &_pores, uint _randomIndex);
 
     void printDetails();
     void info();
@@ -296,7 +297,7 @@ public:
     inline double getWalkerOccupancy() { return this->walkerOccupancy; }
     inline uint getNumberOfWalkers() { return this->numberOfWalkers; }
     inline uint getWalkerSamples() { return this->walkerSamples; }
-    inline vector<Pore> getPores() { return this->pores; }
+    inline vector<Point3D> getPores() { return this->pores; }
     inline vector<Walker> getWalkers() { return this->walkers; }
 
     // physical attributes

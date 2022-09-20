@@ -14,24 +14,14 @@
 #include <random>
 
 //include
-#include "walker.h"
-#include "../BitBlock/bitBlock.h"
-#include "../RNG/xorshift.h"
-#include "../NMR_Simulation/NMR_Simulation.h"
+#include "../Math/RNG/xorshift.h"
+#include "Point3D.h"
+#include "Walker.h"
+#include "BitBlock.h"
 
 using namespace std;
 using namespace cv;
 
-// Class Point3D
-// Class methods
-Point3D::Point3D() : x(0), y(0), z(0) {}
-Point3D::Point3D(int _x, int _y, int _z) : x(_x), y(_y), z(_z) {}
-
-// Class Pore3D
-// Class methods
-
-// Class Walker3D
-// Class methods
 
 // default constructors
 Walker::Walker() : position_x(0),
@@ -47,9 +37,9 @@ Walker::Walker() : position_x(0),
                    initialSeed(0),
                    currentSeed(0)
 {
-    initialPosition.x = position_x;
-    initialPosition.y = position_y;
-    initialPosition.z = position_z;
+    initialPosition.setX(position_x);
+    initialPosition.setY(position_y);
+    initialPosition.setZ(position_z);
 
     // Define methods 'map' and 'walk' according to problem's dimension
     associateMap(true);
@@ -70,9 +60,9 @@ Walker::Walker(bool _3rdDim) : position_x(0),
                                initialSeed(0),
                                currentSeed(0)
 {
-    initialPosition.x = position_x;
-    initialPosition.y = position_y;
-    initialPosition.z = position_z;
+    initialPosition.setX(position_x);
+    initialPosition.setY(position_y);
+    initialPosition.setZ(position_z);
 
     // Define methods 'map' and 'walk' according to walker dimensionality
     (*this).associateMap(_3rdDim);
@@ -92,9 +82,9 @@ Walker::Walker(int _x, int _y, int _z, bool _3rdDim) : position_x(_x),
                                                        initialSeed(0),
                                                        currentSeed(0)
 {
-    initialPosition.x = position_x;
-    initialPosition.y = position_y;
-    initialPosition.z = position_z;
+    initialPosition.setX(position_x);
+    initialPosition.setY(position_y);
+    initialPosition.setZ(position_z);
 
     // Define methods 'map' and 'walk' according to walker's dimensionality
     (*this).associateMap(_3rdDim);

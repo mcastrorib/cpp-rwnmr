@@ -12,7 +12,7 @@
 //include
 #include "CollisionHistogram.h"
 #include "NMR_Simulation.h"
-#include "../Walker/walker.h"
+#include "Walker.h"
 
 
 using namespace std;

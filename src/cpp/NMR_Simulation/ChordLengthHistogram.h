@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include "NMR_defs.h"
-#include "../BitBlock/bitBlock.h"
+#include "BitBlock.h"
 
 using namespace std;
 

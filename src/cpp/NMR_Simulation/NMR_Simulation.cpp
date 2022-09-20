@@ -22,19 +22,20 @@
 #include "../ConfigFiles/uct_config.h"
 
 //include
-#include "../Walker/walker.h"
-#include "../RNG/myRNG.h"
-#include "../BitBlock/bitBlock.h"
-#include "../RNG/xorshift.h"
-#include "../Utils/fileHandler.h"
-#include "../Laplace/tikhonov.h"
-#include "../Laplace/include/nmrinv_core.h"
-#include "NMR_Simulation.h"
-#include "ChordLengthHistogram.h"
+#include "../Math/RNG/mRNG.h"
+#include "../Math/RNG/xorshift.h"
+#include "../Math/RNG/randomIndex.h"
+#include "../Utils/BaseFunctions.h"
+#include "../Math/Laplace/tikhonov.h"
+#include "../Math/Laplace/include/nmrinv_core.h"
 #include "../Utils/OMPLoopEnabler.h"
 #include "../Utils/ImagePath.h"
 #include "../Utils/ProgressBar.h"
-#include "../RNG/randomIndex.h"
+#include "NMR_Simulation.h"
+#include "ChordLengthHistogram.h"
+#include "Point3D.h"
+#include "Walker.h"
+#include "BitBlock.h"
 
 using namespace cv;
 using namespace std;
@@ -62,7 +63,7 @@ NMR_Simulation::NMR_Simulation(rwnmr_config _rwNMR_config,
 {
     // init vector objects
     vector<Mat> binaryMap();
-    vector<Pore> pores();
+    vector<Point3D> pores();
     vector<uint> walkersIDList();
     vector<Walker> walkers();
     vector<double> T2_bins();
@@ -85,7 +86,7 @@ NMR_Simulation::NMR_Simulation(rwnmr_config _rwNMR_config,
     (*this).setGPU(this->rwNMR_config.getGPUUsage());
     if(this->rwNMR_config.getSeed() == 0)
     {
-        (*this).setInitialSeed(myRNG::RNG_uint64(), true);
+        (*this).setInitialSeed(mRNG::RNG_uint64(), true);
     } else
     {
         (*this).setInitialSeed(this->rwNMR_config.getSeed(), true);
@@ -230,9 +231,9 @@ void NMR_Simulation::applyVoxelDivision(uint _shifts)
                 idx = pack * packSize + i;
 
                 // randomly place walker in voxel sites
-                shiftX = ((int) this->walkers[idx].initialPosition.x * shiftFactor) + dist(NMR_Simulation::_rng);
-                shiftY = ((int) this->walkers[idx].initialPosition.y * shiftFactor) + dist(NMR_Simulation::_rng);
-                shiftZ = ((int) this->walkers[idx].initialPosition.z * shiftFactor) + dist(NMR_Simulation::_rng);
+                shiftX = ((int) this->walkers[idx].initialPosition.getX() * shiftFactor) + dist(NMR_Simulation::_rng);
+                shiftY = ((int) this->walkers[idx].initialPosition.getY() * shiftFactor) + dist(NMR_Simulation::_rng);
+                shiftZ = ((int) this->walkers[idx].initialPosition.getZ() * shiftFactor) + dist(NMR_Simulation::_rng);
                 this->walkers[idx].placeWalker(shiftX, shiftY, shiftZ);
 
                 // update collision penalty
@@ -249,9 +250,9 @@ void NMR_Simulation::applyVoxelDivision(uint _shifts)
             idx = (walkerPacks - 1) * packSize + i;
 
             // randomly place walker in voxel sites
-            shiftX = ((int) this->walkers[idx].initialPosition.x * shiftFactor) + dist(NMR_Simulation::_rng);
-            shiftY = ((int) this->walkers[idx].initialPosition.y * shiftFactor) + dist(NMR_Simulation::_rng);
-            shiftZ = ((int) this->walkers[idx].initialPosition.z * shiftFactor) + dist(NMR_Simulation::_rng);
+            shiftX = ((int) this->walkers[idx].initialPosition.getX() * shiftFactor) + dist(NMR_Simulation::_rng);
+            shiftY = ((int) this->walkers[idx].initialPosition.getY() * shiftFactor) + dist(NMR_Simulation::_rng);
+            shiftZ = ((int) this->walkers[idx].initialPosition.getZ() * shiftFactor) + dist(NMR_Simulation::_rng);
             this->walkers[idx].placeWalker(shiftX, shiftY, shiftZ);
 
             // update collision penalty
@@ -389,7 +390,7 @@ void NMR_Simulation::setWalkers(Point3D _point, uint _numberOfWalkers)
     (*this).updateWalkerOccupancy();
     (*this).createWalkers();
     (*this).createPoreList();
-    (*this).placeWalkersInSamePoint(_point.x, _point.y, _point.z);
+    (*this).placeWalkersInSamePoint(_point.getX(), _point.getY(), _point.getZ());
 
     // associate rw simulation methods
     (*this).associateMapSimulation(); 
@@ -656,7 +657,7 @@ void NMR_Simulation::countPoresInBinaryMap()
                 {
                     // x coordinate corresponds to column in binary map Mat structure
                     // y coordinate corresponds to row in the binary map Mat structure
-                    Pore detectedPore = {column, row, slice};
+                    Point3D detectedPore = {column, row, slice};
                     pores.insert(pores.end(), detectedPore);
                     this->numberOfPores++;
                 }
@@ -740,30 +741,30 @@ void NMR_Simulation::countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2)
     uint xf, yf, zf;
 
     // coordinate x:
-    if(_vertex1.x < _vertex2.x) 
+    if(_vertex1.getX() < _vertex2.getX()) 
     { 
-        x0 = _vertex1.x; xf = _vertex2.x;
+        x0 = _vertex1.getX(); xf = _vertex2.getX();
     } else
     {
-        x0 = _vertex2.x;    xf = _vertex1.x;
+        x0 = _vertex2.getX();    xf = _vertex1.getX();
     }
 
     // coordinate y:
-    if(_vertex1.y < _vertex2.y)
+    if(_vertex1.getY() < _vertex2.getY())
     {
-        y0 = _vertex1.y;    yf = _vertex2.y;
+        y0 = _vertex1.getY();    yf = _vertex2.getY();
     } else
     {
-        y0 = _vertex1.y;    yf = _vertex2.y;
+        y0 = _vertex1.getY();    yf = _vertex2.getY();
     }
 
     // coordinate z:
-    if(_vertex1.z < _vertex2.z)
+    if(_vertex1.getZ() < _vertex2.getZ())
     {
-        z0 = _vertex1.z;    zf = _vertex2.z;
+        z0 = _vertex1.getZ();    zf = _vertex2.getZ();
     } else
     {
-        z0 = _vertex1.z;    zf = _vertex2.z;
+        z0 = _vertex1.getZ();    zf = _vertex2.getZ();
     }
 
     // apply image border restrictions
@@ -964,7 +965,7 @@ void NMR_Simulation::createPoreList()
 
                 if (!this->bitBlock.checkIfBitIsWall(block, bit))
                 {
-                    Pore detectedPore = {x, y, z};
+                    Point3D detectedPore = {x, y, z};
                     this->pores.push_back(detectedPore);
                 }
             }
@@ -994,30 +995,30 @@ void NMR_Simulation::createPoreList(Point3D _vertex1, Point3D _vertex2)
     uint xf, yf, zf;
 
     // coordinate x:
-    if(_vertex1.x < _vertex2.x) 
+    if(_vertex1.getX() < _vertex2.getX()) 
     { 
-        x0 = _vertex1.x; xf = _vertex2.x;
+        x0 = _vertex1.getX(); xf = _vertex2.getX();
     } else
     {
-        x0 = _vertex2.x;    xf = _vertex1.x;
+        x0 = _vertex2.getX();    xf = _vertex1.getX();
     }
 
     // coordinate y:
-    if(_vertex1.y < _vertex2.y)
+    if(_vertex1.getY() < _vertex2.getY())
     {
-        y0 = _vertex1.y;    yf = _vertex2.y;
+        y0 = _vertex1.getY();    yf = _vertex2.getY();
     } else
     {
-        y0 = _vertex1.y;    yf = _vertex2.y;
+        y0 = _vertex1.getY();    yf = _vertex2.getY();
     }
 
     // coordinate z:
-    if(_vertex1.z < _vertex2.z)
+    if(_vertex1.getZ() < _vertex2.getZ())
     {
-        z0 = _vertex1.z;    zf = _vertex2.z;
+        z0 = _vertex1.getZ();    zf = _vertex2.getZ();
     } else
     {
-        z0 = _vertex1.z;    zf = _vertex2.z;
+        z0 = _vertex1.getZ();    zf = _vertex2.getZ();
     }
 
     // apply image border restrictions
@@ -1053,7 +1054,7 @@ void NMR_Simulation::createPoreList(Point3D _vertex1, Point3D _vertex2)
 
                 if (!this->bitBlock.checkIfBitIsWall(block, bit))
                 {
-                    Pore detectedPore = {x, y, z};
+                    Point3D detectedPore = {x, y, z};
                     this->pores.push_back(detectedPore);
                 }
             }
@@ -1238,9 +1239,9 @@ void NMR_Simulation::placeWalkersByChance()
     while(walkersInserted < this->numberOfWalkers && errorCount < erroLimit)
     {
         // randomly choose a position
-        point.x = columnDist(NMR_Simulation::_rng);
-        point.y = rowDist(NMR_Simulation::_rng);
-        point.z = depthDist(NMR_Simulation::_rng);
+        point.setX(columnDist(NMR_Simulation::_rng));
+        point.setY(rowDist(NMR_Simulation::_rng));
+        point.setZ(depthDist(NMR_Simulation::_rng));
         if(dim3)
         {
             validPoint = walkers[idx].checkNextPosition_3D(point, this->bitBlock);        
@@ -1251,7 +1252,7 @@ void NMR_Simulation::placeWalkersByChance()
 
         if(validPoint)
         {
-            this->walkers[idx].placeWalker(point.x, point.y, point.z);
+            this->walkers[idx].placeWalker(point.getX(), point.getY(), point.getZ());
             idx++;
             walkersInserted++;
             errorCount = 0;
@@ -1303,9 +1304,9 @@ void NMR_Simulation::placeWalkersUniformly()
             {
                 // select a pore location from a list randomly generated to place the walker
                 uint randomIndex = this->walkersIDList[idx];
-                this->walkers[idx].placeWalker(this->pores[randomIndex].position_x, 
-                                               this->pores[randomIndex].position_y, 
-                                               this->pores[randomIndex].position_z);
+                this->walkers[idx].placeWalker(this->pores[randomIndex].getX(), 
+                                               this->pores[randomIndex].getY(), 
+                                               this->pores[randomIndex].getZ());
             }
         }
         else
@@ -1313,9 +1314,9 @@ void NMR_Simulation::placeWalkersUniformly()
             // If occupancy is 100%, just loop over pore list
             for (uint idx = loop_start; idx < loop_finish; idx++)
             {
-                this->walkers[idx].placeWalker(this->pores[idx].position_x, 
-                                               this->pores[idx].position_y, 
-                                               this->pores[idx].position_z);
+                this->walkers[idx].placeWalker(this->pores[idx].getX(), 
+                                               this->pores[idx].getY(), 
+                                               this->pores[idx].getZ());
             }
         }
 
@@ -1413,9 +1414,9 @@ void NMR_Simulation::placeWalkersInCubicSpace(Point3D _vertex1, Point3D _vertex2
     for(uint idx = 0; idx < this->pores.size(); idx++)
     {
         // check if pore is inside selected cube
-        if(this->pores[idx].position_x >= _vertex1.x && this->pores[idx].position_x <= _vertex2.x &&
-           this->pores[idx].position_y >= _vertex1.y && this->pores[idx].position_y <= _vertex2.y &&
-           this->pores[idx].position_z >= _vertex1.z && this->pores[idx].position_z <= _vertex2.z)
+        if(this->pores[idx].getX() >= _vertex1.getX() && this->pores[idx].getX() <= _vertex2.getX() &&
+           this->pores[idx].getY() >= _vertex1.getY() && this->pores[idx].getY() <= _vertex2.getY() &&
+           this->pores[idx].getZ() >= _vertex1.getZ() && this->pores[idx].getZ() <= _vertex2.getZ())
         {
             // add pore to list
             selectedPores.push_back(idx);
@@ -1440,9 +1441,9 @@ void NMR_Simulation::placeWalkersInCubicSpace(Point3D _vertex1, Point3D _vertex2
         {   
     
             uint poreID = selectedPores[dist(NMR_Simulation::_rng)];
-            this->walkers[id].placeWalker(this->pores[poreID].position_x, 
-                                          this->pores[poreID].position_y, 
-                                          this->pores[poreID].position_z);
+            this->walkers[id].placeWalker(this->pores[poreID].getX(), 
+                                          this->pores[poreID].getY(), 
+                                          this->pores[poreID].getZ());
             
             pBar.update(1);
             pBar.print();
@@ -1548,9 +1549,9 @@ uint NMR_Simulation::pickRandomIndex(uint _minValue, uint _maxValue)
     return dist(NMR_Simulation::_rng); 
 }
 
-Pore NMR_Simulation::removeRandomPore(vector<Pore> &_pores, uint _randomIndex)
+Point3D NMR_Simulation::removeRandomPore(vector<Point3D> &_pores, uint _randomIndex)
 {
-    Pore randomPore = _pores[_randomIndex];
+    Point3D randomPore = _pores[_randomIndex];
     std::swap(_pores[_randomIndex], _pores.back());
     _pores.pop_back();
     return randomPore;
@@ -1581,7 +1582,7 @@ void NMR_Simulation::assemblyImagePath()
 
 string NMR_Simulation::createDirectoryForResults(string _path)
 {
-    createDirectory(_path, this->simulationName);
+    BaseFunctions::createDirectory(_path, this->simulationName);
     return (_path + this->simulationName);
 }
 
@@ -1721,19 +1722,48 @@ void NMR_Simulation::saveBitBlock(string filePath)
 void NMR_Simulation::saveHistogram(string filePath)
 {
     string filename = filePath + "/NMR_histogram.txt";
-    fileHandler external_file(filename);
-    external_file.writeHistogram(this->histogram.bins, this->histogram.amps);
+    ofstream in(filename, std::ios::out);
+ 
+    const size_t num_points = this->histogram.bins.size();
+    if (in)
+    {
+        for (int i = 0; i < num_points; i++)
+        {
+            in << this->histogram.bins[i] << "\t" << this->histogram.amps[i] << endl;
+        }
+        return;
+    }
+    throw(errno);
+
+    in.close();
 }
 
 void NMR_Simulation::saveHistogramList(string filePath)
 {
     string filename = filePath + "/NMR_histogramEvolution.txt";
-    fileHandler hfile(filename);
     if(this->rwNMR_config.getHistograms() > 0)
     {
         for(int hst_ID = 0; hst_ID < this->histogramList.size(); hst_ID++)
         {
-            hfile.writeHistogramFromList(this->histogramList[hst_ID].bins, this->histogramList[hst_ID].amps, hst_ID);
+            ofstream in;
+            if(hst_ID == 0) in.open(filename, std::ios::out);
+            else in.open(filename, std::ios::app);
+
+            in << "histogram [" << hst_ID << "]" << endl;
+            const size_t num_points = this->histogramList[hst_ID].bins.size();
+            if (in)
+            {
+                // in << x_label << "\t" << y_label << endl;
+                for (int i = 0; i < num_points; i++)
+                {
+                    in << this->histogramList[hst_ID].bins[i] << "\t" << this->histogramList[hst_ID].amps[i] << endl;
+                }
+                in << endl;
+                return;
+            }
+            throw(errno);
+
+            in.close();
         }
     }
 }
@@ -1837,5 +1867,5 @@ void NMR_Simulation::mapSimulation_OMP(bool reset)
 
     cout << "Completed.";
     double finish_time = omp_get_wtime();
-    printElapsedTime(begin_time, finish_time);
+    BaseFunctions::printElapsedTime(begin_time, finish_time);
 }

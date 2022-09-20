@@ -2,16 +2,11 @@
 #define NMR_RW_simulation_VERSION_MAJOR @NMR_RW_simulation_VERSION_MAJOR @
 #define NMR_RW_simulation_VERSION_MINOR @NMR_RW_simulation_VERSION_MINOR @
 
-#cmakedefine USE_RWNMRAPP
-#cmakedefine USE_NMR_SIMULATION
-#cmakedefine USE_WALKER
-#cmakedefine USE_BITBLOCK
-#cmakedefine USE_RNG
-#cmakedefine USE_LAPLACE
-#cmakedefine USE_GA
-#cmakedefine USE_CONFIGFILES
-#cmakedefine USE_MATH
 #cmakedefine USE_UTILS
+#cmakedefine USE_MATH
+#cmakedefine USE_CONFIGFILES
+#cmakedefine USE_NMR_SIMULATION
+#cmakedefine USE_RWNMRAPP
 #cmakedefine USE_UNITTEST
 
 #define PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../../"

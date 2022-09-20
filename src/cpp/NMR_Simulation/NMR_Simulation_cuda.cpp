@@ -21,8 +21,8 @@
 #include "../Utils/myAllocator.h"
 
 //include
-#include "../Walker/walker.h"
-#include "../RNG/xorshift.h"
+#include "../Math/RNG/xorshift.h"
+#include "Walker.h"
 #include "NMR_Simulation.h"
 #include "NMR_Simulation_cuda.h"
 

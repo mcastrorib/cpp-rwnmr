@@ -11,7 +11,7 @@
 //include
 #include "ChordLengthHistogram.h"
 #include "NMR_Simulation.h"
-#include "../BitBlock/bitBlock.h"
+#include "BitBlock.h"
 
 using namespace std;
 

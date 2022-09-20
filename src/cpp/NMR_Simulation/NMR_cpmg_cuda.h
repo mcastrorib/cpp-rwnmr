@@ -2,7 +2,7 @@
 #define NMR_CPMG_CUDA_H_
 
 #include "stdint.h"
-#include "../RNG/xorshift.h"
+#include "../Math/RNG/xorshift.h"
 #include "NMR_defs.h"
 #include "cuda_runtime.h"
 

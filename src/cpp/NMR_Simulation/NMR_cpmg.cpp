@@ -10,13 +10,13 @@
 #include <omp.h>
 
 //include
+#include "../Math/Laplace/tikhonov.h"
+#include "../Math/Laplace/include/nmrinv_core.h"
+#include "../Utils/BaseFunctions.h"
 #include "NMR_defs.h"
 #include "NMR_Simulation.h"
+#include "Walker.h"
 #include "NMR_cpmg.h"
-#include "../Laplace/tikhonov.h"
-#include "../Laplace/include/nmrinv_core.h"
-#include "../Walker/walker.h"
-#include "../Utils/fileHandler.h"
 
 using namespace cv;
 using namespace std;
@@ -104,7 +104,7 @@ void NMR_cpmg::setName(string parent, string sufix)
 void NMR_cpmg::createDirectoryForData()
 {
 	string path = this->NMR.getDBPath();
-    createDirectory(path, this->NMR.simulationName + "/" + this->name );
+    BaseFunctions::createDirectory(path, this->NMR.simulationName + "/" + this->name );
     this->dir = (path + this->NMR.simulationName + "/" + this->name);
 }
 
@@ -229,7 +229,7 @@ void NMR_cpmg::image_simulation_omp()
 
     cout << "Completed.";
     double finish_time = omp_get_wtime();
-    printElapsedTime(begin_time, finish_time);
+    BaseFunctions::printElapsedTime(begin_time, finish_time);
 }
 
 void NMR_cpmg::createPenaltiesVector(vector<double> &_sigmoid)

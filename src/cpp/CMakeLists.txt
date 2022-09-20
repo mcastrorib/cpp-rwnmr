@@ -12,16 +12,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 SET(CMAKE_C_COMPILER mpicc)
 SET(CMAKE_CXX_COMPILER mpicxx)
 
-option(USE_RWNMRAPP "Use provided implementation for system utils" ON)
-option(USE_NMR_SIMULATION "Use provided RMN_Simulation2D class implementation" ON)
-option(USE_WALKER "Use provided walker class implementation" ON)
-option(USE_BITBLOCK "Use provided blockMap class implementation" ON)
-option(USE_RNG "Use provided RNG implementations for random number generation" ON)
-option(USE_LAPLACE "Use provided Tikhonov solver for Laplace inverse transform" ON)
-option(USE_GA "Use provided Genetic Algorithm implementation for optimization" OFF)
-option(USE_CONFIGFILES "Use provided implementation for reading configuration files" ON)
-option(USE_MATH "Use provided implementation for math and linear algebra computations" ON)
 option(USE_UTILS "Use provided implementation for system utils" ON)
+option(USE_MATH "Use provided implementation for math and linear algebra computations" ON)
+option(USE_CONFIGFILES "Use provided implementation for reading configuration files" ON)
+option(USE_NMR_SIMULATION "Use provided RMN_Simulation2D class implementation" ON)
+option(USE_RWNMRAPP "Use provided implementation for system utils" ON)
 option(USE_UNITTEST "Use provided implementation for app testing" ON)
 
 # configure a header file to pass some of the CMake settings
@@ -69,31 +64,6 @@ if(USE_NMR_SIMULATION)
   add_subdirectory(NMR_Simulation)
   list(APPEND EXTRA_LIBS NMR_Simulation)
 endif()
-
-if(USE_WALKER)
-  add_subdirectory(Walker)
-  list(APPEND EXTRA_LIBS Walker)
-endif()
-
-if(USE_BITBLOCK)
-  add_subdirectory(BitBlock)
-  list(APPEND EXTRA_LIBS BitBlock)
-endif()
-
-if(USE_RNG)
-  add_subdirectory(RNG)
-  list(APPEND EXTRA_LIBS RNG)
-endif()
-
-if(USE_LAPLACE)
-  add_subdirectory(Laplace)
-  list(APPEND EXTRA_LIBS Laplace)
-endif()
-
-#if(USE_GA)
-#  add_subdirectory(GA)
-#  list(APPEND EXTRA_LIBS GA)
-#endif()
 
 if(USE_MATH)
   add_subdirectory(Math)
@@ -150,6 +120,6 @@ install(FILES "${PROJECT_BINARY_DIR}/RWNMR_Config.h"
 enable_testing()
 
 # does the application run
-add_test(NAME Runs COMMAND test-rwnmr)
+add_test(NAME Runs COMMAND rwnmr)
 add_test(NAME ArgsParserTest COMMAND test-rwnmr argsparser)
 add_test(NAME ConfigFilesTest COMMAND test-rwnmr configfiles)

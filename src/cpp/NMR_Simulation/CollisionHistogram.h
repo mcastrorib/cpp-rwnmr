@@ -11,7 +11,7 @@
 #include <omp.h>
 
 #include "NMR_defs.h"
-#include "../Walker/walker.h"
+#include "Walker.h"
 
 using namespace std;
 

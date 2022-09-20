@@ -12,15 +12,15 @@
 #include <omp.h>
 
 //include
-#include "NMR_defs.h"
-#include "NMR_Simulation.h"
-#include "NMR_pfgse.h"
 #include "../Math/LeastSquareAdjust.h"
-#include "../Walker/walker.h"
 #include "../Math/Vector3D.h"
-#include "../Utils/fileHandler.h"
+#include "../Utils/BaseFunctions.h"
 #include "../Utils/OMPLoopEnabler.h"
 #include "../Utils/myAllocator.h"
+#include "NMR_defs.h"
+#include "Walker.h"
+#include "NMR_Simulation.h"
+#include "NMR_pfgse.h"
 
 using namespace cv;
 using namespace std;
@@ -247,9 +247,9 @@ void NMR_PFGSE::setName()
 void NMR_PFGSE::createDirectoryForData()
 {
 	string path = this->NMR.getDBPath() + this->NMR.getSimulationName();
-    createDirectory(path, this->name);
+    BaseFunctions::createDirectory(path, this->name);
     this->dir = (path + "/" + this->name);
-    createDirectory(this->dir, "/timesamples");
+    BaseFunctions::createDirectory(this->dir, "/timesamples");
     
 }
 
@@ -761,9 +761,9 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 			for(uint idx = 0; idx < walkersPerSample; idx++)
 	        {
 	            // Get walker displacement
-				dX = ((double) this->NMR.walkers[offset + idx].initialPosition.x - (double) this->NMR.walkers[offset + idx].position_x);
-				dY = ((double) this->NMR.walkers[offset + idx].initialPosition.y - (double) this->NMR.walkers[offset + idx].position_y);
-				dZ = ((double) this->NMR.walkers[offset + idx].initialPosition.z - (double) this->NMR.walkers[offset + idx].position_z);
+				dX = ((double) this->NMR.walkers[offset + idx].initialPosition.getX() - (double) this->NMR.walkers[offset + idx].position_x);
+				dY = ((double) this->NMR.walkers[offset + idx].initialPosition.getY() - (double) this->NMR.walkers[offset + idx].position_y);
+				dZ = ((double) this->NMR.walkers[offset + idx].initialPosition.getZ() - (double) this->NMR.walkers[offset + idx].position_z);
 				Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
 					
 				for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
@@ -814,9 +814,9 @@ double ** NMR_PFGSE::computeSamplesMagnitude()
 		for(uint idx = 0; idx < walkersPerSample; idx++)
 		{
 			// Get walker displacement
-			dX = ((double) this->NMR.walkers[offset + idx].initialPosition.x - (double) this->NMR.walkers[offset + idx].position_x);
-			dY = ((double) this->NMR.walkers[offset + idx].initialPosition.y - (double) this->NMR.walkers[offset + idx].position_y);
-			dZ = ((double) this->NMR.walkers[offset + idx].initialPosition.z - (double) this->NMR.walkers[offset + idx].position_z);
+			dX = ((double) this->NMR.walkers[offset + idx].initialPosition.getX() - (double) this->NMR.walkers[offset + idx].position_x);
+			dY = ((double) this->NMR.walkers[offset + idx].initialPosition.getY() - (double) this->NMR.walkers[offset + idx].position_y);
+			dZ = ((double) this->NMR.walkers[offset + idx].initialPosition.getZ() - (double) this->NMR.walkers[offset + idx].position_z);
 			Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
 			
 			for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
@@ -1124,19 +1124,19 @@ void NMR_PFGSE::recoverDmsdWithoutSampling()
 
 		// Get walker displacement
 		// X:
-		X0 = (double) particle.initialPosition.x;
+		X0 = (double) particle.initialPosition.getX();
 		XF = (double) particle.position_x;
 		displacementX = resolution * (XF - X0);
 		displacementX *= displacementX;
 		
 		// Y:
-		Y0 = (double) particle.initialPosition.y;
+		Y0 = (double) particle.initialPosition.getY();
 		YF = (double) particle.position_y;
 		displacementY = resolution * (YF - Y0);
 		displacementY *= displacementY;
 
 		// Z:
-		Z0 = (double) particle.initialPosition.z;
+		Z0 = (double) particle.initialPosition.getZ();
 		ZF = (double) particle.position_z;
 		displacementZ = resolution * (ZF - Z0);
 		displacementZ *= displacementZ;
@@ -1216,19 +1216,19 @@ void NMR_PFGSE::recoverDmsdWithSampling()
 
 			// Get walker displacement
 			// X:
-			X0 = (double) particle.initialPosition.x;
+			X0 = (double) particle.initialPosition.getX();
 			XF = (double) particle.position_x;
 			displacementX = resolution * (XF - X0);
 			displacementX *= displacementX;
 			
 			// Y:
-			Y0 = (double) particle.initialPosition.y;
+			Y0 = (double) particle.initialPosition.getY();
 			YF = (double) particle.position_y;
 			displacementY = resolution * (YF - Y0);
 			displacementY *= displacementY;
 
 			// Z:
-			Z0 = (double) particle.initialPosition.z;
+			Z0 = (double) particle.initialPosition.getZ();
 			ZF = (double) particle.position_z;
 			displacementZ = resolution * (ZF - Z0);
 			displacementZ *= displacementZ;
@@ -1718,9 +1718,9 @@ void NMR_PFGSE::simulation_omp()
 				}
 
 				// get final individual phase
-				double dX = ((double) this->NMR.walkers[id].position_x) - ((double) this->NMR.walkers[id].initialPosition.x);
-				double dY = ((double) this->NMR.walkers[id].position_y) - ((double) this->NMR.walkers[id].initialPosition.y);
-				double dZ = ((double) this->NMR.walkers[id].position_z) - ((double) this->NMR.walkers[id].initialPosition.z);
+				double dX = ((double) this->NMR.walkers[id].position_x) - ((double) this->NMR.walkers[id].initialPosition.getX());
+				double dY = ((double) this->NMR.walkers[id].position_y) - ((double) this->NMR.walkers[id].initialPosition.getY());
+				double dZ = ((double) this->NMR.walkers[id].position_z) - ((double) this->NMR.walkers[id].initialPosition.getZ());
 
 				Vector3D dR(dX,dY,dZ);
 				Vector3D wavevector_k;
@@ -1765,9 +1765,9 @@ void NMR_PFGSE::simulation_omp()
 			
 
 			// get final individual phase
-			double dX = ((double) this->NMR.walkers[id].position_x) - ((double) this->NMR.walkers[id].initialPosition.x);
-			double dY = ((double) this->NMR.walkers[id].position_y) - ((double) this->NMR.walkers[id].initialPosition.y);
-			double dZ = ((double) this->NMR.walkers[id].position_z) - ((double) this->NMR.walkers[id].initialPosition.z);
+			double dX = ((double) this->NMR.walkers[id].position_x) - ((double) this->NMR.walkers[id].initialPosition.getX());
+			double dY = ((double) this->NMR.walkers[id].position_y) - ((double) this->NMR.walkers[id].initialPosition.getY());
+			double dZ = ((double) this->NMR.walkers[id].position_z) - ((double) this->NMR.walkers[id].initialPosition.getZ());
 
 			Vector3D dR(dX,dY,dZ);
 			Vector3D wavevector_k;
@@ -1801,7 +1801,7 @@ void NMR_PFGSE::simulation_omp()
 	globalPhase = NULL;
 
     double finish_time = omp_get_wtime();
-    cout << "Completed."; printElapsedTime(begin_time, finish_time);
+    cout << "Completed."; BaseFunctions::printElapsedTime(begin_time, finish_time);
     return;
 }
 

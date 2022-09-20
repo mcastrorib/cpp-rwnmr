@@ -4,74 +4,13 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
-#include "walker_defs.h"
-#include "../BitBlock/bitBlock.h"
-#include "../RNG/xorshift.h"
-
-inline void showblock(uint64_t x)
-{
-    int lineCounter = 0;
-
-    for (int i = 0; i < (sizeof(uint64_t) * 8); i++)
-    {
-        (x & (1ull << i) ? cout << "1" : cout << "0");
-        cout << "  ";
-
-        if (lineCounter == 7)
-        {
-            cout << endl;
-            lineCounter = -1;
-        }
-
-        lineCounter++;
-    }
-    cout << endl;
-}
+#include "Walker_defs.h"
+#include "Point3D.h"
+#include "BitBlock.h"
+#include "../Math/RNG/xorshift.h"
 
 using namespace std;
 using namespace cv;
-
-class Pore
-{
-public:
-    // Class attributes:
-    int position_x, position_y, position_z;
-};
-
-class Point3D
-{
-public:
-    int x, y, z;
-
-    // methods
-    Point3D();
-    Point3D(int _x, int _y, int _z);
-
-    inline bool isPore(vector<Mat> &_binaryMap)
-    {
-        uchar *mapPixel = _binaryMap[this->z].ptr<uchar>(this->y);
-
-        if (mapPixel[this->x] == 0)
-            return true;
-        else
-            return false;
-    };
-
-    inline bool isPore(Mat &_binaryMap)
-    {
-        uchar *mapPixel = _binaryMap.ptr<uchar>(this->y);
-
-        if (mapPixel[this->x] == 0)
-            return true;
-        else
-            return false;
-    };
-
-    inline void printInfo()
-    {
-        cout << "{" << this->x << ", " << this->y << ", " << this->z << "}" << endl;
-    };
-};
 
 class Walker
 {
@@ -132,9 +71,9 @@ public:
     // Inline methods
     inline void resetPosition()
     {
-        this->position_x = initialPosition.x;
-        this->position_y = initialPosition.y;
-        this->position_z = initialPosition.z;
+        this->position_x = initialPosition.getX();
+        this->position_y = initialPosition.getY();
+        this->position_z = initialPosition.getZ();
     };
 
     inline void resetCollisions()
@@ -236,19 +175,19 @@ public:
         switch (nextDirection)
         {
         case North:
-            nextPosition.y = nextPosition.y - 1;
+            nextPosition.setY(nextPosition.getY() - 1);
             break;
 
         case West:
-            nextPosition.x = nextPosition.x - 1;
+            nextPosition.setX(nextPosition.getX() - 1);
             break;
 
         case South:
-            nextPosition.y = nextPosition.y + 1;
+            nextPosition.setY(nextPosition.getY() + 1);
             break;
 
         case East:
-            nextPosition.x = nextPosition.x + 1;
+            nextPosition.setX(nextPosition.getX() + 1);
             break;
         }
 
@@ -332,8 +271,8 @@ public:
 
     inline bool checkNextPosition_2D(Point3D _nextPosition, BitBlock &_bitBlock)
     {
-        int next_x = _nextPosition.x;
-        int next_y = _nextPosition.y;
+        int next_x = _nextPosition.getX();
+        int next_y = _nextPosition.getY();
         int nextBlock = _bitBlock.findBlock(next_x, next_y);
         int nextBit = _bitBlock.findBitInBlock(next_x, next_y);
 
@@ -363,27 +302,27 @@ public:
         switch (nextDirection)
         {
         case North:
-            nextPosition.y = nextPosition.y - 1;
+            nextPosition.setY(nextPosition.getY() - 1);
             break;
 
         case West:
-            nextPosition.x = nextPosition.x - 1;
+            nextPosition.setX(nextPosition.getX() - 1);
             break;
 
         case South:
-            nextPosition.y = nextPosition.y + 1;
+            nextPosition.setY(nextPosition.getY() + 1);
             break;
 
         case East:
-            nextPosition.x = nextPosition.x + 1;
+            nextPosition.setX(nextPosition.getX() + 1);
             break;
 
         case Up:
-            nextPosition.z = nextPosition.z + 1;
+            nextPosition.setZ(nextPosition.getZ() + 1);
             break;
 
         case Down:
-            nextPosition.z = nextPosition.z - 1;
+            nextPosition.setZ(nextPosition.getZ() - 1);
             break;
         }
 
@@ -497,9 +436,9 @@ public:
 
     inline bool checkNextPosition_3D(Point3D _nextPosition, BitBlock &_bitBlock)
     {
-        int next_x = _nextPosition.x;
-        int next_y = _nextPosition.y;
-        int next_z = _nextPosition.z;
+        int next_x = _nextPosition.getX();
+        int next_y = _nextPosition.getY();
+        int next_z = _nextPosition.getZ();
         int nextBlock = _bitBlock.findBlock(next_x, next_y, next_z);
         int nextBit = _bitBlock.findBitInBlock(next_x, next_y, next_z);
 
@@ -508,16 +447,16 @@ public:
 
     inline void moveWalker(Point3D _nextPosition)
     {
-        this->position_x = _nextPosition.x;
-        this->position_y = _nextPosition.y;
-        this->position_z = _nextPosition.z;
+        this->position_x = _nextPosition.getX();
+        this->position_y = _nextPosition.getY();
+        this->position_z = _nextPosition.getZ();
     };
 
     inline void placeWalker(uint x0 = 0, uint y0 = 0, uint z0 = 0)
     {
-        this->initialPosition.x = x0;
-        this->initialPosition.y = y0;
-        this->initialPosition.z = z0;
+        this->initialPosition.setX(x0);
+        this->initialPosition.setY(y0);
+        this->initialPosition.setZ(z0);
         (*this).resetPosition();
     }
 
@@ -528,15 +467,15 @@ public:
 
     inline void printPosition(Point3D position)
     {
-        cout << "{" << position.x << ", " << position.y << ", " << position.z << "}" << endl;
+        cout << "{" << position.getX() << ", " << position.getY() << ", " << position.getZ() << "}" << endl;
     };
 
     // 'get' inline methods
     // coordinate and orientation
     inline Point3D getInitialPosition() { return this->initialPosition; }
-    inline int getInitialPositionX() { return this->initialPosition.x; }
-    inline int getInitialPositionY() { return this->initialPosition.y; }
-    inline int getInitialPositionZ() { return this->initialPosition.z; }
+    inline int getInitialPositionX() { return this->initialPosition.getX(); }
+    inline int getInitialPositionY() { return this->initialPosition.getY(); }
+    inline int getInitialPositionZ() { return this->initialPosition.getZ(); }
     inline int getPositionX() { return this->position_x; }
     inline int getPositionY() { return this->position_y; }
     inline int getPositionZ() { return this->position_z; }

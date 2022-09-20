@@ -21,8 +21,9 @@
 #include "../Utils/myAllocator.h"
 
 //include
-#include "../Walker/walker.h"
-#include "../RNG/xorshift.h"
+#include "../Math/RNG/xorshift.h"
+#include "Point3D.h"
+#include "Walker.h"
 #include "NMR_Simulation.h"
 #include "NMR_cpmg.h"
 #include "NMR_cpmg_cuda.h"
@@ -1131,9 +1132,9 @@ void NMR_cpmg::image_simulation_cuda()
 
                 for (uint i = loop_start; i < loop_finish; i++)
                 {
-                    walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.x;
-                    walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.y;
-                    walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.z;
+                    walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.getX();
+                    walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.getY();
+                    walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.getZ();
                     penalty[i] = this->NMR.walkers[i + packOffset].decreaseFactor;
                     pAlive[i] = 1.0;
                     phase[i] = 0.0;
@@ -1145,9 +1146,9 @@ void NMR_cpmg::image_simulation_cuda()
         {            
             for (uint i = 0; i < walkersPerKernel; i++)
             {
-                walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.x;
-                walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.y;
-                walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.z;
+                walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.getX();
+                walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.getY();
+                walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.getZ();
                 penalty[i] = this->NMR.walkers[i + packOffset].decreaseFactor;
                 pAlive[i] = 1.0;    
                 phase[i] = 0.0;
@@ -1422,9 +1423,9 @@ void NMR_cpmg::image_simulation_cuda()
 
                 for (uint i = loop_start; i < loop_finish; i++)
                 {
-                    walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.x;
-                    walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.y;
-                    walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.z;
+                    walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.getX();
+                    walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.getY();
+                    walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.getZ();
                     penalty[i] = this->NMR.walkers[i + packOffset].decreaseFactor;
                     pAlive[i] = 1.0;
                     phase[i] = 0.0;
@@ -1436,9 +1437,9 @@ void NMR_cpmg::image_simulation_cuda()
         {            
             for (uint i = 0; i < lastWalkerPackSize; i++)
             {
-                walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.x;
-                walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.y;
-                walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.z;
+                walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.getX();
+                walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.getY();
+                walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.getZ();
                 penalty[i] = this->NMR.walkers[i + packOffset].decreaseFactor;
                 pAlive[i] = 1.0;
                 phase[i] = 0.0;

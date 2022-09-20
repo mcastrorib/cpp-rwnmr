@@ -1,16 +1,18 @@
-#ifndef RNG_H_
-#define RNG_H_
+#ifndef MRNG_H_
+#define MRNG_H_
 
 #include <iostream>
 #include <random>
 #include <chrono>   
 #include <stdint.h>
 
-class myRNG
+using namespace std;
+
+class mRNG
 {
 public:
-    myRNG(){}
-    virtual ~myRNG(){}
+    mRNG(){}
+    virtual ~mRNG(){}
 
     static uint64_t RNG_uint64()
     {

@@ -7,6 +7,7 @@
 
 // include C++ standard libraries
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <random>
 #include <vector>
@@ -16,12 +17,11 @@
 #include <omp.h>
 
 //include
-#include "bitBlock.h"
-#include "../Walker/walker.h"
-#include "../RNG/xorshift.h"
-#include "../Utils/fileHandler.h"
-#include "../NMR_Simulation/NMR_Simulation.h"
+#include "../Math/RNG/xorshift.h"
 #include "../Utils/ProgressBar.h"
+#include "BitBlock.h"
+#include "Walker.h"
+#include "NMR_Simulation.h"
 
 using namespace std;
 using namespace cv;
@@ -125,13 +125,36 @@ void BitBlock::createBitBlocksArray_2D(Mat &_binaryMap)
 
 void BitBlock::saveBitBlockArray_2D(string filename)
 {
-    fileHandler externalFile(filename);
-    externalFile.writeBitBlockObject2D(numberOfBlocks,
-                                       blockRows,
-                                       blockColumns,
-                                       imageRows,
-                                       imageColumns,
-                                       blocks);
+    ofstream fileObject;
+    fileObject.open(filename, ios::out);
+    if (fileObject.fail())
+    {
+        cout << "Could not open file from disc" << endl;
+    }
+
+    // write properties
+    fileObject << "blocks, ";
+    fileObject << "bRows, ";
+    fileObject << "bColumns, ";
+    fileObject << "imgRows, ";
+    fileObject << "imgColumns, " << endl;
+    fileObject << this->numberOfBlocks << ", ";
+    fileObject << this->blockRows << ", ";
+    fileObject << this->blockColumns << ", ";
+    fileObject << this->imageRows << ", ";
+    fileObject << this->imageColumns << endl;
+
+    fileObject << endl;
+    fileObject << "blockID, ";
+    fileObject << "blockData" << endl;
+
+    for (int index = 0; index < this->numberOfBlocks; index++)
+    {
+        fileObject << index << ", ";
+        fileObject << this->blocks[index] << endl;
+    }
+
+    fileObject.close();
 }
 
 // 3D block
@@ -221,14 +244,39 @@ void BitBlock::createBitBlocksArray_3D(vector<Mat> &_binaryMap)
 }
 
 void BitBlock::saveBitBlockArray_3D(string filename)
-{
-    fileHandler externalFile(filename);
-    externalFile.writeBitBlockObject3D(numberOfBlocks,
-                                       blockRows,
-                                       blockColumns,
-                                       blockDepth,
-                                       imageRows,
-                                       imageColumns,
-                                       imageDepth,
-                                       blocks);
+{    
+    ofstream fileObject;
+    fileObject.open(filename, ios::out);
+    if (fileObject.fail())
+    {
+        cout << "Could not open file from disc" << endl;
+    }
+
+    // write properties
+    fileObject << "blocks, ";
+    fileObject << "bRows, ";
+    fileObject << "bColumns, ";
+    fileObject << "bDepth, ";
+    fileObject << "imgRows, ";
+    fileObject << "imgColumns, ";
+    fileObject << "imgDepth, " << endl;
+    fileObject << this->numberOfBlocks << ", ";
+    fileObject << this->blockRows << ", ";
+    fileObject << this->blockColumns << ", ";
+    fileObject << this->blockDepth << ", ";
+    fileObject << this->imageRows << ", ";
+    fileObject << this->imageColumns << ", ";
+    fileObject << this->imageDepth << endl;
+
+    fileObject << endl;
+    fileObject << "blockID, ";
+    fileObject << "blockData" << endl;
+
+    for (int index = 0; index < this->numberOfBlocks; index++)
+    {
+        fileObject << index << ", ";
+        fileObject << this->blocks[index] << endl;
+    }
+
+    fileObject.close();
 }
