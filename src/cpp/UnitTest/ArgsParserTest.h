@@ -13,22 +13,17 @@ using namespace std;
 class ArgsParserTest
 {
 public:
-	string project_root;
-	bool sucessResult;
-
-	ArgsParserTest(string proot) : project_root(proot) 
+	ArgsParserTest(string proot) : projectRoot(proot) 
 	{
 		(*this).run();
 	}
 
 	ArgsParserTest(const ArgsParserTest& otherTest)
 	{
-		this->project_root = otherTest.project_root;
+		this->projectRoot = otherTest.projectRoot;
 		this->sucessResult = otherTest.sucessResult;
 	}
 	void run();
-
-private:
 	void checkParser(int _argc, char *_argv[], vector<string> _expectedCommands, vector<string> _expectedPaths, string _msg);
 	void testNoArgs();
 	void testArgsCPMG();
@@ -37,6 +32,15 @@ private:
 	void testUnknownArgs();
 	void testMissingArgs();
 	void testAllKnownArgs();
+
+	void setProjectRoot(string proot){ this->projectRoot = proot; }
+	string getProjectRoot(){ return this->projectRoot; }
+	void setSuccessResult(bool result){ this->sucessResult = result; }
+	bool getSuccessResult(){ return this->sucessResult; }
+
+private:	
+	string projectRoot;
+	bool sucessResult;
 };
 
 #endif

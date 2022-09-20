@@ -16,19 +16,26 @@ using namespace std;
 class UnitTest
 {
 public: 
-	string project_root;
-	bool sucessResult;
 
 	UnitTest(string proot);
 	UnitTest(const UnitTest& otherTest)
 	{
-		this->project_root = otherTest.project_root;
+		this->projectRoot = otherTest.projectRoot;
 		this->sucessResult = otherTest.sucessResult;
 	}
 	virtual ~UnitTest(){} 
 	void runTest(string tag);
 	void runAll();
-	string getProjectRoot(){ return this->project_root; }
+
+	void setProjectRoot(string proot){ this->projectRoot = proot; }
+	string getProjectRoot(){ return this->projectRoot; }
+	void setSuccessResult(bool result){ this->sucessResult = result; }
+	bool getSuccessResult(){ return this->sucessResult; }
+
+private:
+	string projectRoot;
+	bool sucessResult;
+
 };
 
 #endif

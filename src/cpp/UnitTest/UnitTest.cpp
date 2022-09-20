@@ -14,7 +14,7 @@
 #include "ArgsParserTest.h"
 #include "UnitTest.h"
 
-UnitTest::UnitTest(string proot) : project_root(proot), sucessResult(true)
+UnitTest::UnitTest(string proot) : projectRoot(proot), sucessResult(true)
 {}
 
 void UnitTest::runTest(string tag)

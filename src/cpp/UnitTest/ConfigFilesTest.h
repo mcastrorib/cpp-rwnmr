@@ -20,11 +20,9 @@ using namespace std;
 class ConfigFilesTest
 {
 public:
-	string project_root;
-	string inputDir;
-	bool sucessResult;
 
-	ConfigFilesTest(string proot) : project_root(proot) 
+
+	ConfigFilesTest(string proot) : projectRoot(proot) 
 	{
 		(*this).setInputDir(proot + "/input/testing/");
 		(*this).run();
@@ -32,21 +30,30 @@ public:
 
 	ConfigFilesTest(const ConfigFilesTest& otherTest)
 	{
-		this->project_root = otherTest.project_root;
+		this->projectRoot = otherTest.projectRoot;
+		this->inputDir = otherTest.inputDir;
 		this->sucessResult = otherTest.sucessResult;
 	}
 
 	void run();
-	string getProjectRoot(){ return this->project_root; }
-	void setInputDir(string _path){ this->inputDir = _path; }
-	string getInputDir(){ return this->inputDir; }
-
-private:
 	void TestRWNMRConfigFile();
 	void TestUCTConfigFile();
 	void TestCPMGConfigFile();
 	void TestPFGSEConfigFile();
 	void TestMULTITAUConfigFile();
+
+	void setProjectRoot(string proot){ this->projectRoot = proot; }
+	string getProjectRoot(){ return this->projectRoot; }
+	void setSuccessResult(bool result){ this->sucessResult = result; }
+	bool getSuccessResult(){ return this->sucessResult; }
+	void setInputDir(string _path){ this->inputDir = _path; }
+	string getInputDir(){ return this->inputDir; }
+
+private:
+	string projectRoot;
+	string inputDir;
+	bool sucessResult;
+
 };
 
 #endif
