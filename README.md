@@ -1,6 +1,6 @@
 # cpp-rwnmr
 
-Open-source terminal Linux (Ubuntu) application for image based random walk (RW) simulations of nuclear magnetic resonance (NMR) response. It explores GPUs for parallel computing and performance accelearation.
+Open-source terminal Linux (Ubuntu) application for image based random walk (RW) simulations of nuclear magnetic resonance (NMR) response. It explores GPUs for parallel computing and performance acceleration.
 
 # Features
 **cpp-rwnmr** includes simulations for some well-known NMR experiments:
