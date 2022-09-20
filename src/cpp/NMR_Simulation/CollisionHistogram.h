@@ -1,15 +1,6 @@
 #ifndef COLLISION_HISTOGRAM_H_
 #define COLLISION_HISTOGRAM_H_
 
-// include string stream manipulation functions
-#include <sstream>
-#include <iomanip>
-
-#include <vector>
-
-// include OpenMP for multicore implementation
-#include <omp.h>
-
 #include "NMR_defs.h"
 #include "Walker.h"
 

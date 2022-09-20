@@ -1,21 +1,4 @@
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <random>
-#include <vector>
-#include <string>
-#include <math.h>
-
-// include OpenMP for multicore implementation
-#include <omp.h>
-
-//include
 #include "CollisionHistogram.h"
-#include "NMR_Simulation.h"
-#include "Walker.h"
-
-
-using namespace std;
 
 CollisionHistogram::CollisionHistogram():size(0),
 										 scale("linear"),
