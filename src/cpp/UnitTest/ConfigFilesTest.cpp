@@ -80,6 +80,32 @@ void ConfigFilesTest::TestCPMGConfigFile()
 {	
 	cout << "executing cpmg_config test...";
 
+	string config_path = "tcpmg.config";
+	cpmg_config config;
+	config.readConfigFile((*this).getInputDir() + config_path);
+	Assert::check(config.getMethod(), (string)"image-based", "cpmg: Method");
+	Assert::check(config.getObservationTime(), (double) 3000.0, "cpmg: ObservationTime");
+	Assert::check(config.getApplyBulk(), (bool) false, "cpmg: ApplyBulk");
+	Assert::check(config.getTimeVerbose(), (bool) false, "cpmg: TimeVerbose");
+	Assert::check(config.getResidualField(), (string)"uniform", "cpmg: ResidualField");
+	Assert::check(config.getGradientValue(), (double) 1.0, "cpmg: GradientValue");
+	Assert::check(config.getGradientDirection(), (int) 2, "cpmg: GradientDirection");
+	Assert::check(config.getMinT2(), (double) 0.1, "cpmg: MinT2");
+	Assert::check(config.getMaxT2(), (double) 10000.0, "cpmg: MaxT2");
+	Assert::check(config.getUseT2Logspace(), (bool) true, "cpmg: UseT2Logspace");
+	Assert::check(config.getNumT2Bins(), (int) 256, "cpmg: NumT2Bins");
+	Assert::check(config.getMinLambda(), (double) -4.0, "cpmg: MinLambda");
+	Assert::check(config.getMaxLambda(), (double) 2.0, "cpmg: MaxLambda");
+	Assert::check(config.getNumLambdas(), (int) 512, "cpmg: NumLambdas");
+	Assert::check(config.getPruneNum(), (int) 512, "cpmg: PruneNum");
+	Assert::check(config.getNoiseAmp(), (double) 0.0, "cpmg: NoiseAmp");
+	Assert::check(config.getSaveMode(), (bool) true, "cpmg: SaveMode");
+	Assert::check(config.getSaveDecay(), (bool) false, "cpmg: SaveDecay");
+	Assert::check(config.getSaveT2(), (bool) false, "cpmg: SaveT2");
+	Assert::check(config.getSaveWalkers(), (bool) false, "cpmg: SaveWalkers");
+	Assert::check(config.getSaveHistogram(), (bool) false, "cpmg: SaveHistogram");
+	Assert::check(config.getSaveHistogramList(), (bool) false, "cpmg: SaveHistogramList");
+
 	cout << "Ok." << endl;
 	return;
 }

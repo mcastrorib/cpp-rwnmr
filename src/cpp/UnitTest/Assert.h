@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <stdint.h>
+#include <cmath>
 
 using namespace std;
 
@@ -50,20 +51,20 @@ public:
 		}
 	}
 
-	static void check(float result, float expected, string warning)
+	static void check(float result, float expected, string warning, double tol=1.0e-6)
 	{
-		if(result != expected)
+		if(std::abs(result - expected) > tol)
 		{
 			cout << "Error: " << warning <<  " was unexpected."<< endl;
 			exit(1);
 		}
 	}
 
-	static void check(double result, double expected, string warning)
+	static void check(double result, double expected, string warning, double tol=1.0e-6)
 	{
-		if(result != expected)
+		if(std::abs(result - expected) > tol)
 		{
-			cout << "Error: " << warning <<  " was unexpected." << endl;
+			cout << "Error: " << warning <<  " was unexpected."<< endl;
 			exit(1);
 		}
 	}
@@ -131,7 +132,7 @@ public:
 		}
 	}
 
-	static void check(vector<float> result, vector<float> expected, string warning)
+	static void check(vector<float> result, vector<float> expected, string warning, double tol=1.0e-6)
 	{
 		if(result.size() != expected.size())
 		{
@@ -141,7 +142,7 @@ public:
 
 		for(int idx = 0; idx < result.size(); idx++)
 		{
-			if(result[idx] != expected[idx])
+			if(std::abs(result[idx] - expected[idx]) > tol)
 			{
 				cout << "Error: value(" << idx << ") " << warning <<  " was unexpected." << endl;
 				exit(1);
@@ -149,7 +150,7 @@ public:
 		}
 	}
 
-	static void check(vector<double> result, vector<double> expected, string warning)
+	static void check(vector<double> result, vector<double> expected, string warning, double tol=1.0e-6)
 	{
 		if(result.size() != expected.size())
 		{
@@ -159,7 +160,7 @@ public:
 
 		for(int idx = 0; idx < result.size(); idx++)
 		{
-			if(result[idx] != expected[idx])
+			if(std::abs(result[idx] - expected[idx]) > tol)
 			{
 				cout << "Error: value(" << idx << ") " << warning <<  " was  unexpected." << endl;
 				exit(1);
