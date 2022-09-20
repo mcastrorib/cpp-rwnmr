@@ -154,6 +154,20 @@ void ConfigFilesTest::TestMULTITAUConfigFile()
 {
 	cout << "executing multitau_config test...";
 
+	string config_path = "tmultitau.config";
+	multitau_config config;
+	config.readConfigFile((*this).getInputDir() + config_path);
+	Assert::check(config.getTauScale(), (string)"manual", "multitau: TauScale");
+	Assert::check(config.getTauValues(), (vector<double>) {0.1,0.2,1.0,2.0,4.0}, "multitau: TauValues");
+	Assert::check(config.getTauMin(), (double) 0.01, "multitau: TauMin");
+	Assert::check(config.getTauMax(), (double) 10.0, "multitau: TauMax");
+	Assert::check(config.getTauPoints(), (int) 5, "multitau: TauPoints");
+	Assert::check(config.getSaveMode(), (bool) true, "multitau: SaveMode");
+	Assert::check(config.getSaveDecay(), (bool) false, "multitau: SaveDecay");
+	Assert::check(config.getSaveWalkers(), (bool) false, "multitau: SaveWalkers");
+	Assert::check(config.getSaveHistogram(), (bool) false, "multitau: SaveHistogram");
+	Assert::check(config.getSaveHistogramList(), (bool) false, "multitau: SaveHistogramList");	
+
 	cout << "Ok." << endl;
 	return;
 }

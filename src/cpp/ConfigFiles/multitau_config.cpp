@@ -127,11 +127,6 @@ void multitau_config::readTauValues(string s)
     } 
 
     std::sort(this->TAU_VALUES.begin(), this->TAU_VALUES.end());
-    cout << "tau values: ";
-    for(int i = 0; i < this->TAU_VALUES.size(); i++)
-    {
-        cout << this->TAU_VALUES[i] << " ";
-    } cout << endl;
 }
 
 void multitau_config::readTauScale(string s)
