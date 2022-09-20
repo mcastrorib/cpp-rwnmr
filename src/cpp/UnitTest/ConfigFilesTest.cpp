@@ -114,6 +114,37 @@ void ConfigFilesTest::TestPFGSEConfigFile()
 {
 	cout << "executing pfgse_config test...";
 
+	string config_path = "tpfgse.config";
+	pfgse_config config;
+	config.readConfigFile((*this).getInputDir() + config_path);
+	Assert::check(config.getPulseWidth(), (double) 0.1, "pfgse: PulseWidth");
+	Assert::check((vector<double>) {
+					config.getMaxGradient().getX(), 
+					config.getMaxGradient().getY(), 
+					config.getMaxGradient().getZ()}, 
+					(vector<double>) {0.0, 0.0, 100.0}, 
+					"pfgse: MaxGradient");
+	Assert::check(config.getGradientSamples(), (uint) 256, "pfgse: GradientSamples");
+	Assert::check(config.getApplyBulk(), (bool) false, "pfgse: ApplyBulk");
+	Assert::check(config.getAllowWalkerSampling(), (bool) true, "pfgse: AllowWalkerSampling");
+	Assert::check(config.getApplyAbsorption(), (bool) false, "pfgse: ApplyAbsorption");
+	Assert::check(config.getTimeSequence(), (string)"manual", "pfgse: TimeSequence");
+	Assert::check(config.getTimeSamples(), (uint) 4, "pfgse: TimeSamples");
+	Assert::check(config.getTimeValues(), (vector<double>) {0.01,0.1,1.0,10.0}, "pfgse: TimeValues");
+	Assert::check(config.getTimeMin(), (double) 10.0, "pfgse: TimeMin");
+	Assert::check(config.getTimeMax(), (double) 800.0, "pfgse: TimeMax");
+	Assert::check(config.getInspectionLength(), (double) 10.0, "pfgse: InspectionLength");
+	Assert::check(config.getNoiseAmp(), (double) 0.0001, "pfgse: NoiseAmp");
+	Assert::check(config.getTargetSNR(), (double) -1.0, "pfgse: TargetSNR");
+	Assert::check(config.getThresholdType(), (string)"lhs", "pfgse: ThresholdType");
+	Assert::check(config.getThresholdValue(), (double) 0.9, "pfgse: ThresholdValue");
+	Assert::check(config.getThresholdWindow(), (uint) 5, "pfgse: ThresholdWindow");
+	Assert::check(config.getSaveMode(), (bool) true, "pfgse: SaveMode");
+	Assert::check(config.getSavePFGSE(), (bool) false, "pfgse: SavePFGSE");
+	Assert::check(config.getSaveWalkers(), (bool) false, "pfgse: SaveWalkers");
+	Assert::check(config.getSaveHistogram(), (bool) false, "pfgse: SaveHistogram");
+	Assert::check(config.getSaveHistogramList(), (bool) false, "pfgse: SaveHistogramList");	
+
 	cout << "Ok." << endl;
 	return;
 

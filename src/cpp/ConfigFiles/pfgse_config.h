@@ -49,7 +49,7 @@ public:
 
 
     // default constructors
-    pfgse_config(){};
+    pfgse_config():THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0){};
     pfgse_config(const string configFile, const string croot);
 
     //copy constructors
