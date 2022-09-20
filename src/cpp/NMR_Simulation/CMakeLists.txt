@@ -78,7 +78,8 @@ target_link_libraries(NMR_Simulation PRIVATE CUDA::cudart)
 
 # Install lib in project tree
 install(TARGETS NMR_Simulation DESTINATION lib)
-install(FILES 
+install(FILES
+    NMR_Includes.h
     Point3D.h
     Walker.h 
     BitBlock.h

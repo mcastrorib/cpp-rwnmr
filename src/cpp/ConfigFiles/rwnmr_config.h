@@ -1,10 +1,6 @@
 #ifndef RWNMR_CONFIG_H_
 #define RWNMR_CONFIG_H_
 
-// include C++ standard libraries
-#include <iostream>
-#include <string>
-#include <vector>
 #include "configFiles_defs.h"
 
 using namespace std;

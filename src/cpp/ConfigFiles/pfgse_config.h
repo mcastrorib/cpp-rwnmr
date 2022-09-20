@@ -1,12 +1,8 @@
 #ifndef PFGSE_CONFIG_H_
 #define PFGSE_CONFIG_H_
 
-// include C++ standard libraries
-#include <iostream>
-#include <string>
-#include <vector>
 #include "configFiles_defs.h"
-#include "../Math/Vector3D.h"
+#include "../Math/Math.h"
 
 using namespace std;
 

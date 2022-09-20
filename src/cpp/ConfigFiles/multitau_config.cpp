@@ -1,12 +1,3 @@
-// include C++ standard libraries
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <stdint.h>
-#include <algorithm> 
 #include "multitau_config.h"
 
 using namespace std;

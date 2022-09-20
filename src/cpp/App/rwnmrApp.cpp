@@ -1,24 +1,3 @@
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <cstdint>
-#include <vector>
-#include <string>
-
-// include configuration files
-#include "../ConfigFiles/rwnmr_config.h"
-#include "../ConfigFiles/uct_config.h"
-#include "../ConfigFiles/pfgse_config.h"
-#include "../ConfigFiles/cpmg_config.h"
-#include "../ConfigFiles/ga_config.h"
-
-// include project files
-#include "../Utils/ArgsParser.h"
-#include "../NMR_Simulation/NMR_Simulation.h"
-#include "../NMR_Simulation/NMR_pfgse.h"
-#include "../NMR_Simulation/NMR_cpmg.h"
-#include "../NMR_Simulation/NMR_multitau.h"
-
 // include class header file
 #include "rwnmrApp.h"
 

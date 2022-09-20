@@ -1,14 +1,4 @@
-// include C++ standard libraries
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <stdint.h>
-
 #include "rwnmr_config.h"
-// #include "config_defs.h"
 
 using namespace std;
 

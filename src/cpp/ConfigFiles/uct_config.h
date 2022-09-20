@@ -1,12 +1,6 @@
 #ifndef UCT_CONFIG_H_
 #define UCT_CONFIG_H_
 
-// include C++ standard libraries
-#include <sstream>
-#include <iomanip>
-#include <iostream>
-#include <vector>
-#include <string>
 #include "configFiles_defs.h"
 
 using namespace std;

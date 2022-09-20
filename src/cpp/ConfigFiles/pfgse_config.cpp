@@ -1,14 +1,3 @@
-// include C++ standard libraries
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <math.h>
-#include <algorithm>
-#include <stdint.h>
-
 #include "pfgse_config.h"
 
 using namespace std;

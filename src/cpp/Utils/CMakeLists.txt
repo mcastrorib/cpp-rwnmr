@@ -5,4 +5,4 @@ target_include_directories(Utils
           )
 target_compile_options(Utils PUBLIC -O3)
 install(TARGETS Utils DESTINATION lib)
-install(FILES OMPLoopEnabler.h myAllocator.h ArgsParser.h ImagePath.h ProgressBar.h BaseFunctions.h DESTINATION include)
+install(FILES Utils.h OMPLoopEnabler.h myAllocator.h ArgsParser.h ImagePath.h ProgressBar.h BaseFunctions.h DESTINATION include)

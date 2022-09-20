@@ -10,4 +10,15 @@
 #define GA_CONFIG_DEFAULT "./default/ga.config"
 #define MULTITAU_CONFIG_DEFAULT "/default/multitau.config"
 
+// include C++ standard libraries
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <stdint.h>
+#include <algorithm> 
+#include <math.h>
+
 #endif

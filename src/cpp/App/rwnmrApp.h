@@ -3,12 +3,14 @@
 
 // include C++ standard libraries
 #include <iostream>
-#include <string>
+#include <sstream>
+#include <cstdint>
 #include <vector>
-#include "../Utils/ArgsParser.h"
-#include "../ConfigFiles/configFiles_defs.h"
-#include "../NMR_Simulation/NMR_Simulation.h"
+#include <string>
 
+#include "../Utils/Utils.h"
+#include "../ConfigFiles/ConfigFiles.h"
+#include "../NMR_Simulation/NMR_Includes.h"
 
 using namespace std;
 

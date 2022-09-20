@@ -13,7 +13,8 @@ include_directories(/usr/include/eigen3)
 target_include_directories(Math INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_options(Math PUBLIC -O3)
 install(TARGETS Math DESTINATION lib)
-install(FILES MathFunctions.h
+install(FILES Math.h
+              MathFunctions.h
               LeastSquareAdjust.h 
               Vector3D.h 
               ./RNG/mRNG.h
