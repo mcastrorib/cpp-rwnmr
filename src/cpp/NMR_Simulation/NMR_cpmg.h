@@ -1,18 +1,10 @@
 #ifndef NMR_CPMG_H
 #define NMR_CPMG_H
 
-#include <vector>
-#include <string>
-
-// include configuration file classes
-#include "../ConfigFiles/cpmg_config.h"
-#include "../Math/Vector3D.h"
-
 #include "NMR_defs.h"
 #include "NMR_Simulation.h"
 #include "InternalField.h"
 #include "Walker.h"
-
 
 using namespace std;
 

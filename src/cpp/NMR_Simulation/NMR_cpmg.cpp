@@ -1,25 +1,4 @@
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <cmath>
-
-// include OpenMP for multicore implementation
-#include <omp.h>
-
-//include
-#include "../Math/Laplace/tikhonov.h"
-#include "../Math/Laplace/include/nmrinv_core.h"
-#include "../Utils/BaseFunctions.h"
-#include "NMR_defs.h"
-#include "NMR_Simulation.h"
-#include "Walker.h"
 #include "NMR_cpmg.h"
-
-using namespace cv;
-using namespace std;
 
 NMR_cpmg::NMR_cpmg( NMR_Simulation &_NMR,  
                     cpmg_config _cpmgConfig,

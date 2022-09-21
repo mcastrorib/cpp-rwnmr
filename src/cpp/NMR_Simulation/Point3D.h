@@ -1,19 +1,7 @@
 #ifndef POINT3D_H_
 #define POINT3D_H_
 
-#include <iostream>
-#include <vector>
-#include <math.h>
-#include "Walker_defs.h"
-
-// include OpenCV core functions
-#include <opencv2/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include "opencv2/imgcodecs.hpp"
-#include <opencv2/highgui.hpp>
-
-using namespace std;
-using namespace cv;
+#include "NMR_defs.h"
 
 class Point3D
 {

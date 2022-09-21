@@ -1,31 +1,12 @@
 #ifndef NMR_SIMULATION_H_
 #define NMR_SIMULATION_H_
 
-// include string stream manipulation functions
-#include <sstream>
-#include <iomanip>
-#include <random>
-#include <vector>
-
-// include OpenCV core functions
-#include <opencv2/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include "opencv2/imgcodecs.hpp"
-#include <opencv2/highgui.hpp>
-
-// include OpenMP for multicore implementation
-#include <omp.h>
-
-// include configuration file classes
-#include "../ConfigFiles/rwnmr_config.h"
-#include "../ConfigFiles/uct_config.h"
-#include "../Utils/ImagePath.h"
-
 #include "NMR_defs.h"
-#include "CollisionHistogram.h"
-#include "BitBlock.h"
 #include "Point3D.h"
+#include "BitBlock.h"
 #include "Walker.h"
+#include "CollisionHistogram.h"
+#include "ChordLengthHistogram.h"
 
 using namespace std;
 using namespace cv;

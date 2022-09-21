@@ -1,9 +1,6 @@
 #ifndef INTERNAL_FIELD_H_
 #define INTERNAL_FIELD_H_
 
-#include <string>
-#include <vector>
-#include <omp.h>
 #include "NMR_defs.h"
 #include "BitBlock.h"
 

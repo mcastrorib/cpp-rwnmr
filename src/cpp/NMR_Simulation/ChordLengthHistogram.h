@@ -1,11 +1,6 @@
 #ifndef CHORD_LENGTH_HISTOGRAM_H_
 #define CHORD_LENGTH_HISTOGRAM_H_
 
-// include string stream manipulation functions
-#include <sstream>
-#include <iomanip>
-#include <string>
-#include <vector>
 #include "NMR_defs.h"
 #include "BitBlock.h"
 

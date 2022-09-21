@@ -11,6 +11,5 @@
 #include "NMR_cpmg.h"
 #include "NMR_pfgse.h"
 #include "NMR_multitau.h"
-#include "Walker_defs.h"
 
 #endif

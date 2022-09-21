@@ -1,19 +1,4 @@
-// include C++ standard libraries
-#include <iostream>
-#include <iomanip>      // std::setprecision
-#include <sstream>
-#include <fstream>
-#include <stdint.h>
-#include <string>
-
-// include OpenMP for multicore implementation
-#include <omp.h>
-
-//include 
-#include "NMR_defs.h"
 #include "InternalField.h"
-
-using namespace std;
 
 InternalField::InternalField(BitBlock &_bitblock, double _resolution, double _gradient, int _direction) : dimX(0), 
 																											 dimY(0), 

@@ -1,29 +1,4 @@
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <random>
-#include <vector>
-#include <string>
-#include <cmath>
-#include <limits>
-
-// include OpenMP for multicore implementation
-#include <omp.h>
-
-//include
-#include "../Math/LeastSquareAdjust.h"
-#include "../Math/Vector3D.h"
-#include "../Utils/BaseFunctions.h"
-#include "../Utils/OMPLoopEnabler.h"
-#include "../Utils/myAllocator.h"
-#include "NMR_defs.h"
-#include "Walker.h"
-#include "NMR_Simulation.h"
 #include "NMR_pfgse.h"
-
-using namespace cv;
-using namespace std;
 
 std::mt19937 NMR_PFGSE::_rng;
 

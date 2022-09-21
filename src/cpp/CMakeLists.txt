@@ -121,5 +121,8 @@ enable_testing()
 
 # does the application run
 add_test(NAME Runs COMMAND rwnmr)
+add_test(NAME CPMG-smooth-run COMMAND rwnmr cpmg)
+add_test(NAME PFGSE-smooth-run COMMAND rwnmr pfgse)
+add_test(NAME MultiTau-smooth-run COMMAND rwnmr multitau)
 add_test(NAME ArgsParserTest COMMAND test-rwnmr argsparser)
 add_test(NAME ConfigFilesTest COMMAND test-rwnmr configfiles)

@@ -1,16 +1,9 @@
 #ifndef WALKER_H_
 #define WALKER_H_
 
-#include <iostream>
-#include <vector>
-#include <math.h>
-#include "Walker_defs.h"
+#include "NMR_defs.h"
 #include "Point3D.h"
 #include "BitBlock.h"
-#include "../Math/RNG/xorshift.h"
-
-using namespace std;
-using namespace cv;
 
 class Walker
 {

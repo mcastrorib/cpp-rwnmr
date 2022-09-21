@@ -1,34 +1,4 @@
-#include <opencv2/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include "opencv2/imgcodecs.hpp"
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui.hpp>
-
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <cstdint>
-#include <random>
-#include <vector>
-#include <string>
-
-// include C standard library for memory allocation using pointers
-#include <stdlib.h>
-
-// include OpenMP for multicore implementation
-#include <omp.h>
-#include "../Utils/OMPLoopEnabler.h"
-#include "../Utils/myAllocator.h"
-
-//include
-#include "../Math/RNG/xorshift.h"
-#include "Point3D.h"
-#include "Walker.h"
-#include "NMR_Simulation.h"
-#include "NMR_cpmg.h"
 #include "NMR_cpmg_cuda.h"
-
-
 
 /* 
     GPU kernel for NMR CPMG simulation 

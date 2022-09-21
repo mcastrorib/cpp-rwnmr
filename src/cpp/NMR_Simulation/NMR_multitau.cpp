@@ -1,21 +1,4 @@
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <cmath>
-
-// include OpenMP for multicore implementation
-#include <omp.h>
-
-//include
-#include "../Utils/BaseFunctions.h"
-#include "NMR_defs.h"
-#include "NMR_Simulation.h"
 #include "NMR_multitau.h"
-#include "NMR_cpmg.h"
-#include "Walker.h"
 
 using namespace std;
 

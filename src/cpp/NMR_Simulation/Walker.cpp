@@ -1,27 +1,4 @@
-// include OpenCV core functions
-#include <opencv2/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include "opencv2/imgcodecs.hpp"
-#include <opencv2/highgui.hpp>
-
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <string>
-
-// include RNG lib
-#include <random>
-
-//include
-#include "../Math/RNG/xorshift.h"
-#include "Point3D.h"
 #include "Walker.h"
-#include "BitBlock.h"
-
-using namespace std;
-using namespace cv;
-
 
 // default constructors
 Walker::Walker() : position_x(0),

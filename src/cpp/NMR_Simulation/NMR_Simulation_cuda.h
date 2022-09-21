@@ -1,10 +1,10 @@
 #ifndef NMR_SIMULATION_CUDA_H_
 #define NMR_SIMULATION_CUDA_H_
 
-#include "stdint.h"
-#include "../Math/RNG/xorshift.h"
 #include "NMR_defs.h"
 #include "cuda_runtime.h"
+#include "Walker.h"
+#include "NMR_Simulation.h"
 
 
 // Kernel declarations

@@ -1,13 +1,8 @@
 #ifndef BITBLOCK_H_
 #define BITBLOCK_H_
 
-#include <stdint.h>
-
-// include OpenCV core functions
-#include <opencv2/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include "opencv2/imgcodecs.hpp"
-#include <opencv2/highgui.hpp>
+#include "NMR_defs.h"
+#include "Point3D.h"
 
 // define 2D block properties
 #define ROWSPERBLOCK2D 8

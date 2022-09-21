@@ -1,16 +1,10 @@
 #ifndef NMR_MULTITAU_H
 #define NMR_MULTITAU_H
 
-#include <vector>
-#include <string>
-
 // include configuration file classes
-#include "../ConfigFiles/multitau_config.h"
-#include "../ConfigFiles/cpmg_config.h"
 #include "NMR_defs.h"
 #include "NMR_Simulation.h"
 #include "NMR_cpmg.h"
-
 
 using namespace std;
 

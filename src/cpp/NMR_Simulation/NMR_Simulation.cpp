@@ -1,44 +1,4 @@
-// include OpenCV core functions
-#include <opencv2/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include "opencv2/imgcodecs.hpp"
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui.hpp>
-
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <random>
-#include <vector>
-#include <string>
-#include <math.h>
-
-// include OpenMP for multicore implementation
-#include <omp.h>
-
-// include configuration file classes
-#include "../ConfigFiles/rwnmr_config.h"
-#include "../ConfigFiles/uct_config.h"
-
-//include
-#include "../Math/RNG/mRNG.h"
-#include "../Math/RNG/xorshift.h"
-#include "../Math/RNG/randomIndex.h"
-#include "../Utils/BaseFunctions.h"
-#include "../Math/Laplace/tikhonov.h"
-#include "../Math/Laplace/include/nmrinv_core.h"
-#include "../Utils/OMPLoopEnabler.h"
-#include "../Utils/ImagePath.h"
-#include "../Utils/ProgressBar.h"
 #include "NMR_Simulation.h"
-#include "ChordLengthHistogram.h"
-#include "Point3D.h"
-#include "Walker.h"
-#include "BitBlock.h"
-
-using namespace cv;
-using namespace std;
 
 std::mt19937 NMR_Simulation::_rng;
 

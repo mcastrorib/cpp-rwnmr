@@ -93,5 +93,4 @@ install(FILES
 		NMR_pfgse.h
 		NMR_pfgse_cuda.h
 		NMR_multitau.h
-    Walker_defs.h
 		NMR_defs.h DESTINATION include)

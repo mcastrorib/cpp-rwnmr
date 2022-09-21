@@ -1,18 +1,9 @@
 #ifndef NMR_PFGSE_H
 #define NMR_PFGSE_H
 
-#include <vector>
-#include <string>
-#include <random>
-
-// include configuration file classes
-#include "../ConfigFiles/pfgse_config.h"
-
 #include "NMR_defs.h"
 #include "NMR_Simulation.h"
 #include "Walker.h"
-#include "../Math/Vector3D.h"
-
 
 using namespace std;
 
