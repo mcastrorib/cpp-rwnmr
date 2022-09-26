@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
 
 # set the project name
-project(NMR_RW_simulation VERSION 1.1 LANGUAGES C CXX CUDA)
+project(RWNMR VERSION 1.1 LANGUAGES C CXX CUDA)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 11)
@@ -11,13 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # specify mpi compilers
 SET(CMAKE_C_COMPILER mpicc)
 SET(CMAKE_CXX_COMPILER mpicxx)
-
-option(USE_UTILS "Use provided implementation for system utils" ON)
-option(USE_MATH "Use provided implementation for math and linear algebra computations" ON)
-option(USE_CONFIGFILES "Use provided implementation for reading configuration files" ON)
-option(USE_FRAMEWORK "Use provided Simulation Framework" ON)
-option(USE_RWNMRAPP "Use provided implementation for system utils" ON)
-option(USE_UNITTEST "Use provided implementation for app testing" ON)
 
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -49,36 +42,14 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 include_directories(/usr/include/eigen3)
 
 
-# list libraries
-if(USE_UNITTEST)
-  add_subdirectory(UnitTest)
-  list(APPEND EXTRA_LIBS UnitTest)
-endif()
-
-if(USE_RWNMRAPP)
-  add_subdirectory(App)
-  list(APPEND EXTRA_LIBS App)
-endif()
-
-if(USE_FRAMEWORK)
-  add_subdirectory(Framework)
-  list(APPEND EXTRA_LIBS Framework)
-endif()
-
-if(USE_MATH)
-  add_subdirectory(Math)
-  list(APPEND EXTRA_LIBS Math)
-endif()
-
-if(USE_CONFIGFILES)
-  add_subdirectory(ConfigFiles)
-  list(APPEND EXTRA_LIBS ConfigFiles)
-endif()
-
-if(USE_UTILS)
-  add_subdirectory(Utils)
-  list(APPEND EXTRA_LIBS Utils)
-endif()
+# add and list libraries (it must respect libs building order)
+add_subdirectory(UnitTest)
+add_subdirectory(App)
+add_subdirectory(Framework)
+add_subdirectory(Math)
+add_subdirectory(ConfigFiles)
+add_subdirectory(Utils)
+list(APPEND EXTRA_LIBS UnitTest App Framework Math ConfigFiles Utils)
 
 
 # add the executable
@@ -90,9 +61,7 @@ target_link_libraries(rwnmr PRIVATE CUDA::cudart)
 
 # add the binary tree to the search path for include files
 # so that we will find RandomWalkConfig.h
-target_include_directories(rwnmr PUBLIC
-                           "${PROJECT_BINARY_DIR}"
-                           )
+target_include_directories(rwnmr PUBLIC "${PROJECT_BINARY_DIR}")
 
 
 # Testing
@@ -105,9 +74,7 @@ target_link_libraries(test-rwnmr PRIVATE CUDA::cudart)
 
 # add the binary tree to the search path for include files
 # so that we will find RandomWalkConfig.h
-target_include_directories(test-rwnmr PUBLIC
-                           "${PROJECT_BINARY_DIR}"
-                           )
+target_include_directories(test-rwnmr PUBLIC "${PROJECT_BINARY_DIR}")
 
 # Installation
 install(TARGETS rwnmr DESTINATION bin)

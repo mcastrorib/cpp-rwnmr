@@ -1,12 +1,5 @@
 // the configured options and settings
-#define NMR_RW_simulation_VERSION_MAJOR @NMR_RW_simulation_VERSION_MAJOR @
-#define NMR_RW_simulation_VERSION_MINOR @NMR_RW_simulation_VERSION_MINOR @
-
-#cmakedefine USE_UTILS
-#cmakedefine USE_MATH
-#cmakedefine USE_CONFIGFILES
-#cmakedefine USE_FRAMEWORK
-#cmakedefine USE_RWNMRAPP
-#cmakedefine USE_UNITTEST
+#define NMRRW_VERSION_MAJOR @NMRRW_VERSION_MAJOR @
+#define NMRRW_VERSION_MINOR @NMRRW_VERSION_MINOR @
 
 #define PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../../"
