@@ -1,12 +1,12 @@
 #ifndef NMR_CPMG_CUDA_H_
 #define NMR_CPMG_CUDA_H_
 
-#include "NMR_defs.h"
 #include "cuda_runtime.h"
-#include "Point3D.h"
-#include "Walker.h"
-#include "NMR_Simulation.h"
-#include "NMR_cpmg.h"
+#include "../NMR_defs.h"
+#include "../Point3D.h"
+#include "../Walker.h"
+#include "../NMR_Simulation.h"
+#include "../NMR_cpmg.h"
 
 // Kernel declarations
 // walker class "walk" method GPU kernel

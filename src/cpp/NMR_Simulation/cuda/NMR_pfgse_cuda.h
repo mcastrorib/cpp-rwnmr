@@ -1,11 +1,12 @@
 #ifndef PFG_CUDA_H_
 #define PFG_CUDA_H_
 
-#include "NMR_defs.h"
+
 #include "cuda_runtime.h"
-#include "Walker.h"
-#include "NMR_Simulation.h"
-#include "NMR_pfgse.h"
+#include "../NMR_defs.h"
+#include "../Walker.h"
+#include "../NMR_Simulation.h"
+#include "../NMR_pfgse.h"
 
 
 // Kernel declarations

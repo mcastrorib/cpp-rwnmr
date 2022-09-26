@@ -6,14 +6,14 @@ add_library(NMR_Simulation
       Walker.cpp
       BitBlock.cpp
 			NMR_Simulation.cpp 
-			NMR_Simulation_cuda.cpp 
+			./cuda/NMR_Simulation_cuda.cpp 
 			CollisionHistogram.cpp 
 			ChordLengthHistogram.cpp
 			InternalField.cpp
 			NMR_cpmg.cpp
-			NMR_cpmg_cuda.cpp
+			./cuda/NMR_cpmg_cuda.cpp
 			NMR_pfgse.cpp
-			NMR_pfgse_cuda.cpp
+			./cuda/NMR_pfgse_cuda.cpp
 			NMR_multitau.cpp)
 
 # Include directory in build up
@@ -31,12 +31,12 @@ target_compile_features(NMR_Simulation PUBLIC cxx_std_11)
 # library needs to be built with -dc as the member functions 
 # could be called by other libraries and executables
 set(CMAKE_CUDA_FLAGS "-Xcompiler -fopenmp -O3 -w")
-set_source_files_properties(NMR_Simulation_cuda.h PROPERTIES LANGUAGE "CUDA")
-set_source_files_properties(NMR_Simulation_cuda.cpp PROPERTIES LANGUAGE "CUDA")
-set_source_files_properties(NMR_cpmg_cuda.h PROPERTIES LANGUAGE "CUDA")
-set_source_files_properties(NMR_cpmg_cuda.cpp PROPERTIES LANGUAGE "CUDA")
-set_source_files_properties(NMR_pfgse_cuda.h PROPERTIES LANGUAGE "CUDA")
-set_source_files_properties(NMR_pfgse_cuda.cpp PROPERTIES LANGUAGE "CUDA")
+set_source_files_properties(./cuda/NMR_Simulation_cuda.h PROPERTIES LANGUAGE "CUDA")
+set_source_files_properties(./cuda/NMR_Simulation_cuda.cpp PROPERTIES LANGUAGE "CUDA")
+set_source_files_properties(./cuda/NMR_cpmg_cuda.h PROPERTIES LANGUAGE "CUDA")
+set_source_files_properties(./cuda/NMR_cpmg_cuda.cpp PROPERTIES LANGUAGE "CUDA")
+set_source_files_properties(./cuda/NMR_pfgse_cuda.h PROPERTIES LANGUAGE "CUDA")
+set_source_files_properties(./cuda/NMR_pfgse_cuda.cpp PROPERTIES LANGUAGE "CUDA")
 
 # Set CUDA architecture and link to CUDA runtime environment
 # For better results, add current device architecture
@@ -87,10 +87,10 @@ install(FILES
 		ChordLengthHistogram.h
 		InternalField.h
 		NMR_Simulation.h 
-		NMR_Simulation_cuda.h 
+		./cuda/NMR_Simulation_cuda.h 
 		NMR_cpmg.h
-		NMR_cpmg_cuda.h
+		./cuda/NMR_cpmg_cuda.h
 		NMR_pfgse.h
-		NMR_pfgse_cuda.h
+		./cuda/NMR_pfgse_cuda.h
 		NMR_multitau.h
 		NMR_defs.h DESTINATION include)
