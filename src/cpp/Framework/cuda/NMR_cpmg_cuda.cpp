@@ -899,7 +899,7 @@ __global__ void CPMG_energyReduce(double *energy,
 // walker's "walk" method in Graphics Processing Unit
 void NMR_cpmg::image_simulation_cuda()
 {
-    string bc = this->NMR.boundaryCondition;
+    string bc = this->model.boundaryCondition;
     cout << "- starting RW-CPMG simulation (in GPU) [bc:" << bc << "]...";
 
     bool time_verbose = this->CPMG_config.getTimeVerbose();
@@ -910,11 +910,11 @@ void NMR_cpmg::image_simulation_cuda()
     double reduce_time = 0.0;
     
     double tick = omp_get_wtime();
-    if(this->NMR.rwNMR_config.getOpenMPUsage())
+    if(this->model.rwNMR_config.getOpenMPUsage())
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
-        const int loop_size = this->NMR.walkers.size();
+        const int loop_size = this->model.walkers.size();
         int loop_start, loop_finish;
 
         #pragma omp parallel private(loop_start, loop_finish) 
@@ -926,28 +926,28 @@ void NMR_cpmg::image_simulation_cuda()
 
             for (uint id = loop_start; id < loop_finish; id++)
             {
-                this->NMR.walkers[id].resetPosition();
-                this->NMR.walkers[id].resetSeed();
-                this->NMR.walkers[id].resetEnergy();
+                this->model.walkers[id].resetPosition();
+                this->model.walkers[id].resetSeed();
+                this->model.walkers[id].resetEnergy();
             }
         }
     } else
     {
         // reset walker's initial state 
-        for (uint id = 0; id < this->NMR.walkers.size(); id++)
+        for (uint id = 0; id < this->model.walkers.size(); id++)
         {
-            this->NMR.walkers[id].resetPosition();
-            this->NMR.walkers[id].resetSeed();
-            this->NMR.walkers[id].resetEnergy();
+            this->model.walkers[id].resetPosition();
+            this->model.walkers[id].resetSeed();
+            this->model.walkers[id].resetEnergy();
         }
     }
 
     // reset vector to store energy decay
     (*this).resetSignal();
-    this->signal_amps.reserve(this->NMR.getNumberOfEchoes() + 1); // '+1' to accomodate time 0.0
+    this->signal_amps.reserve(this->model.getNumberOfEchoes() + 1); // '+1' to accomodate time 0.0
 
     // get initial energy global state
-    double energySum = ((double) this->NMR.walkers.size()) * this->NMR.walkers[0].getEnergy();
+    double energySum = ((double) this->model.walkers.size()) * this->model.walkers[0].getEnergy();
     this->signal_amps.push_back(energySum);
 
     reset_time += omp_get_wtime() - tick;
@@ -960,18 +960,18 @@ void NMR_cpmg::image_simulation_cuda()
     cudaEventRecord(start, 0);
 
     // integer values for sizing issues
-    uint bitBlockColumns = this->NMR.bitBlock.blockColumns;
-    uint bitBlockRows = this->NMR.bitBlock.blockRows;
-    uint numberOfBitBlocks = this->NMR.bitBlock.numberOfBlocks;
-    uint numberOfWalkers = this->NMR.numberOfWalkers;
-    int map_columns = this->NMR.bitBlock.imageColumns;
-    int map_rows = this->NMR.bitBlock.imageRows;
-    int map_depth = this->NMR.bitBlock.imageDepth;
-    uint shiftConverter = log2(this->NMR.voxelDivision);
+    uint bitBlockColumns = this->model.bitBlock.blockColumns;
+    uint bitBlockRows = this->model.bitBlock.blockRows;
+    uint numberOfBitBlocks = this->model.bitBlock.numberOfBlocks;
+    uint numberOfWalkers = this->model.numberOfWalkers;
+    int map_columns = this->model.bitBlock.imageColumns;
+    int map_rows = this->model.bitBlock.imageRows;
+    int map_depth = this->model.bitBlock.imageDepth;
+    uint shiftConverter = log2(this->model.voxelDivision);
 
-    uint numberOfEchoes = this->NMR.numberOfEchoes;
-    uint stepsPerEcho = this->NMR.stepsPerEcho;
-    uint echoesPerKernel = this->NMR.rwNMR_config.getEchoesPerKernel();
+    uint numberOfEchoes = this->model.numberOfEchoes;
+    uint stepsPerEcho = this->model.stepsPerEcho;
+    uint echoesPerKernel = this->model.rwNMR_config.getEchoesPerKernel();
     uint kernelCalls = (uint) ceil(numberOfEchoes / (double) echoesPerKernel);
 
 
@@ -979,12 +979,12 @@ void NMR_cpmg::image_simulation_cuda()
     bool applyField = (this->internalField == NULL) ? applyField = false : applyField = true;
     double *field = (*this).getInternalFieldData();
     long fieldSize = (*this).getInternalFieldSize();
-    double timeInterval = 1.0e-3 * this->NMR.getTimeInterval(); 
-    double gamma = 1.0e+06 * this->NMR.getGiromagneticRatio();
+    double timeInterval = 1.0e-3 * this->model.getTimeInterval(); 
+    double gamma = 1.0e+06 * this->model.getGiromagneticRatio();
     
     // define parameters for CUDA kernel launch: blockDim, gridDim etc
-    uint threadsPerBlock = this->NMR.rwNMR_config.getThreadsPerBlock();
-    uint blocksPerKernel = this->NMR.rwNMR_config.getBlocks();
+    uint threadsPerBlock = this->model.rwNMR_config.getThreadsPerBlock();
+    uint blocksPerKernel = this->model.rwNMR_config.getBlocks();
     uint walkersPerKernel = threadsPerBlock * blocksPerKernel;
 
     // treat case when only one kernel is needed
@@ -1013,7 +1013,7 @@ void NMR_cpmg::image_simulation_cuda()
     // Copy bitBlock3D data from host to device (only once)
     // assign pointer to bitBlock datastructure
     uint64_t *bitBlock;
-    bitBlock = this->NMR.bitBlock.blocks;
+    bitBlock = this->model.bitBlock.blocks;
     uint64_t *d_bitBlock;
     cudaMalloc((void **)&d_bitBlock, numberOfBitBlocks * sizeof(uint64_t));
     cudaMemcpy(d_bitBlock, bitBlock, numberOfBitBlocks * sizeof(uint64_t), cudaMemcpyHostToDevice);
@@ -1086,7 +1086,7 @@ void NMR_cpmg::image_simulation_cuda()
         // Host data copy
         // copy original walkers' data to temporary host arrays
         tick = omp_get_wtime();
-        if(this->NMR.rwNMR_config.getOpenMPUsage())
+        if(this->model.rwNMR_config.getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -1102,28 +1102,28 @@ void NMR_cpmg::image_simulation_cuda()
 
                 for (uint i = loop_start; i < loop_finish; i++)
                 {
-                    walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.getX();
-                    walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.getY();
-                    walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.getZ();
-                    penalty[i] = this->NMR.walkers[i + packOffset].decreaseFactor;
+                    walker_px[i] = this->model.walkers[i + packOffset].initialPosition.getX();
+                    walker_py[i] = this->model.walkers[i + packOffset].initialPosition.getY();
+                    walker_pz[i] = this->model.walkers[i + packOffset].initialPosition.getZ();
+                    penalty[i] = this->model.walkers[i + packOffset].decreaseFactor;
                     pAlive[i] = 1.0;
                     phase[i] = 0.0;
-                    energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->NMR.walkers[i + packOffset].energy;
-                    seed[i] = this->NMR.walkers[i + packOffset].initialSeed;
+                    energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->model.walkers[i + packOffset].energy;
+                    seed[i] = this->model.walkers[i + packOffset].initialSeed;
                 }
             }
         } else
         {            
             for (uint i = 0; i < walkersPerKernel; i++)
             {
-                walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.getX();
-                walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.getY();
-                walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.getZ();
-                penalty[i] = this->NMR.walkers[i + packOffset].decreaseFactor;
+                walker_px[i] = this->model.walkers[i + packOffset].initialPosition.getX();
+                walker_py[i] = this->model.walkers[i + packOffset].initialPosition.getY();
+                walker_pz[i] = this->model.walkers[i + packOffset].initialPosition.getZ();
+                penalty[i] = this->model.walkers[i + packOffset].decreaseFactor;
                 pAlive[i] = 1.0;    
                 phase[i] = 0.0;
-                energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->NMR.walkers[i + packOffset].energy;
-                seed[i] = this->NMR.walkers[i + packOffset].initialSeed;
+                energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->model.walkers[i + packOffset].energy;
+                seed[i] = this->model.walkers[i + packOffset].initialSeed;
             }
         }  
         buffer_time += omp_get_wtime() - tick;      
@@ -1334,7 +1334,7 @@ void NMR_cpmg::image_simulation_cuda()
             copy_time = omp_get_wtime() - tick;
 
             tick = omp_get_wtime();
-            if(this->NMR.rwNMR_config.getOpenMPUsage())
+            if(this->model.rwNMR_config.getOpenMPUsage())
             {
                 // set omp variables for parallel loop throughout walker list
                 const int num_cpu_threads = omp_get_max_threads();
@@ -1350,18 +1350,18 @@ void NMR_cpmg::image_simulation_cuda()
 
                     for (uint id = loop_start; id < loop_finish; id++)
                     {
-                        this->NMR.walkers[id + packOffset].position_x = walker_px[id];
-                        this->NMR.walkers[id + packOffset].position_y = walker_py[id];
-                        this->NMR.walkers[id + packOffset].position_z = walker_pz[id];
+                        this->model.walkers[id + packOffset].position_x = walker_px[id];
+                        this->model.walkers[id + packOffset].position_y = walker_py[id];
+                        this->model.walkers[id + packOffset].position_z = walker_pz[id];
                     }
                 }
             } else
             {
                 for (uint i = 0; i < walkersPerKernel; i++)
                 {
-                    this->NMR.walkers[i + packOffset].position_x = walker_px[i];
-                    this->NMR.walkers[i + packOffset].position_y = walker_py[i];
-                    this->NMR.walkers[i + packOffset].position_z = walker_pz[i];            
+                    this->model.walkers[i + packOffset].position_x = walker_px[i];
+                    this->model.walkers[i + packOffset].position_y = walker_py[i];
+                    this->model.walkers[i + packOffset].position_z = walker_pz[i];            
                 }
             }
             buffer_time += omp_get_wtime() - tick;  
@@ -1377,7 +1377,7 @@ void NMR_cpmg::image_simulation_cuda()
         // Host data copy
         // copy original walkers' data to temporary host arrays
         tick = omp_get_wtime();
-        if(this->NMR.rwNMR_config.getOpenMPUsage())
+        if(this->model.rwNMR_config.getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -1393,28 +1393,28 @@ void NMR_cpmg::image_simulation_cuda()
 
                 for (uint i = loop_start; i < loop_finish; i++)
                 {
-                    walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.getX();
-                    walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.getY();
-                    walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.getZ();
-                    penalty[i] = this->NMR.walkers[i + packOffset].decreaseFactor;
+                    walker_px[i] = this->model.walkers[i + packOffset].initialPosition.getX();
+                    walker_py[i] = this->model.walkers[i + packOffset].initialPosition.getY();
+                    walker_pz[i] = this->model.walkers[i + packOffset].initialPosition.getZ();
+                    penalty[i] = this->model.walkers[i + packOffset].decreaseFactor;
                     pAlive[i] = 1.0;
                     phase[i] = 0.0;
-                    energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->NMR.walkers[i + packOffset].energy;
-                    seed[i] = this->NMR.walkers[i + packOffset].initialSeed;
+                    energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->model.walkers[i + packOffset].energy;
+                    seed[i] = this->model.walkers[i + packOffset].initialSeed;
                 }
             }
         } else
         {            
             for (uint i = 0; i < lastWalkerPackSize; i++)
             {
-                walker_px[i] = this->NMR.walkers[i + packOffset].initialPosition.getX();
-                walker_py[i] = this->NMR.walkers[i + packOffset].initialPosition.getY();
-                walker_pz[i] = this->NMR.walkers[i + packOffset].initialPosition.getZ();
-                penalty[i] = this->NMR.walkers[i + packOffset].decreaseFactor;
+                walker_px[i] = this->model.walkers[i + packOffset].initialPosition.getX();
+                walker_py[i] = this->model.walkers[i + packOffset].initialPosition.getY();
+                walker_pz[i] = this->model.walkers[i + packOffset].initialPosition.getZ();
+                penalty[i] = this->model.walkers[i + packOffset].decreaseFactor;
                 pAlive[i] = 1.0;
                 phase[i] = 0.0;
-                energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->NMR.walkers[i + packOffset].energy;
-                seed[i] = this->NMR.walkers[i + packOffset].initialSeed;
+                energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->model.walkers[i + packOffset].energy;
+                seed[i] = this->model.walkers[i + packOffset].initialSeed;
             }
         }   
 
@@ -1638,7 +1638,7 @@ void NMR_cpmg::image_simulation_cuda()
             copy_time += omp_get_wtime() - tick;
 
             tick = omp_get_wtime();
-            if(this->NMR.rwNMR_config.getOpenMPUsage())
+            if(this->model.rwNMR_config.getOpenMPUsage())
             {
                 // set omp variables for parallel loop throughout walker list
                 const int num_cpu_threads = omp_get_max_threads();
@@ -1654,18 +1654,18 @@ void NMR_cpmg::image_simulation_cuda()
 
                     for (uint id = loop_start; id < loop_finish; id++)
                     {
-                        this->NMR.walkers[id + packOffset].position_x = walker_px[id];
-                        this->NMR.walkers[id + packOffset].position_y = walker_py[id];
-                        this->NMR.walkers[id + packOffset].position_z = walker_pz[id];
+                        this->model.walkers[id + packOffset].position_x = walker_px[id];
+                        this->model.walkers[id + packOffset].position_y = walker_py[id];
+                        this->model.walkers[id + packOffset].position_z = walker_pz[id];
                     }
                 }
             } else
             {
                 for (uint i = 0; i < lastWalkerPackSize; i++)
                 {
-                    this->NMR.walkers[i + packOffset].position_x = walker_px[i];
-                    this->NMR.walkers[i + packOffset].position_y = walker_py[i];
-                    this->NMR.walkers[i + packOffset].position_z = walker_pz[i];            
+                    this->model.walkers[i + packOffset].position_x = walker_px[i];
+                    this->model.walkers[i + packOffset].position_y = walker_py[i];
+                    this->model.walkers[i + packOffset].position_z = walker_pz[i];            
                 }
             }
             buffer_time += omp_get_wtime() - tick;  

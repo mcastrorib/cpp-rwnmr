@@ -1,12 +1,12 @@
 // include class header file
 #include "rwnmrApp.h"
 
-rwnmrApp::rwnmrApp(int argc, char **argv, string _root) : project_root(_root), args(argc, argv), NMR(NULL)
+rwnmrApp::rwnmrApp(int argc, char **argv, string _root) : project_root(_root), args(argc, argv), model(NULL)
 {
     (*this).setConfigRoot((*this).getProjectRoot() + CONFIG_ROOT);   
 }
 
-rwnmrApp::rwnmrApp(ArgsParser _args, string _root) : project_root(_root), args(_args), NMR(NULL)
+rwnmrApp::rwnmrApp(ArgsParser _args, string _root) : project_root(_root), args(_args), model(NULL)
 {
     (*this).setConfigRoot((*this).getProjectRoot() + CONFIG_ROOT); 
 }
@@ -30,20 +30,20 @@ void rwnmrApp::buildEssentials()
     // // -----
 
     // -- Create NMR_Simulation object
-    this->NMR = new Model(rwNMR_Config, uCT_Config, (*this).getProjectRoot());
+    this->model = new Model(rwNMR_Config, uCT_Config, (*this).getProjectRoot());
     
     // Read digital rock image
     cout << "-- Loading uCT-image" << endl;
-    this->NMR->readImage();
+    this->model->readImage();
 
     // Create and set up random walkers
     cout << endl << "-- Setting random walkers" << endl;
-    this->NMR->setWalkers();
+    this->model->setWalkers();
 
     // Save image info
     cout << endl << "-- Saving uCT-image info" << endl;
-    this->NMR->save();
-    cout << endl; this->NMR->info();
+    this->model->save();
+    cout << endl; this->model->info();
     // -----    
 }
 

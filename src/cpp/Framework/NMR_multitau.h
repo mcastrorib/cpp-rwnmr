@@ -11,7 +11,7 @@ using namespace std;
 class NMR_multitau
 {
 public:
-	Model &NMR;
+	Model &model;
 	NMR_cpmg *cpmg;
 	multitau_config MultiTau_config;
 	cpmg_config CPMG_config;
@@ -21,7 +21,7 @@ public:
     vector<double> signalTimes;
     vector<double> signalAmps;
     
-	NMR_multitau(Model &_NMR, 
+	NMR_multitau(Model &_model, 
 				 multitau_config _multitauConfig, 
 				 cpmg_config _cpmgConfig, 
 				 int _mpi_rank = 0, 

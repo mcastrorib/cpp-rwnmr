@@ -11,7 +11,7 @@ using namespace std;
 class NMR_cpmg
 {
 public:
-	Model &NMR;
+	Model &model;
 	cpmg_config CPMG_config;
 	string name;
 	string dir;
@@ -28,10 +28,7 @@ public:
     
 
 
-	NMR_cpmg(Model &_NMR, 
-			  cpmg_config _cpmgConfig,
-			  int _mpi_rank = 0, 
-			  int _mpi_processes = 0);	
+	NMR_cpmg(Model &_model, cpmg_config _cpmgConfig, int _mpi_rank = 0, int _mpi_processes = 0);	
 
 	virtual ~NMR_cpmg()
 	{

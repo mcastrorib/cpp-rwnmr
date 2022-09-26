@@ -20,7 +20,7 @@ public:
     const string project_root;
     string config_root;
     ArgsParser args;
-    Model *NMR;
+    Model *model;
 
     // default constructors
     rwnmrApp(){};
@@ -32,14 +32,14 @@ public:
     {
         this->config_root = _otherApp.config_root;
         this->args = _otherApp.args;
-        this->NMR = _otherApp.NMR;
+        this->model = _otherApp.model;
     }
 
     // default destructor
     virtual ~rwnmrApp()
     {
-        if(NMR != NULL) delete NMR;
-        NMR = NULL;
+        if(model != NULL) delete model;
+        model = NULL;
     }
 
     void buildEssentials();
@@ -53,7 +53,7 @@ public:
 
     string getProjectRoot() { return this->project_root; }
     string getConfigRoot() { return this->config_root; }
-    Model& getModel() { return (*this->NMR); }
+    Model& getModel() { return (*this->model); }
     ArgsParser& getArgs() { return this->args; }
     string getArgsPath(uint idx) { return this->args.getPath(idx); }
     void setConfigRoot(string _croot) { this->config_root = _croot; }

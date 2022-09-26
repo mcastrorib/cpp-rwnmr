@@ -10,7 +10,7 @@ using namespace std;
 class NMR_PFGSE
 {
 public:
-	Model &NMR;
+	Model &model;
 	pfgse_config PFGSE_config;
 	string name;
 	string dir;
@@ -55,7 +55,7 @@ public:
 	uint stepsTaken;
 	int currentTime;	
 
-	NMR_PFGSE(Model &_NMR, 
+	NMR_PFGSE(Model &_model, 
 			  pfgse_config _pfgseConfig,
 			  int _mpi_rank = 0, 
 			  int _mpi_processes = 0);	
@@ -109,7 +109,7 @@ public:
 	void recoverDmsdWithoutSampling();
 	void recoverDmsdWithSampling();	
 	void clear();
-	void resetNMR();
+	void resetModel();
 	void updateWalkersXIrate(uint _rwsteps);
 	void reset(double _newBigDelta);
 	void reset();
@@ -177,7 +177,7 @@ public:
 	double getExposureTime() {return this->exposureTime; }
 	double getExposureTime(uint _idx) {return this->exposureTimes[_idx]; }
 	double getPulseWidth() {return this->pulseWidth; }
-	double getGiromagneticRatio() {return this->NMR.getGiromagneticRatio(); }
+	double getGiromagneticRatio() {return this->model.getGiromagneticRatio(); }
 	bool getApplyBulkRelaxation() { return this->applyBulkRelaxation; }
 	double getNoiseAmp() { return this->noiseAmp; }
 	double getTargetSNR() { return this->targetSNR; }

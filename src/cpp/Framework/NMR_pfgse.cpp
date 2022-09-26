@@ -2,10 +2,10 @@
 
 std::mt19937 NMR_PFGSE::_rng;
 
-NMR_PFGSE::NMR_PFGSE(Model &_NMR,  
+NMR_PFGSE::NMR_PFGSE(Model &_model,  
 				     pfgse_config _pfgseConfig,
 					 int _mpi_rank,
-					 int _mpi_processes) : NMR(_NMR),
+					 int _mpi_processes) : model(_model),
 										   PFGSE_config(_pfgseConfig),
 										   D_sat(0.0),
 										   D_sat_error(0.0),
@@ -25,7 +25,7 @@ NMR_PFGSE::NMR_PFGSE(Model &_NMR,
 										   mpi_processes(_mpi_processes)
 {
 	// Initialize random state
-	NMR_PFGSE::_rng.seed(this->NMR.getInitialSeed());
+	NMR_PFGSE::_rng.seed(this->model.getInitialSeed());
 	NMR_PFGSE::_rng.discard(4096);
 
 	// vectors object init
@@ -78,7 +78,7 @@ void NMR_PFGSE::run()
 	(*this).resetCurrentTime();
 	(*this).correctExposureTimes();
 	(*this).runInitialMapSimulation();
-	(*this).resetNMR();
+	(*this).resetModel();
 	(*this).presave();
 	cout << "-- Done in " << omp_get_wtime() - tick << " seconds." << endl;
 
@@ -117,16 +117,16 @@ void NMR_PFGSE::applyThreshold()
 	else (*this).setThresholdFromSamples(this->gradientPoints);
 }
 
-void NMR_PFGSE::resetNMR()
+void NMR_PFGSE::resetModel()
 {
 	// reset walker's initial state with omp parallel for
 	cout << "- Reseting walker initial state" << endl;
 
-    if(this->NMR.rwNMR_config.getOpenMPUsage())
+    if(this->model.rwNMR_config.getOpenMPUsage())
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
-        const int loop_size = this->NMR.walkers.size();
+        const int loop_size = this->model.walkers.size();
         int loop_start, loop_finish;
 
         #pragma omp parallel private(loop_start, loop_finish) 
@@ -138,20 +138,20 @@ void NMR_PFGSE::resetNMR()
 
             for (uint id = loop_start; id < loop_finish; id++)
             {
-                this->NMR.walkers[id].resetPosition();
-                this->NMR.walkers[id].resetSeed();
-                this->NMR.walkers[id].resetEnergy();
-                this->NMR.walkers[id].resetCollisions();
+                this->model.walkers[id].resetPosition();
+                this->model.walkers[id].resetSeed();
+                this->model.walkers[id].resetEnergy();
+                this->model.walkers[id].resetCollisions();
             }
         }
     } else
     {
-        for (uint id = 0; id < this->NMR.walkers.size(); id++)
+        for (uint id = 0; id < this->model.walkers.size(); id++)
         {
-            this->NMR.walkers[id].resetPosition();
-            this->NMR.walkers[id].resetSeed();
-            this->NMR.walkers[id].resetEnergy();
-            this->NMR.walkers[id].resetCollisions();
+            this->model.walkers[id].resetPosition();
+            this->model.walkers[id].resetSeed();
+            this->model.walkers[id].resetEnergy();
+            this->model.walkers[id].resetCollisions();
         }
     }   
 }
@@ -160,11 +160,11 @@ void NMR_PFGSE::updateWalkersXIrate(uint _rwsteps)
 {
 	// update walker's xirate with omp parallel for
 
-    if(this->NMR.rwNMR_config.getOpenMPUsage())
+    if(this->model.rwNMR_config.getOpenMPUsage())
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
-        const int loop_size = this->NMR.walkers.size();
+        const int loop_size = this->model.walkers.size();
         int loop_start, loop_finish;
 
         #pragma omp parallel private(loop_start, loop_finish) 
@@ -176,14 +176,14 @@ void NMR_PFGSE::updateWalkersXIrate(uint _rwsteps)
 
             for (uint id = loop_start; id < loop_finish; id++)
             {
-                this->NMR.walkers[id].updateXIrate(_rwsteps);
+                this->model.walkers[id].updateXIrate(_rwsteps);
             }
         }
     } else
     {
-        for (uint id = 0; id < this->NMR.walkers.size(); id++)
+        for (uint id = 0; id < this->model.walkers.size(); id++)
         {
-            this->NMR.walkers[id].updateXIrate(_rwsteps);
+            this->model.walkers[id].updateXIrate(_rwsteps);
         }
     }   
 }
@@ -193,15 +193,15 @@ void NMR_PFGSE::correctExposureTimes()
 	// apply 'physical' scaling
     if(this->PFGSE_config.getApplyScaleFactor())
     {
-        double scale_factor = (this->PFGSE_config.getInspectionLength() * this->PFGSE_config.getInspectionLength()) / this->NMR.getDiffusionCoefficient();
+        double scale_factor = (this->PFGSE_config.getInspectionLength() * this->PFGSE_config.getInspectionLength()) / this->model.getDiffusionCoefficient();
         cout << "applying scale factor: " << scale_factor << endl;
         for(int time = 0; time < this->exposureTimes.size(); time++)
         	this->exposureTimes[time] *= scale_factor;
     }
 	
 	cout << "- Correcting time samples to rw parameters" << endl;
-	double timePerStep = this->NMR.getTimeInterval();
-	double stepsPerEcho = (double) this->NMR.getStepsPerEcho();
+	double timePerStep = this->model.getTimeInterval();
+	double stepsPerEcho = (double) this->model.getStepsPerEcho();
 	uint stepsPerExpTime;
 	for(int time = 0; time < this->exposureTimes.size(); time++)
 	{
@@ -221,7 +221,7 @@ void NMR_PFGSE::setName()
 
 void NMR_PFGSE::createDirectoryForData()
 {
-	string path = this->NMR.getDBPath() + this->NMR.getSimulationName();
+	string path = this->model.getDBPath() + this->model.getSimulationName();
     BaseFunctions::createDirectory(path, this->name);
     this->dir = (path + "/" + this->name);
     BaseFunctions::createDirectory(this->dir, "/timesamples");
@@ -290,8 +290,8 @@ void NMR_PFGSE::setVectorK()
 void NMR_PFGSE::setNMRTimeFramework()
 {
 	cout << endl << "-- Exposure time: " << this->exposureTime << " ms";
-	this->NMR.setTimeFramework(this->exposureTime);
-	cout << " [" << this->NMR.simulationSteps << " RW-steps]" << endl;
+	this->model.setTimeFramework(this->exposureTime);
+	cout << " [" << this->model.simulationSteps << " RW-steps]" << endl;
 }
 
 void NMR_PFGSE::runInitialMapSimulation()
@@ -301,23 +301,23 @@ void NMR_PFGSE::runInitialMapSimulation()
 		double longestTime = (*this).getExposureTime(this->exposureTimes.size() - 1);
 		uint mapSteps = 40000;
 		bool mapByTime = true;
-		if(mapByTime) this->NMR.setTimeFramework(longestTime);
-		else this->NMR.setTimeFramework(mapSteps);
+		if(mapByTime) this->model.setTimeFramework(longestTime);
+		else this->model.setTimeFramework(mapSteps);
 		
 		cout << "- Initial map time: ";
 		if(mapByTime) cout << longestTime << " ms ";
-		cout << "[" << this->NMR.simulationSteps << " RW-steps]" << endl;
-		this->NMR.mapSimulation();
+		cout << "[" << this->model.simulationSteps << " RW-steps]" << endl;
+		this->model.mapSimulation();
 
 		// Update xi_rate and relaxivity of walkers
-		vector<double> rho = this->NMR.rwNMR_config.getRho();
-		if(this->NMR.rwNMR_config.getRhoType() == "uniform")    
+		vector<double> rho = this->model.rwNMR_config.getRho();
+		if(this->model.rwNMR_config.getRhoType() == "uniform")    
         {
-        	this->NMR.updateWalkersRelaxativity(rho[0]);
+        	this->model.updateWalkersRelaxativity(rho[0]);
     	} 
-    	else if(this->NMR.rwNMR_config.getRhoType() == "sigmoid")
+    	else if(this->model.rwNMR_config.getRhoType() == "sigmoid")
         {
-        	this->NMR.updateWalkersRelaxativity(rho);
+        	this->model.updateWalkersRelaxativity(rho);
         }
 	}
 }
@@ -481,7 +481,7 @@ void NMR_PFGSE::runSequence()
 
 void NMR_PFGSE::applyBulk()
 {
-	double bulkTime = -1.0 / this->NMR.getBulkRelaxationTime();
+	double bulkTime = -1.0 / this->model.getBulkRelaxationTime();
 	double bulkMagnitude = exp(bulkTime * (*this).getExposureTime());
 	
 	// Apply bulk relaxation in simulated signal
@@ -511,7 +511,7 @@ void NMR_PFGSE::createNoiseVector()
 		noiseBasis = 1.0;
 	} else 
 	{
-		noiseBasis = (double) this->NMR.getNumberOfWalkers(); 
+		noiseBasis = (double) this->model.getNumberOfWalkers(); 
 	}
 
 	this->rawNoise = getNewNoiseVector(noiseBasis * (*this).getNoiseAmp());
@@ -567,7 +567,7 @@ void NMR_PFGSE::applyNoiseToSignal()
 
 void NMR_PFGSE::simulation()
 {
-	if(this->NMR.gpu_use == true)
+	if(this->model.gpu_use == true)
 	{
 		(*this).simulation_cuda();
 	}
@@ -582,7 +582,7 @@ void NMR_PFGSE::recoverDsat()
 	cout << "- Stejskal-Tanner (s&t) ";
 	double time = omp_get_wtime();
 
-	if((this->NMR.getWalkerSamples() > 1) and this->PFGSE_config.getAllowWalkerSampling())
+	if((this->model.getWalkerSamples() > 1) and this->PFGSE_config.getAllowWalkerSampling())
 	{
 		cout << "with sampling:" <<  endl;
 		(*this).recoverDsatWithSampling();
@@ -668,13 +668,13 @@ void NMR_PFGSE::recoverDsatWithoutSampling()
 
 double ** NMR_PFGSE::getSamplesMagnitude()
 {
-	if(this->NMR.gpu_use == true)
+	if(this->model.gpu_use == true)
 	{
 		return (*this).computeSamplesMagnitudeWithGpu();
 	}
 	else
 	{
-		if(this->NMR.rwNMR_config.getOpenMPUsage())
+		if(this->model.rwNMR_config.getOpenMPUsage())
 		{
 			return (*this).computeSamplesMagnitudeWithOmp();
 		} else
@@ -694,7 +694,7 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 	Mkt_samples = new double*[this->gradientPoints];
 	for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 	{
-		Mkt_samples[kIdx] = new double[this->NMR.walkerSamples];
+		Mkt_samples[kIdx] = new double[this->model.walkerSamples];
 	}
 
 	/*
@@ -702,21 +702,21 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 	*/
 	for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 	{
-		for(int sample = 0; sample < this->NMR.walkerSamples; sample++)
+		for(int sample = 0; sample < this->model.walkerSamples; sample++)
 		{
 			Mkt_samples[kIdx][sample] = 0.0;
 		}
 	}	
 
-	double resolution = this->NMR.getImageVoxelResolution();
+	double resolution = this->model.getImageVoxelResolution();
 	double phase;
 	double dX, dY, dZ;
 
     // set omp variables for parallel loop throughout walker list
-    const int walkersPerSample = this->NMR.numberOfWalkers / this->NMR.walkerSamples;	
+    const int walkersPerSample = this->model.numberOfWalkers / this->model.walkerSamples;	
 	const int num_cpu_threads = omp_get_max_threads();
     int loop_start, loop_finish;
-	const int loop_size = this->NMR.walkerSamples;	
+	const int loop_size = this->model.walkerSamples;	
 
     /*
 		collect sum of data from phaseMagnitudes table
@@ -736,15 +736,15 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 			for(uint idx = 0; idx < walkersPerSample; idx++)
 	        {
 	            // Get walker displacement
-				dX = ((double) this->NMR.walkers[offset + idx].initialPosition.getX() - (double) this->NMR.walkers[offset + idx].position_x);
-				dY = ((double) this->NMR.walkers[offset + idx].initialPosition.getY() - (double) this->NMR.walkers[offset + idx].position_y);
-				dZ = ((double) this->NMR.walkers[offset + idx].initialPosition.getZ() - (double) this->NMR.walkers[offset + idx].position_z);
+				dX = ((double) this->model.walkers[offset + idx].initialPosition.getX() - (double) this->model.walkers[offset + idx].position_x);
+				dY = ((double) this->model.walkers[offset + idx].initialPosition.getY() - (double) this->model.walkers[offset + idx].position_y);
+				dZ = ((double) this->model.walkers[offset + idx].initialPosition.getZ() - (double) this->model.walkers[offset + idx].position_z);
 				Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
 					
 				for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 				{
 					phase = this->vecK[kIdx].dotProduct(dR);	
-					Mkt_samples[kIdx][sampleId] += cos(phase) * this->NMR.walkers[idx].energy;	
+					Mkt_samples[kIdx][sampleId] += cos(phase) * this->model.walkers[idx].energy;	
 				}
 	        }
 
@@ -764,7 +764,7 @@ double ** NMR_PFGSE::computeSamplesMagnitude()
 	Mkt_samples = new double*[this->gradientPoints];
 	for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 	{
-		Mkt_samples[kIdx] = new double[this->NMR.walkerSamples];
+		Mkt_samples[kIdx] = new double[this->model.walkerSamples];
 	}
 
 	/*
@@ -772,32 +772,32 @@ double ** NMR_PFGSE::computeSamplesMagnitude()
 	*/
 	for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 	{
-		for(int sample = 0; sample < this->NMR.walkerSamples; sample++)
+		for(int sample = 0; sample < this->model.walkerSamples; sample++)
 		{
 			Mkt_samples[kIdx][sample] = 0.0;
 		}
 	}	
 
-	double resolution = this->NMR.getImageVoxelResolution();
+	double resolution = this->model.getImageVoxelResolution();
 	double phase;
 	double dX, dY, dZ;
 
-	int walkersPerSample = this->NMR.numberOfWalkers / this->NMR.walkerSamples;	
-	for(int sample = 0; sample < this->NMR.walkerSamples; sample++)
+	int walkersPerSample = this->model.numberOfWalkers / this->model.walkerSamples;	
+	for(int sample = 0; sample < this->model.walkerSamples; sample++)
 	{		
 		int offset = sample * walkersPerSample;	
 		for(uint idx = 0; idx < walkersPerSample; idx++)
 		{
 			// Get walker displacement
-			dX = ((double) this->NMR.walkers[offset + idx].initialPosition.getX() - (double) this->NMR.walkers[offset + idx].position_x);
-			dY = ((double) this->NMR.walkers[offset + idx].initialPosition.getY() - (double) this->NMR.walkers[offset + idx].position_y);
-			dZ = ((double) this->NMR.walkers[offset + idx].initialPosition.getZ() - (double) this->NMR.walkers[offset + idx].position_z);
+			dX = ((double) this->model.walkers[offset + idx].initialPosition.getX() - (double) this->model.walkers[offset + idx].position_x);
+			dY = ((double) this->model.walkers[offset + idx].initialPosition.getY() - (double) this->model.walkers[offset + idx].position_y);
+			dZ = ((double) this->model.walkers[offset + idx].initialPosition.getZ() - (double) this->model.walkers[offset + idx].position_z);
 			Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
 			
 			for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 			{
 				phase = this->vecK[kIdx].dotProduct(dR);
-				Mkt_samples[kIdx][sample] += cos(phase) * this->NMR.walkers[idx].energy;;	
+				Mkt_samples[kIdx][sample] += cos(phase) * this->model.walkers[idx].energy;;	
 			}
 		}		 
 	}
@@ -815,7 +815,7 @@ double ** NMR_PFGSE::computeSamplesNoise()
 	Mkt_noise = new double*[(*this).getGradientPoints()];
 	for(uint kIdx = 0; kIdx < (*this).getGradientPoints(); kIdx++)
 	{
-		Mkt_noise[kIdx] = new double[this->NMR.getWalkerSamples()];
+		Mkt_noise[kIdx] = new double[this->model.getWalkerSamples()];
 	}
 
 	/*
@@ -823,7 +823,7 @@ double ** NMR_PFGSE::computeSamplesNoise()
 	*/
 	for(uint kIdx = 0; kIdx < this->getGradientPoints(); kIdx++)
 	{
-		for(int sample = 0; sample < this->NMR.getWalkerSamples(); sample++)
+		for(int sample = 0; sample < this->model.getWalkerSamples(); sample++)
 		{
 			Mkt_noise[kIdx][sample] = 0.0;
 		}
@@ -832,10 +832,10 @@ double ** NMR_PFGSE::computeSamplesNoise()
 	if((*this).getNoiseAmp() > 0.0)
 	{
 		// this factor is applied beacuse of the decreased magnetization Mkt
-		double M0 = (double) this->NMR.getNumberOfWalkers() / (double) this->NMR.getWalkerSamples();
+		double M0 = (double) this->model.getNumberOfWalkers() / (double) this->model.getWalkerSamples();
 		
 		
-		for(int sample = 0; sample < this->NMR.getWalkerSamples(); sample++)
+		for(int sample = 0; sample < this->model.getWalkerSamples(); sample++)
 		{
 			vector<double> noise = (*this).getNewNoiseVector(M0 * (*this).getNoiseAmp());
 			for(uint kIdx = 0; kIdx < this->getGradientPoints(); kIdx++)
@@ -851,7 +851,7 @@ double ** NMR_PFGSE::computeSamplesNoise()
 void NMR_PFGSE::recoverDsatWithSampling()
 {
 	bool time_verbose = false;
-	int walkersPerSample = this->NMR.numberOfWalkers / this->NMR.walkerSamples;	
+	int walkersPerSample = this->model.numberOfWalkers / this->model.walkerSamples;	
 	double tick, phaseTime, normTime, lhsTime, statTime, lsTime;	
 
 	/* 
@@ -869,9 +869,9 @@ void NMR_PFGSE::recoverDsatWithSampling()
 	// Apply bulk relaxation in simulated signal
 	if((*this).getApplyBulkRelaxation())
 	{
-		double bulkTime = -1.0 / this->NMR.getBulkRelaxationTime();
+		double bulkTime = -1.0 / this->model.getBulkRelaxationTime();
 		double bulkMagnitude = exp(bulkTime * (*this).getExposureTime());
-		for(int sample = 0; sample < this->NMR.walkerSamples; sample++)
+		for(int sample = 0; sample < this->model.walkerSamples; sample++)
 		{
 			for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 			{
@@ -883,7 +883,7 @@ void NMR_PFGSE::recoverDsatWithSampling()
 	// Add noise to signal
 	if((*this).getNoiseAmp() > 0.0)
 	{
-		for(uint sample = 0; sample < this->NMR.walkerSamples; sample++)
+		for(uint sample = 0; sample < this->model.walkerSamples; sample++)
 		{
 			for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 			{
@@ -902,10 +902,10 @@ void NMR_PFGSE::recoverDsatWithSampling()
 	nMkt_samples = new double*[this->gradientPoints];
 	for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 	{
-		nMkt_samples[kIdx] = new double[this->NMR.walkerSamples];
+		nMkt_samples[kIdx] = new double[this->model.walkerSamples];
 	}
 
-	for(int sample = 0; sample < this->NMR.walkerSamples; sample++)
+	for(int sample = 0; sample < this->model.walkerSamples; sample++)
 	{
 		double M0 = Mkt_samples[0][sample];
 		for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
@@ -923,7 +923,7 @@ void NMR_PFGSE::recoverDsatWithSampling()
 	LHS_samples = new double*[this->gradientPoints];
 	for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 	{
-		LHS_samples[kIdx] = new double[this->NMR.walkerSamples];
+		LHS_samples[kIdx] = new double[this->model.walkerSamples];
 	} 	
 	
 	/*
@@ -931,7 +931,7 @@ void NMR_PFGSE::recoverDsatWithSampling()
 	*/
 	tick = omp_get_wtime();
 	double lhs_value;
-	for(int sample = 0; sample < this->NMR.walkerSamples; sample++)
+	for(int sample = 0; sample < this->model.walkerSamples; sample++)
 	{
 		for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 		{	
@@ -951,11 +951,11 @@ void NMR_PFGSE::recoverDsatWithSampling()
 	vector<double> stDevLHS; stDevLHS.reserve(this->gradientPoints);
 	for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 	{
-		meanMkt.push_back((*this).mean(Mkt_samples[kIdx], this->NMR.walkerSamples));
-		stDevMkt.push_back((*this).stdDev(Mkt_samples[kIdx], this->NMR.walkerSamples, meanMkt[kIdx]));
-		meanNoise.push_back((*this).mean(Mkt_noise[kIdx], this->NMR.walkerSamples));
-		meanLHS.push_back((*this).mean(LHS_samples[kIdx], this->NMR.walkerSamples));
-		stDevLHS.push_back((*this).stdDev(LHS_samples[kIdx], this->NMR.walkerSamples, meanLHS[kIdx]));
+		meanMkt.push_back((*this).mean(Mkt_samples[kIdx], this->model.walkerSamples));
+		stDevMkt.push_back((*this).stdDev(Mkt_samples[kIdx], this->model.walkerSamples, meanMkt[kIdx]));
+		meanNoise.push_back((*this).mean(Mkt_noise[kIdx], this->model.walkerSamples));
+		meanLHS.push_back((*this).mean(LHS_samples[kIdx], this->model.walkerSamples));
+		stDevLHS.push_back((*this).stdDev(LHS_samples[kIdx], this->model.walkerSamples, meanLHS[kIdx]));
 	}
 	statTime = omp_get_wtime() - tick;
 
@@ -971,8 +971,8 @@ void NMR_PFGSE::recoverDsatWithSampling()
 		Stejskal-Tanner (s&t)
 	*/
 	tick = omp_get_wtime();
-	vector<double> Dsat; Dsat.reserve(this->NMR.walkerSamples);
-	vector<double> Dsat_error; Dsat_error.reserve(this->NMR.walkerSamples);
+	vector<double> Dsat; Dsat.reserve(this->model.walkerSamples);
+	vector<double> Dsat_error; Dsat_error.reserve(this->model.walkerSamples);
 	double DstdError;
 	(*this).applyThreshold();
 	cout << "points to sample: " << this->DsatAdjustSamples << endl;
@@ -985,7 +985,7 @@ void NMR_PFGSE::recoverDsatWithSampling()
 		RHS_buffer.push_back(this->RHS[point]);
 	}
 
-	for(int sample = 0; sample < this->NMR.walkerSamples; sample++)
+	for(int sample = 0; sample < this->model.walkerSamples; sample++)
 	{
 		// fill LHS data buffer for each sample
 		if(LHS_buffer.size() > 0)
@@ -1078,7 +1078,7 @@ void NMR_PFGSE::recoverDmsdWithoutSampling()
 	double XF, YF, ZF;
 	double normalizedDisplacement;
 	double nDx = 0.0; double nDy = 0.0; double nDz = 0.0;
-	double resolution = this->NMR.getImageVoxelResolution();
+	double resolution = this->model.getImageVoxelResolution();
 	double aliveWalkerFraction = 0.0;
 	
 	// Relaxation / Absorption equivalence
@@ -1093,9 +1093,9 @@ void NMR_PFGSE::recoverDmsdWithoutSampling()
 
 	// debug
 	// int imgX, imgY, imgZ;
-	for(uint idx = 0; idx < this->NMR.numberOfWalkers; idx++)
+	for(uint idx = 0; idx < this->model.numberOfWalkers; idx++)
 	{
-		Walker particle(this->NMR.walkers[idx]);
+		Walker particle(this->model.walkers[idx]);
 
 		// Get walker displacement
 		// X:
@@ -1148,14 +1148,14 @@ void NMR_PFGSE::recoverDmsdWithoutSampling()
 void NMR_PFGSE::recoverDmsdWithSampling()
 {
 	double time = omp_get_wtime();
-	int walkersPerSample = this->NMR.numberOfWalkers / this->NMR.walkerSamples;
+	int walkersPerSample = this->model.numberOfWalkers / this->model.walkerSamples;
 	double squaredDisplacement;
 	double displacementX, displacementY, displacementZ;
 	double X0, Y0, Z0;
 	double XF, YF, ZF;
 	double normalizedDisplacement;
 	double nDx, nDy, nDz;
-	double resolution = this->NMR.getImageVoxelResolution();
+	double resolution = this->model.getImageVoxelResolution();
 	double aliveWalkerFraction;
 
 	// Relaxation / Absorption equivalence
@@ -1168,17 +1168,17 @@ void NMR_PFGSE::recoverDmsdWithSampling()
 		nonAbsorption = 0.0;
 	}
 
-	vector<double> Dmsd; Dmsd.reserve(this->NMR.walkerSamples);
-	vector<double> DmsdX; DmsdX.reserve(this->NMR.walkerSamples);
-	vector<double> DmsdY; DmsdY.reserve(this->NMR.walkerSamples);
-	vector<double> DmsdZ; DmsdZ.reserve(this->NMR.walkerSamples);
-	vector<double> msd; msd.reserve(this->NMR.walkerSamples);
-	vector<double> msdX; msdX.reserve(this->NMR.walkerSamples);
-	vector<double> msdY; msdY.reserve(this->NMR.walkerSamples);
-	vector<double> msdZ; msdZ.reserve(this->NMR.walkerSamples);
+	vector<double> Dmsd; Dmsd.reserve(this->model.walkerSamples);
+	vector<double> DmsdX; DmsdX.reserve(this->model.walkerSamples);
+	vector<double> DmsdY; DmsdY.reserve(this->model.walkerSamples);
+	vector<double> DmsdZ; DmsdZ.reserve(this->model.walkerSamples);
+	vector<double> msd; msd.reserve(this->model.walkerSamples);
+	vector<double> msdX; msdX.reserve(this->model.walkerSamples);
+	vector<double> msdY; msdY.reserve(this->model.walkerSamples);
+	vector<double> msdZ; msdZ.reserve(this->model.walkerSamples);
 
 	// measure msd and Dmsd for each sample of walkers
-	for(int sample = 0; sample < this->NMR.walkerSamples; sample++)
+	for(int sample = 0; sample < this->model.walkerSamples; sample++)
 	{	
 		squaredDisplacement = 0.0;
 		nDx = 0.0; nDy = 0.0; nDz = 0.0;
@@ -1187,7 +1187,7 @@ void NMR_PFGSE::recoverDmsdWithSampling()
 		for(uint idx = 0; idx < walkersPerSample; idx++)
 		{
 			int offset = sample * walkersPerSample;
-			Walker particle(this->NMR.walkers[idx + offset]);
+			Walker particle(this->model.walkers[idx + offset]);
 
 			// Get walker displacement
 			// X:
@@ -1318,7 +1318,7 @@ void NMR_PFGSE::save()
 
     if(this->PFGSE_config.getSaveHistogram())
     {
-    	this->NMR.updateHistogram();
+    	this->model.updateHistogram();
     	(*this).writeHistogram();
     }    
 
@@ -1346,7 +1346,7 @@ void NMR_PFGSE::writeParameters()
     Vector3D maxGradient(this->vecGradient[this->vecGradient.size() - 1]);
     const int precision = std::numeric_limits<double>::max_digits10;  
 	file << "RWNMR-PFGSE Parameters" << endl; 
-	file << setprecision(precision) << "D_0: " << this->NMR.getDiffusionCoefficient() << endl;  
+	file << setprecision(precision) << "D_0: " << this->model.getDiffusionCoefficient() << endl;  
     file << setprecision(precision) << "Pulse width: " << this->pulseWidth << endl;
     file << setprecision(precision) << "Giromagnetic Ratio: " << (*this).getGiromagneticRatio() << endl;
 	file << setprecision(precision) << "Gradient direction: {" 
@@ -1447,9 +1447,9 @@ void NMR_PFGSE::writeMsd()
         exit(1);
     }
 
-	int walkersPerSample = this->NMR.numberOfWalkers;
+	int walkersPerSample = this->model.numberOfWalkers;
 	if(this->PFGSE_config.getAllowWalkerSampling())
-		walkersPerSample /= this->NMR.walkerSamples;
+		walkersPerSample /= this->model.walkerSamples;
     
     file << "msdX(mean),msdX(std),";
     file << "msdY(mean),msdY(std),";
@@ -1492,18 +1492,18 @@ void NMR_PFGSE::writeWalkers()
     file << ",RNGSeed" << endl;
 
     const int precision = 6;
-    for (uint index = 0; index < this->NMR.walkers.size(); index++)
+    for (uint index = 0; index < this->model.walkers.size(); index++)
     {
-        file << setprecision(precision) << this->NMR.walkers[index].getInitialPositionX()
-        << "," << this->NMR.walkers[index].getInitialPositionY()
-        << "," << this->NMR.walkers[index].getInitialPositionZ()
-        << "," << this->NMR.walkers[index].getPositionX() 
-        << "," << this->NMR.walkers[index].getPositionY() 
-        << "," << this->NMR.walkers[index].getPositionZ() 
-        << "," << this->NMR.walkers[index].getCollisions() 
-        << "," << this->NMR.walkers[index].getXIrate() 
-        << "," << this->NMR.walkers[index].getEnergy() 
-        << "," << this->NMR.walkers[index].getInitialSeed() << endl;
+        file << setprecision(precision) << this->model.walkers[index].getInitialPositionX()
+        << "," << this->model.walkers[index].getInitialPositionY()
+        << "," << this->model.walkers[index].getInitialPositionZ()
+        << "," << this->model.walkers[index].getPositionX() 
+        << "," << this->model.walkers[index].getPositionY() 
+        << "," << this->model.walkers[index].getPositionZ() 
+        << "," << this->model.walkers[index].getCollisions() 
+        << "," << this->model.walkers[index].getXIrate() 
+        << "," << this->model.walkers[index].getEnergy() 
+        << "," << this->model.walkers[index].getInitialSeed() << endl;
     }
 
     file.close();
@@ -1522,13 +1522,13 @@ void NMR_PFGSE::writeHistogram()
 
 	file << "Bins"; 
 	file << ",Amps" << endl;
-	const int num_points = this->NMR.histogram.getSize();
+	const int num_points = this->model.histogram.getSize();
 	const int precision = std::numeric_limits<double>::max_digits10;
 	for (int i = 0; i < num_points; i++)
 	{
 		file << setprecision(precision) 
-		<< this->NMR.histogram.bins[i] 
-		<< "," << this->NMR.histogram.amps[i] << endl;
+		<< this->model.histogram.bins[i] 
+		<< "," << this->model.histogram.amps[i] << endl;
 	}
 
 	file.close();
@@ -1545,7 +1545,7 @@ void NMR_PFGSE::writeHistogramList()
 		exit(1);
 	}
 
-	const int histograms = this->NMR.histogramList.size();
+	const int histograms = this->model.histogramList.size();
 
 	for(int hIdx = 0; hIdx < histograms; hIdx++)
 	{
@@ -1554,14 +1554,14 @@ void NMR_PFGSE::writeHistogramList()
 	}
 	file << endl;
 
-	const int num_points = this->NMR.histogram.getSize();
+	const int num_points = this->model.histogram.getSize();
 	const int precision = std::numeric_limits<double>::max_digits10;
 	for (int i = 0; i < num_points; i++)
 	{
 		for(int hIdx = 0; hIdx < histograms; hIdx++)
 		{
-			file << setprecision(precision)	<< this->NMR.histogramList[hIdx].bins[i] << ",";
-			file << setprecision(precision)	<< this->NMR.histogramList[hIdx].amps[i] << ",";
+			file << setprecision(precision)	<< this->model.histogramList[hIdx].bins[i] << ",";
+			file << setprecision(precision)	<< this->model.histogramList[hIdx].amps[i] << ",";
 		}
 
 		file << endl;
@@ -1638,11 +1638,11 @@ void NMR_PFGSE::simulation_omp()
 
     // reset walker's initial state with omp parallel for
 // #pragma if(NMR_OPENMP) omp parallel for private(id) shared(walkers)
-    for (uint id = 0; id < this->NMR.walkers.size(); id++)
+    for (uint id = 0; id < this->model.walkers.size(); id++)
     {
-        this->NMR.walkers[id].resetPosition();
-        this->NMR.walkers[id].resetSeed();
-        this->NMR.walkers[id].resetEnergy();
+        this->model.walkers[id].resetPosition();
+        this->model.walkers[id].resetSeed();
+        this->model.walkers[id].resetEnergy();
     }
 
     // set derivables
@@ -1651,15 +1651,15 @@ void NMR_PFGSE::simulation_omp()
 	myAllocator arrayFactory; 
 	double *globalPhase = arrayFactory.getDoubleArray(this->gradientPoints);
     double globalEnergy = 0.0;
-    double resolution = this->NMR.imageVoxelResolution;
+    double resolution = this->model.imageVoxelResolution;
     
     // main loop
 	// reset walker's initial state with omp parallel for
-    if(this->NMR.rwNMR_config.getOpenMPUsage())
+    if(this->model.rwNMR_config.getOpenMPUsage())
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
-        const int loop_size = this->NMR.walkers.size();
+        const int loop_size = this->model.walkers.size();
         int loop_start, loop_finish; 
 
 		#pragma omp parallel shared(gamma, globalPhase, globalEnergy, resolution) private(loop_start, loop_finish) 
@@ -1675,27 +1675,27 @@ void NMR_PFGSE::simulation_omp()
             for(uint id = loop_start; id < loop_finish; id++)
             {
 				// reset energy
-				this->NMR.walkers[id].resetPosition();
-				this->NMR.walkers[id].resetSeed();
-				this->NMR.walkers[id].resetEnergy();
+				this->model.walkers[id].resetPosition();
+				this->model.walkers[id].resetSeed();
+				this->model.walkers[id].resetEnergy();
 				
 				// make walkers walk througout image
-				for (uint step = 0; step < this->NMR.simulationSteps; step++)
+				for (uint step = 0; step < this->model.simulationSteps; step++)
 				{
-					this->NMR.walkers[id].walk(this->NMR.bitBlock);     
+					this->model.walkers[id].walk(this->model.bitBlock);     
 				}
 
 				// get final individual signal
-				walkerEnergy = this->NMR.walkers[id].energy;
+				walkerEnergy = this->model.walkers[id].energy;
 				#pragma omp critical
 				{
 					globalEnergy += walkerEnergy;
 				}
 
 				// get final individual phase
-				double dX = ((double) this->NMR.walkers[id].position_x) - ((double) this->NMR.walkers[id].initialPosition.getX());
-				double dY = ((double) this->NMR.walkers[id].position_y) - ((double) this->NMR.walkers[id].initialPosition.getY());
-				double dZ = ((double) this->NMR.walkers[id].position_z) - ((double) this->NMR.walkers[id].initialPosition.getZ());
+				double dX = ((double) this->model.walkers[id].position_x) - ((double) this->model.walkers[id].initialPosition.getX());
+				double dY = ((double) this->model.walkers[id].position_y) - ((double) this->model.walkers[id].initialPosition.getY());
+				double dZ = ((double) this->model.walkers[id].position_z) - ((double) this->model.walkers[id].initialPosition.getZ());
 
 				Vector3D dR(dX,dY,dZ);
 				Vector3D wavevector_k;
@@ -1721,28 +1721,28 @@ void NMR_PFGSE::simulation_omp()
 		double walkerPhase;
 		double walkerEnergy;
 
-		for(uint id = 0; id < this->NMR.walkers.size(); id++)
+		for(uint id = 0; id < this->model.walkers.size(); id++)
 		{
 			// reset energy
-			this->NMR.walkers[id].resetPosition();
-			this->NMR.walkers[id].resetSeed();
-			this->NMR.walkers[id].resetEnergy();
+			this->model.walkers[id].resetPosition();
+			this->model.walkers[id].resetSeed();
+			this->model.walkers[id].resetEnergy();
 			
 			// make walkers walk througout image
-			for (uint step = 0; step < this->NMR.simulationSteps; step++)
+			for (uint step = 0; step < this->model.simulationSteps; step++)
 			{
-				this->NMR.walkers[id].walk(this->NMR.bitBlock);     
+				this->model.walkers[id].walk(this->model.bitBlock);     
 			}
 
 			// get final individual signal
-			walkerEnergy = this->NMR.walkers[id].energy;
+			walkerEnergy = this->model.walkers[id].energy;
 			globalEnergy += walkerEnergy;
 			
 
 			// get final individual phase
-			double dX = ((double) this->NMR.walkers[id].position_x) - ((double) this->NMR.walkers[id].initialPosition.getX());
-			double dY = ((double) this->NMR.walkers[id].position_y) - ((double) this->NMR.walkers[id].initialPosition.getY());
-			double dZ = ((double) this->NMR.walkers[id].position_z) - ((double) this->NMR.walkers[id].initialPosition.getZ());
+			double dX = ((double) this->model.walkers[id].position_x) - ((double) this->model.walkers[id].initialPosition.getX());
+			double dY = ((double) this->model.walkers[id].position_y) - ((double) this->model.walkers[id].initialPosition.getY());
+			double dZ = ((double) this->model.walkers[id].position_z) - ((double) this->model.walkers[id].initialPosition.getZ());
 
 			Vector3D dR(dX,dY,dZ);
 			Vector3D wavevector_k;
