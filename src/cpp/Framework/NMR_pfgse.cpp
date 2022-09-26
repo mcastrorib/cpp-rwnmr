@@ -2,7 +2,7 @@
 
 std::mt19937 NMR_PFGSE::_rng;
 
-NMR_PFGSE::NMR_PFGSE(NMR_Simulation &_NMR,  
+NMR_PFGSE::NMR_PFGSE(Model &_NMR,  
 				     pfgse_config _pfgseConfig,
 					 int _mpi_rank,
 					 int _mpi_processes) : NMR(_NMR),
@@ -1873,7 +1873,7 @@ vector<double> NMR_PFGSE::getNormalDistributionSamples(const double loc, const d
 	
 	for (int i = 0; i < size; i++)
 	{
-		randomData.emplace_back(distribution(NMR_Simulation::_rng));
+		randomData.emplace_back(distribution(Model::_rng));
 	}
 
 	return randomData;

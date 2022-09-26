@@ -1,19 +1,4 @@
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <math.h>
-
-// include OpenMP for multicore implementation
-#include <omp.h>
-
-//include
 #include "ChordLengthHistogram.h"
-#include "NMR_Simulation.h"
-#include "BitBlock.h"
-
-using namespace std;
 
 ChordLengthHistogram::ChordLengthHistogram():size(0),
 										 	 gap(1),

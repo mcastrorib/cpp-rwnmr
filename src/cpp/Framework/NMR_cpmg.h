@@ -1,8 +1,8 @@
 #ifndef NMR_CPMG_H
 #define NMR_CPMG_H
 
-#include "NMR_defs.h"
-#include "NMR_Simulation.h"
+#include "Defs.h"
+#include "Model.h"
 #include "InternalField.h"
 #include "Walker.h"
 
@@ -11,7 +11,7 @@ using namespace std;
 class NMR_cpmg
 {
 public:
-	NMR_Simulation &NMR;
+	Model &NMR;
 	cpmg_config CPMG_config;
 	string name;
 	string dir;
@@ -28,7 +28,7 @@ public:
     
 
 
-	NMR_cpmg(NMR_Simulation &_NMR, 
+	NMR_cpmg(Model &_NMR, 
 			  cpmg_config _cpmgConfig,
 			  int _mpi_rank = 0, 
 			  int _mpi_processes = 0);	

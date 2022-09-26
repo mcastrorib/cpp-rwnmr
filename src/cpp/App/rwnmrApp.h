@@ -10,7 +10,7 @@
 
 #include "../Utils/Utils.h"
 #include "../ConfigFiles/ConfigFiles.h"
-#include "../NMR_Simulation/NMR_Includes.h"
+#include "../Framework/Framework.h"
 
 using namespace std;
 
@@ -20,7 +20,7 @@ public:
     const string project_root;
     string config_root;
     ArgsParser args;
-    NMR_Simulation *NMR;
+    Model *NMR;
 
     // default constructors
     rwnmrApp(){};
@@ -53,7 +53,7 @@ public:
 
     string getProjectRoot() { return this->project_root; }
     string getConfigRoot() { return this->config_root; }
-    NMR_Simulation& getNMR() { return (*this->NMR); }
+    Model& getModel() { return (*this->NMR); }
     ArgsParser& getArgs() { return this->args; }
     string getArgsPath(uint idx) { return this->args.getPath(idx); }
     void setConfigRoot(string _croot) { this->config_root = _croot; }

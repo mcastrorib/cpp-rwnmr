@@ -1,6 +1,6 @@
 #include "NMR_cpmg.h"
 
-NMR_cpmg::NMR_cpmg( NMR_Simulation &_NMR,  
+NMR_cpmg::NMR_cpmg( Model &_NMR,  
                     cpmg_config _cpmgConfig,
                     int _mpi_rank,
                     int _mpi_processes) : NMR(_NMR),

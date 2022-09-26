@@ -2,7 +2,7 @@
 
 using namespace std;
 
-NMR_multitau::NMR_multitau( NMR_Simulation &_NMR,  
+NMR_multitau::NMR_multitau( Model &_NMR,  
                             multitau_config _multitauConfig,  
                             cpmg_config _cpmgConfig,
                             int _mpi_rank,

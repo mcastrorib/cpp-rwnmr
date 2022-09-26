@@ -3,9 +3,9 @@
 
 
 #include "cuda_runtime.h"
-#include "../NMR_defs.h"
+#include "../Defs.h"
 #include "../Walker.h"
-#include "../NMR_Simulation.h"
+#include "../Model.h"
 #include "../NMR_pfgse.h"
 
 

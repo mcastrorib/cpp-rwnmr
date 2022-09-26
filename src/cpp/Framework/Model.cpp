@@ -1,8 +1,8 @@
-#include "NMR_Simulation.h"
+#include "Model.h"
 
-std::mt19937 NMR_Simulation::_rng;
+std::mt19937 Model::_rng;
 
-NMR_Simulation::NMR_Simulation(rwnmr_config _rwNMR_config, 
+Model::Model(rwnmr_config _rwNMR_config, 
                                uct_config _uCT_config,
                                string _project_root) :   rwNMR_config(_rwNMR_config),
                                                          uCT_config(_uCT_config),
@@ -26,9 +26,6 @@ NMR_Simulation::NMR_Simulation(rwnmr_config _rwNMR_config,
     vector<Point3D> pores();
     vector<uint> walkersIDList();
     vector<Walker> walkers();
-    vector<double> T2_bins();
-    vector<double> T2_input();
-    vector<double> T2_simulated();
     vector<CollisionHistogram> histogramList();
 
     // set simulation name and directory to save results
@@ -52,8 +49,8 @@ NMR_Simulation::NMR_Simulation(rwnmr_config _rwNMR_config,
         (*this).setInitialSeed(this->rwNMR_config.getSeed(), true);
     }   
     // Initialize random state
-    NMR_Simulation::_rng.seed((*this).getInitialSeed());
-    NMR_Simulation::_rng.discard(4096);
+    Model::_rng.seed((*this).getInitialSeed());
+    Model::_rng.discard(4096);
 
 
     // assign attributes from uct config files
@@ -68,14 +65,14 @@ NMR_Simulation::NMR_Simulation(rwnmr_config _rwNMR_config,
     (*this).setBoundaryCondition(this->rwNMR_config.getBC());
 }
 
-void NMR_Simulation::setImage(ImagePath _path, uint _images)
+void Model::setImage(ImagePath _path, uint _images)
 {
     this->imagePath = _path;
     this->numberOfImages = _images;
     this->depth = this->numberOfImages;
 }
 
-void NMR_Simulation::setSimulation(double _occupancy, uint64_t _seed, bool _use_GPU)
+void Model::setSimulation(double _occupancy, uint64_t _seed, bool _use_GPU)
 { 
     this->gpu_use = _use_GPU;
     this->walkerOccupancy = _occupancy;
@@ -90,67 +87,67 @@ void NMR_Simulation::setSimulation(double _occupancy, uint64_t _seed, bool _use_
     }
 }
 
-void NMR_Simulation::setGPU(bool _useGPU)
+void Model::setGPU(bool _useGPU)
 {
     this->gpu_use = _useGPU;
 }
 
-void NMR_Simulation::setImageOccupancy(double _occupancy)
+void Model::setImageOccupancy(double _occupancy)
 {
     this->walkerOccupancy = _occupancy;
 }
 
-void NMR_Simulation::setInitialSeed(uint64_t _seed, bool _flag)
+void Model::setInitialSeed(uint64_t _seed, bool _flag)
 {
     this->initialSeed = _seed; 
     this->seedFlag = _flag;
 }
 
-void NMR_Simulation::setBoundaryCondition(string _bc)
+void Model::setBoundaryCondition(string _bc)
 {
     this->boundaryCondition = _bc;
 }
 
-void NMR_Simulation::setFreeDiffusionCoefficient(double _D0)
+void Model::setFreeDiffusionCoefficient(double _D0)
 {
     this->diffusionCoefficient = _D0;
 }
 
-void NMR_Simulation::setGiromagneticRatio(double _gamma, string _unit)
+void Model::setGiromagneticRatio(double _gamma, string _unit)
 {
     if(_unit == "mhertz") this->giromagneticRatio = _gamma * TWO_PI;
     else this->giromagneticRatio = _gamma;
 }
 
-void NMR_Simulation::setBulkRelaxationTime(double _bulkTime)
+void Model::setBulkRelaxationTime(double _bulkTime)
 {
     this->bulkRelaxationTime = _bulkTime;
 }
 
-void NMR_Simulation::setImageResolution(double _resolution)
+void Model::setImageResolution(double _resolution)
 {
     this->imageResolution = _resolution;
 }
 
-void NMR_Simulation::setImageVoxelResolution()
+void Model::setImageVoxelResolution()
 {
     this->imageVoxelResolution = this->imageResolution / (double) this->voxelDivision;
 }
 
-void NMR_Simulation::setTimeInterval()
+void Model::setTimeInterval()
 {
     this->timeInterval = (this->imageVoxelResolution * this->imageVoxelResolution) / 
                          (6 * this->diffusionCoefficient);
 }
 
-void NMR_Simulation::setVoxelDivision(uint _shifts)
+void Model::setVoxelDivision(uint _shifts)
 {
     this->voxelDivision = pow(2,_shifts);
     if(this->voxelDivision > 1) this->voxelDivisionApplied = true;
     else this->voxelDivisionApplied = false;
 }
 
-void NMR_Simulation::applyVoxelDivision(uint _shifts)
+void Model::applyVoxelDivision(uint _shifts)
 {
     double time = omp_get_wtime();
     cout << "- applying voxel division:" << endl;
@@ -191,9 +188,9 @@ void NMR_Simulation::applyVoxelDivision(uint _shifts)
                 idx = pack * packSize + i;
 
                 // randomly place walker in voxel sites
-                shiftX = ((int) this->walkers[idx].initialPosition.getX() * shiftFactor) + dist(NMR_Simulation::_rng);
-                shiftY = ((int) this->walkers[idx].initialPosition.getY() * shiftFactor) + dist(NMR_Simulation::_rng);
-                shiftZ = ((int) this->walkers[idx].initialPosition.getZ() * shiftFactor) + dist(NMR_Simulation::_rng);
+                shiftX = ((int) this->walkers[idx].initialPosition.getX() * shiftFactor) + dist(Model::_rng);
+                shiftY = ((int) this->walkers[idx].initialPosition.getY() * shiftFactor) + dist(Model::_rng);
+                shiftZ = ((int) this->walkers[idx].initialPosition.getZ() * shiftFactor) + dist(Model::_rng);
                 this->walkers[idx].placeWalker(shiftX, shiftY, shiftZ);
 
                 // update collision penalty
@@ -210,9 +207,9 @@ void NMR_Simulation::applyVoxelDivision(uint _shifts)
             idx = (walkerPacks - 1) * packSize + i;
 
             // randomly place walker in voxel sites
-            shiftX = ((int) this->walkers[idx].initialPosition.getX() * shiftFactor) + dist(NMR_Simulation::_rng);
-            shiftY = ((int) this->walkers[idx].initialPosition.getY() * shiftFactor) + dist(NMR_Simulation::_rng);
-            shiftZ = ((int) this->walkers[idx].initialPosition.getZ() * shiftFactor) + dist(NMR_Simulation::_rng);
+            shiftX = ((int) this->walkers[idx].initialPosition.getX() * shiftFactor) + dist(Model::_rng);
+            shiftY = ((int) this->walkers[idx].initialPosition.getY() * shiftFactor) + dist(Model::_rng);
+            shiftZ = ((int) this->walkers[idx].initialPosition.getZ() * shiftFactor) + dist(Model::_rng);
             this->walkers[idx].placeWalker(shiftX, shiftY, shiftZ);
 
             // update collision penalty
@@ -228,13 +225,13 @@ void NMR_Simulation::applyVoxelDivision(uint _shifts)
     cout << " in " << time << " seconds." << endl; 
 }
 
-void NMR_Simulation::setNumberOfStepsPerEcho(uint _stepsPerEcho)
+void Model::setNumberOfStepsPerEcho(uint _stepsPerEcho)
 {
     this->stepsPerEcho = _stepsPerEcho;
 }
 
 // param @_time needs to be in miliseconds
-void NMR_Simulation::setNumberOfStepsFromTime(double _time)
+void Model::setNumberOfStepsFromTime(double _time)
 {
     // _time = _time;
     this->simulationSteps =  round( _time * (6 * this->diffusionCoefficient / (this->imageVoxelResolution * this->imageVoxelResolution))); 
@@ -243,7 +240,7 @@ void NMR_Simulation::setNumberOfStepsFromTime(double _time)
     if(this->simulationSteps < this->stepsPerEcho) this->simulationSteps = this->stepsPerEcho;
 }
 
-void NMR_Simulation::setTimeFramework(uint _steps)
+void Model::setTimeFramework(uint _steps)
 {
     if(_steps < this->stepsPerEcho) _steps = this->stepsPerEcho;
     this->numberOfEchoes = (uint)ceil( _steps / (double)this->stepsPerEcho);
@@ -251,14 +248,14 @@ void NMR_Simulation::setTimeFramework(uint _steps)
 }
 
 // param @_time needs to be in miliseconds
-void NMR_Simulation::setTimeFramework(double _time)
+void Model::setTimeFramework(double _time)
 {
     (*this).setNumberOfStepsFromTime(_time);
     this->numberOfEchoes = (uint)ceil((double)this->simulationSteps / (double)this->stepsPerEcho);
     this->simulationSteps = this->numberOfEchoes * this->stepsPerEcho;
 }
 
-void NMR_Simulation::readImage()
+void Model::readImage()
 {
     if(this->uCT_config.IMG_FILES.size() == this->uCT_config.SLICES)
     {
@@ -277,12 +274,9 @@ void NMR_Simulation::readImage()
     (*this).countPoresInBitBlock();
     (*this).countInterfacePoreMatrix();
 
-    
-    // ChordLengthHistogram chordsHistogram(this->bitBlock);
-    // chordsHistogram.save(this->simulationDirectory);
 }
 
-void NMR_Simulation::setWalkers(void)
+void Model::setWalkers(void)
 {
     if(this->bitBlock.getNumberOfBlocks() > 0) // only set walkers, if image was loaded
     {
@@ -323,7 +317,7 @@ void NMR_Simulation::setWalkers(void)
     
 }
 
-void NMR_Simulation::setWalkers(uint _numberOfWalkers, bool _randomInsertion)
+void Model::setWalkers(uint _numberOfWalkers, bool _randomInsertion)
 {    
     (*this).setNumberOfWalkers(_numberOfWalkers);
     (*this).updateWalkerOccupancy();
@@ -344,7 +338,7 @@ void NMR_Simulation::setWalkers(uint _numberOfWalkers, bool _randomInsertion)
     (*this).associateMapSimulation(); 
 }
 
-void NMR_Simulation::setWalkers(Point3D _point, uint _numberOfWalkers)
+void Model::setWalkers(Point3D _point, uint _numberOfWalkers)
 {    
     (*this).setNumberOfWalkers(_numberOfWalkers);
     (*this).updateWalkerOccupancy();
@@ -356,7 +350,7 @@ void NMR_Simulation::setWalkers(Point3D _point, uint _numberOfWalkers)
     (*this).associateMapSimulation(); 
 }
 
-void NMR_Simulation::setWalkers(Point3D _point1, Point3D _point2, uint _numberOfWalkers)
+void Model::setWalkers(Point3D _point1, Point3D _point2, uint _numberOfWalkers)
 {    
     (*this).setNumberOfWalkers(_numberOfWalkers);
     (*this).updateWalkerOccupancy();
@@ -370,7 +364,7 @@ void NMR_Simulation::setWalkers(Point3D _point1, Point3D _point2, uint _numberOf
 }
 
 // save results
-void NMR_Simulation::save()
+void Model::save()
 {
     double time = omp_get_wtime();
     cout << "saving results:" << endl;
@@ -407,7 +401,7 @@ void NMR_Simulation::save()
 }
 
 // save results in other directory
-void NMR_Simulation::save(string _otherDir)
+void Model::save(string _otherDir)
 {
     double time = omp_get_wtime();
     cout << "saving results...";
@@ -442,7 +436,7 @@ void NMR_Simulation::save(string _otherDir)
     cout << " in " << time << " seconds." << endl; 
 }
 
-void NMR_Simulation::loadRockImage()
+void Model::loadRockImage()
 {
     double time = omp_get_wtime();
     cout << "- loading rock image:" << endl;
@@ -494,7 +488,7 @@ void NMR_Simulation::loadRockImage()
     cout << " in " << time << " seconds." << endl;
 }
 
-void NMR_Simulation::loadRockImageFromList()
+void Model::loadRockImageFromList()
 {
     double time = omp_get_wtime();
     cout << "- loading rock image from list:" << endl;
@@ -535,7 +529,7 @@ void NMR_Simulation::loadRockImageFromList()
 }
 
 
-void NMR_Simulation::createBinaryMap(Mat &_rockImage, uint slice)
+void Model::createBinaryMap(Mat &_rockImage, uint slice)
 {
     // create an "empty" image to be filled in binary map vector
     Mat emptyMap = Mat::zeros(_rockImage.rows, _rockImage.cols, CV_8UC1);
@@ -577,7 +571,7 @@ void NMR_Simulation::createBinaryMap(Mat &_rockImage, uint slice)
     };
 }
 
-void NMR_Simulation::createBitBlockMap()
+void Model::createBitBlockMap()
 {
     double time = omp_get_wtime();
     cout << "- creating (bit)block map:" << endl;
@@ -594,7 +588,7 @@ void NMR_Simulation::createBitBlockMap()
 }
 
 // deprecated
-void NMR_Simulation::countPoresInBinaryMap()
+void Model::countPoresInBinaryMap()
 {
     double time = omp_get_wtime(); 
     cout << "counting ";
@@ -633,7 +627,7 @@ void NMR_Simulation::countPoresInBinaryMap()
     cout << "porosity: " << this->porosity << endl;
 }
 
-void NMR_Simulation::countPoresInBitBlock()
+void Model::countPoresInBitBlock()
 {
     double time = omp_get_wtime(); 
     cout << "- counting pore voxels in rock image:" << endl;
@@ -686,7 +680,7 @@ void NMR_Simulation::countPoresInBitBlock()
     cout << "porosity: " << this->porosity << endl;
 }
 
-void NMR_Simulation::countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2)
+void Model::countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2)
 {
     double time = omp_get_wtime(); 
     cout << "- counting pore voxels in cubic space:" << endl;
@@ -776,7 +770,7 @@ void NMR_Simulation::countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2)
     cout << "porosity: " << this->porosity << endl; 
 }
 
-void NMR_Simulation::countInterfacePoreMatrix()
+void Model::countInterfacePoreMatrix()
 {
     double time = omp_get_wtime(); 
     cout << "- counting pore-matrix interface voxels in rock image:" << endl;
@@ -870,25 +864,25 @@ void NMR_Simulation::countInterfacePoreMatrix()
     cout << "S/Vp: " << this->SVp << endl;
 }
 
-void NMR_Simulation::updateSVp()
+void Model::updateSVp()
 {
     double voxelFacialArea = (*this).getImageVoxelResolution() * (*this).getImageVoxelResolution();
     double voxelVolume = voxelFacialArea * (*this).getImageVoxelResolution();
     this->SVp = ((double) this->interfacePoreMatrix * voxelFacialArea) / ((double) this->numberOfPores * voxelVolume);
 }
 
-void NMR_Simulation::updatePorosity()
+void Model::updatePorosity()
 {
     this->porosity = (double) this->numberOfPores / 
                      (double) (this->bitBlock.imageColumns * this->bitBlock.imageRows * this->bitBlock.imageDepth);
 }
 
-void NMR_Simulation::updateNumberOfPores()
+void Model::updateNumberOfPores()
 {
     this->numberOfPores = (uint) (this->porosity * (double) (this->bitBlock.imageColumns * this->bitBlock.imageRows * this->bitBlock.imageDepth));
 }
 
-void NMR_Simulation::createPoreList()
+void Model::createPoreList()
 {
     double time = omp_get_wtime(); 
     cout << "- creating complete pore list:" << endl;
@@ -940,7 +934,7 @@ void NMR_Simulation::createPoreList()
     cout << " in " << time << " seconds." << endl; 
 }
 
-void NMR_Simulation::createPoreList(Point3D _vertex1, Point3D _vertex2)
+void Model::createPoreList(Point3D _vertex1, Point3D _vertex2)
 {
     double time = omp_get_wtime(); 
     cout << "- creating restricted pore list:" << endl;
@@ -1029,22 +1023,22 @@ void NMR_Simulation::createPoreList(Point3D _vertex1, Point3D _vertex2)
     cout << " in " << time << " seconds." << endl; 
 }
 
-void NMR_Simulation::setNumberOfWalkers(uint _numberOfWalkers)
+void Model::setNumberOfWalkers(uint _numberOfWalkers)
 {   
     this->numberOfWalkers = _numberOfWalkers;
 }
 
-void NMR_Simulation::setWalkerSamples(uint _samples)
+void Model::setWalkerSamples(uint _samples)
 {   
     this->walkerSamples = _samples;
 }
 
-void NMR_Simulation::updateWalkerOccupancy()
+void Model::updateWalkerOccupancy()
 {   
     this->walkerOccupancy = (this->numberOfWalkers / ((double) this->numberOfPores)); 
 }
 
-void NMR_Simulation::createWalkersIDList()
+void Model::createWalkersIDList()
 {
     double time = omp_get_wtime();
     cout << "- creating walkers ID list:" << endl;
@@ -1073,7 +1067,7 @@ void NMR_Simulation::createWalkersIDList()
         for (uint i = 0; i < packSize; i++)
         {
             idx = pack * packSize + i;
-            this->walkersIDList.push_back(dist(NMR_Simulation::_rng));
+            this->walkersIDList.push_back(dist(Model::_rng));
         }
 
         // Update progress bar
@@ -1084,7 +1078,7 @@ void NMR_Simulation::createWalkersIDList()
     for (uint i = 0; i < (packSize + lastPackSize); i++)
     {
         idx = (walkerPacks - 1) * packSize + i;
-        this->walkersIDList.push_back(dist(NMR_Simulation::_rng));
+        this->walkersIDList.push_back(dist(Model::_rng));
     }
 
     // Last update in progress bar
@@ -1097,7 +1091,7 @@ void NMR_Simulation::createWalkersIDList()
 }
 
 
-void NMR_Simulation::createWalkers()
+void Model::createWalkers()
 {
     double time = omp_get_wtime();
     cout << "- creating " << this->numberOfWalkers << " walkers:" << endl;
@@ -1137,7 +1131,7 @@ void NMR_Simulation::createWalkers()
             if(this->rwNMR_config.getRhoType() == "uniform") this->walkers[idx].setSurfaceRelaxivity(rho[0]);
             else if(this->rwNMR_config.getRhoType() == "sigmoid") this->walkers[idx].setSurfaceRelaxivity(rho);
             this->walkers[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
-            this->walkers[idx].setRandomSeed(uint64_dist(NMR_Simulation::_rng));
+            this->walkers[idx].setRandomSeed(uint64_dist(Model::_rng));
         }
 
         // Update progress bar
@@ -1153,7 +1147,7 @@ void NMR_Simulation::createWalkers()
         if(this->rwNMR_config.getRhoType() == "uniform") this->walkers[idx].setSurfaceRelaxivity(rho[0]);
         else if(this->rwNMR_config.getRhoType() == "sigmoid") this->walkers[idx].setSurfaceRelaxivity(rho);
         this->walkers[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
-        this->walkers[idx].setRandomSeed(uint64_dist(NMR_Simulation::_rng)); 
+        this->walkers[idx].setRandomSeed(uint64_dist(Model::_rng)); 
     }
 
     // Update progress bar
@@ -1165,7 +1159,7 @@ void NMR_Simulation::createWalkers()
 }
 
 
-void NMR_Simulation::placeWalkersByChance()
+void Model::placeWalkersByChance()
 {
 
     double time = omp_get_wtime();
@@ -1199,9 +1193,9 @@ void NMR_Simulation::placeWalkersByChance()
     while(walkersInserted < this->numberOfWalkers && errorCount < erroLimit)
     {
         // randomly choose a position
-        point.setX(columnDist(NMR_Simulation::_rng));
-        point.setY(rowDist(NMR_Simulation::_rng));
-        point.setZ(depthDist(NMR_Simulation::_rng));
+        point.setX(columnDist(Model::_rng));
+        point.setY(rowDist(Model::_rng));
+        point.setZ(depthDist(Model::_rng));
         if(dim3)
         {
             validPoint = walkers[idx].checkNextPosition_3D(point, this->bitBlock);        
@@ -1229,7 +1223,7 @@ void NMR_Simulation::placeWalkersByChance()
 }
 
 
-void NMR_Simulation::placeWalkersUniformly()
+void Model::placeWalkersUniformly()
 {
     double time = omp_get_wtime();
     cout << "- placing walkers uniformly ";
@@ -1293,7 +1287,7 @@ void NMR_Simulation::placeWalkersUniformly()
     cout << " in " << time << " seconds." << endl; 
 }
 
-void NMR_Simulation::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
+void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
 {
     double time = omp_get_wtime();
     cout << "- placing walkers at point ";
@@ -1353,7 +1347,7 @@ void NMR_Simulation::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
     }
 }
 
-void NMR_Simulation::placeWalkersInCubicSpace(Point3D _vertex1, Point3D _vertex2)
+void Model::placeWalkersInCubicSpace(Point3D _vertex1, Point3D _vertex2)
 {
     double time = omp_get_wtime();
     cout << "- placing walkers at selected space: " << endl;
@@ -1400,7 +1394,7 @@ void NMR_Simulation::placeWalkersInCubicSpace(Point3D _vertex1, Point3D _vertex2
         for(uint id = 0; id < this->numberOfWalkers; id++)
         {   
     
-            uint poreID = selectedPores[dist(NMR_Simulation::_rng)];
+            uint poreID = selectedPores[dist(Model::_rng)];
             this->walkers[id].placeWalker(this->pores[poreID].getX(), 
                                           this->pores[poreID].getY(), 
                                           this->pores[poreID].getZ());
@@ -1414,7 +1408,7 @@ void NMR_Simulation::placeWalkersInCubicSpace(Point3D _vertex1, Point3D _vertex2
     cout << " in " << time << " seconds." << endl; 
 }
 
-void NMR_Simulation::initHistogramList()
+void Model::initHistogramList()
 {   
     int numberOfHistograms = this->rwNMR_config.getHistograms();
 
@@ -1439,26 +1433,26 @@ void NMR_Simulation::initHistogramList()
     this->histogramList.back().lastEcho += echosInLastHistogram;
 }
 
-void NMR_Simulation::createHistogram()
+void Model::createHistogram()
 {
     this->histogram.createBlankHistogram(this->rwNMR_config.getHistogramSize(), this->rwNMR_config.getHistogramScale());
     int steps = this->histogramList.back().lastEcho * this->stepsPerEcho;
     this->histogram.fillHistogram(this->walkers, steps);       
 }
 
-void NMR_Simulation::createHistogram(uint histID, uint _steps)
+void Model::createHistogram(uint histID, uint _steps)
 {
     this->histogramList[histID].createBlankHistogram(this->rwNMR_config.getHistogramSize(), this->rwNMR_config.getHistogramScale());
     this->histogramList[histID].fillHistogram(this->walkers, _steps);       
 }
 
-void NMR_Simulation::updateHistogram()
+void Model::updateHistogram()
 {
     this->histogram.updateHistogram(this->walkers, this->simulationSteps);
 }
 
 // cost function methods
-void NMR_Simulation::updateWalkersRelaxativity(vector<double> &sigmoid)
+void Model::updateWalkersRelaxativity(vector<double> &sigmoid)
 {
     for (uint id = 0; id < this->walkers.size(); id++)
     {
@@ -1468,7 +1462,7 @@ void NMR_Simulation::updateWalkersRelaxativity(vector<double> &sigmoid)
     }
 }
 
-void NMR_Simulation::updateWalkersRelaxativity(double rho)
+void Model::updateWalkersRelaxativity(double rho)
 {
     for (uint id = 0; id < this->walkers.size(); id++)
     {
@@ -1480,36 +1474,36 @@ void NMR_Simulation::updateWalkersRelaxativity(double rho)
 
 
 // associate methods
-void NMR_Simulation::associateMapSimulation()
+void Model::associateMapSimulation()
 {
     if (gpu_use == true)
     {
         if (this->numberOfImages == 1)
         {
-            mapSimulationPointer = &NMR_Simulation::mapSimulation_CUDA_2D_histograms;
+            mapSimulationPointer = &Model::mapSimulation_CUDA_2D_histograms;
         }
         else
         {
-            mapSimulationPointer = &NMR_Simulation::mapSimulation_CUDA_3D_histograms;
+            mapSimulationPointer = &Model::mapSimulation_CUDA_3D_histograms;
         }
     }
     else
     {
-        mapSimulationPointer = &NMR_Simulation::mapSimulation_OMP;
+        mapSimulationPointer = &Model::mapSimulation_OMP;
     }
 }
 
-uint NMR_Simulation::pickRandomIndex(uint _minValue, uint _maxValue)
+uint Model::pickRandomIndex(uint _minValue, uint _maxValue)
 {
     // int CPUfactor = 1;
     // if(this->rwNMR_config.getOpenMPUsage()) CPUfactor += omp_get_thread_num();
     // std::random_device dev;
     // std::mt19937 rng(dev()* CPUfactor * CPUfactor);
     std::uniform_int_distribution<std::mt19937::result_type> dist(_minValue, _maxValue-1); 
-    return dist(NMR_Simulation::_rng); 
+    return dist(Model::_rng); 
 }
 
-Point3D NMR_Simulation::removeRandomPore(vector<Point3D> &_pores, uint _randomIndex)
+Point3D Model::removeRandomPore(vector<Point3D> &_pores, uint _randomIndex)
 {
     Point3D randomPore = _pores[_randomIndex];
     std::swap(_pores[_randomIndex], _pores.back());
@@ -1517,7 +1511,7 @@ Point3D NMR_Simulation::removeRandomPore(vector<Point3D> &_pores, uint _randomIn
     return randomPore;
 }
 
-uint NMR_Simulation::removeRandomIndexFromPool(vector<uint> &_pool, uint _randomIndex)
+uint Model::removeRandomIndexFromPool(vector<uint> &_pool, uint _randomIndex)
 {
     uint element = _pool[_randomIndex];
     std::swap(_pool[_randomIndex], _pool.back());
@@ -1525,7 +1519,7 @@ uint NMR_Simulation::removeRandomIndexFromPool(vector<uint> &_pool, uint _random
     return element;
 }
 
-void NMR_Simulation::assemblyImagePath()
+void Model::assemblyImagePath()
 {
     // User Input
      ImagePath input;
@@ -1540,13 +1534,13 @@ void NMR_Simulation::assemblyImagePath()
      (*this).setImage(input, input.images);
 }
 
-string NMR_Simulation::createDirectoryForResults(string _path)
+string Model::createDirectoryForResults(string _path)
 {
     BaseFunctions::createDirectory(_path, this->simulationName);
     return (_path + this->simulationName);
 }
 
-void NMR_Simulation::saveInfo(string filedir)
+void Model::saveInfo(string filedir)
 {
     string filename = filedir + "/SimInfo.txt";
 
@@ -1602,7 +1596,7 @@ void NMR_Simulation::saveInfo(string filedir)
     fileObject.close();
 }
 
-void NMR_Simulation::saveImageInfo(string filedir)
+void Model::saveImageInfo(string filedir)
 {
     string filename = filedir + "/ImageInfo.txt";
 
@@ -1632,7 +1626,7 @@ void NMR_Simulation::saveImageInfo(string filedir)
     fileObject.close();
 }
 
-void NMR_Simulation::saveWalkers(string filedir)
+void Model::saveWalkers(string filedir)
 {
     string filename = filedir + "/walkers.csv";
     ofstream file;
@@ -1672,14 +1666,14 @@ void NMR_Simulation::saveWalkers(string filedir)
     file.close();
 }
 
-void NMR_Simulation::saveBitBlock(string filePath)
+void Model::saveBitBlock(string filePath)
 {
 
     string fileName = filePath + "/NMR_binImage.txt";
     this->bitBlock.saveBitBlockArray(fileName);
 }
 
-void NMR_Simulation::saveHistogram(string filePath)
+void Model::saveHistogram(string filePath)
 {
     string filename = filePath + "/NMR_histogram.txt";
     ofstream in(filename, std::ios::out);
@@ -1698,7 +1692,7 @@ void NMR_Simulation::saveHistogram(string filePath)
     in.close();
 }
 
-void NMR_Simulation::saveHistogramList(string filePath)
+void Model::saveHistogramList(string filePath)
 {
     string filename = filePath + "/NMR_histogramEvolution.txt";
     if(this->rwNMR_config.getHistograms() > 0)
@@ -1728,12 +1722,12 @@ void NMR_Simulation::saveHistogramList(string filePath)
     }
 }
 
-void NMR_Simulation::info()
+void Model::info()
 {
     (*this).printDetails();
 }
 
-void NMR_Simulation::printDetails()
+void Model::printDetails()
 { 
     // print input details
     cout << "------------------------------------------------------" << endl;
@@ -1774,7 +1768,7 @@ void NMR_Simulation::printDetails()
 }
 
 // mapping simulation using bitblock data structure
-void NMR_Simulation::mapSimulation_OMP(bool reset)
+void Model::mapSimulation_OMP(bool reset)
 {
     double begin_time = omp_get_wtime();
     cout << "initializing mapping simulation... ";

@@ -2,11 +2,11 @@
 find_package(CUDAToolkit)
 
 # Add library to main program
-add_library(NMR_Simulation
+add_library(Framework
       Walker.cpp
       BitBlock.cpp
-			NMR_Simulation.cpp 
-			./cuda/NMR_Simulation_cuda.cpp 
+			Model.cpp 
+			./cuda/NMR_mapping_cuda.cpp 
 			CollisionHistogram.cpp 
 			ChordLengthHistogram.cpp
 			InternalField.cpp
@@ -17,7 +17,7 @@ add_library(NMR_Simulation
 			NMR_multitau.cpp)
 
 # Include directory in build up
-target_include_directories(NMR_Simulation
+target_include_directories(Framework
           INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
           )
 
@@ -25,14 +25,14 @@ target_include_directories(NMR_Simulation
 # Request the library to be built with -std=c++11
 # As this is public compile feature, anything that links to
 # This lib will also be build with -std=c++11
-target_compile_features(NMR_Simulation PUBLIC cxx_std_11)
+target_compile_features(Framework PUBLIC cxx_std_11)
 
 # Explicitly state that all CUDA files in the 
 # library needs to be built with -dc as the member functions 
 # could be called by other libraries and executables
 set(CMAKE_CUDA_FLAGS "-Xcompiler -fopenmp -O3 -w")
-set_source_files_properties(./cuda/NMR_Simulation_cuda.h PROPERTIES LANGUAGE "CUDA")
-set_source_files_properties(./cuda/NMR_Simulation_cuda.cpp PROPERTIES LANGUAGE "CUDA")
+set_source_files_properties(./cuda/NMR_mapping_cuda.h PROPERTIES LANGUAGE "CUDA")
+set_source_files_properties(./cuda/NMR_mapping_cuda.cpp PROPERTIES LANGUAGE "CUDA")
 set_source_files_properties(./cuda/NMR_cpmg_cuda.h PROPERTIES LANGUAGE "CUDA")
 set_source_files_properties(./cuda/NMR_cpmg_cuda.cpp PROPERTIES LANGUAGE "CUDA")
 set_source_files_properties(./cuda/NMR_pfgse_cuda.h PROPERTIES LANGUAGE "CUDA")
@@ -65,32 +65,32 @@ if (CUDA_FOUND)
     # message(STATUS "CUDA Performance Primitives: ${CUDA_npp_LIBRARY}")
 
     set(CUDA_NVCC_FLAGS "${ARCH}")
-	set_property(TARGET NMR_Simulation PROPERTY CUDA_ARCHITECTURES "${ARCH}")
+	set_property(TARGET Framework PROPERTY CUDA_ARCHITECTURES "${ARCH}")
     add_definitions(-DGPU) #You may not require this
 
   else()
     message(WARNING ${ARCH})
   endif()
 endif()
-# set_property(TARGET NMR_Simulation PROPERTY CUDA_ARCHITECTURES 35 50 72 75 86)
-target_compile_options(NMR_Simulation PUBLIC -O3)
-target_link_libraries(NMR_Simulation PRIVATE CUDA::cudart)
+# set_property(TARGET Framework PROPERTY CUDA_ARCHITECTURES 35 50 72 75 86)
+target_compile_options(Framework PUBLIC -O3)
+target_link_libraries(Framework PRIVATE CUDA::cudart)
 
 # Install lib in project tree
-install(TARGETS NMR_Simulation DESTINATION lib)
+install(TARGETS Framework DESTINATION lib)
 install(FILES
-    NMR_Includes.h
+    Framework.h
     Point3D.h
     Walker.h 
     BitBlock.h
 		CollisionHistogram.h
 		ChordLengthHistogram.h
 		InternalField.h
-		NMR_Simulation.h 
-		./cuda/NMR_Simulation_cuda.h 
+		Model.h 
+		./cuda/NMR_mapping_cuda.h 
 		NMR_cpmg.h
 		./cuda/NMR_cpmg_cuda.h
 		NMR_pfgse.h
 		./cuda/NMR_pfgse_cuda.h
 		NMR_multitau.h
-		NMR_defs.h DESTINATION include)
+		Defs.h DESTINATION include)

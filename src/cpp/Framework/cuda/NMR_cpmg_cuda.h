@@ -2,10 +2,10 @@
 #define NMR_CPMG_CUDA_H_
 
 #include "cuda_runtime.h"
-#include "../NMR_defs.h"
+#include "../Defs.h"
 #include "../Point3D.h"
 #include "../Walker.h"
-#include "../NMR_Simulation.h"
+#include "../Model.h"
 #include "../NMR_cpmg.h"
 
 // Kernel declarations

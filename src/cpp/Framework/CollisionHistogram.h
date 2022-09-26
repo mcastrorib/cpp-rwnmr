@@ -1,7 +1,7 @@
 #ifndef COLLISION_HISTOGRAM_H_
 #define COLLISION_HISTOGRAM_H_
 
-#include "NMR_defs.h"
+#include "Defs.h"
 #include "Walker.h"
 
 using namespace std;

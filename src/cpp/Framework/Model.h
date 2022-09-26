@@ -1,7 +1,7 @@
-#ifndef NMR_SIMULATION_H_
-#define NMR_SIMULATION_H_
+#ifndef MODEL_H_
+#define MODEL_H_
 
-#include "NMR_defs.h"
+#include "Defs.h"
 #include "Point3D.h"
 #include "BitBlock.h"
 #include "Walker.h"
@@ -11,7 +11,7 @@
 using namespace std;
 using namespace cv;
 
-class NMR_Simulation
+class Model
 {
 public:
     // Class attributes:
@@ -74,11 +74,11 @@ public:
 
     // NMR_3D methods:
     // default constructors
-    NMR_Simulation(rwnmr_config _rwNMR_config, uct_config _uCT_config, string _project_root);
+    Model(rwnmr_config _rwNMR_config, uct_config _uCT_config, string _project_root);
 
     //copy constructors
     // copy constructor
-    NMR_Simulation(const NMR_Simulation &_otherSimulation)
+    Model(const Model &_otherSimulation)
     {
         this->rwNMR_config = _otherSimulation.rwNMR_config;
         this->uCT_config = _otherSimulation.uCT_config;
@@ -129,10 +129,10 @@ public:
     }
 
     // default destructor
-    virtual ~NMR_Simulation()
+    virtual ~Model()
     {
         (*this).clear();
-        cout << "NMR_simulation object destroyed." << endl;
+        cout << "Simulation model object destroyed." << endl;
     }
 
     void reset()
@@ -227,8 +227,8 @@ public:
     void updateWalkersRelaxativity(vector<double> &parameters);
     void updateWalkersRelaxativity(double rho);
 
-    typedef void (NMR_Simulation::*mapSim_ptr)(bool);
-    typedef void (NMR_Simulation::*walkSim_ptr)();
+    typedef void (Model::*mapSim_ptr)(bool);
+    typedef void (Model::*walkSim_ptr)();
 
 private:
     mapSim_ptr mapSimulationPointer;

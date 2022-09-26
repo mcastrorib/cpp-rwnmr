@@ -1,7 +1,7 @@
 #ifndef INTERNAL_FIELD_H_
 #define INTERNAL_FIELD_H_
 
-#include "NMR_defs.h"
+#include "Defs.h"
 #include "BitBlock.h"
 
 using namespace std;

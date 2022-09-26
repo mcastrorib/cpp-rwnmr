@@ -1,10 +1,10 @@
-#ifndef NMR_SIMULATION_CUDA_H_
-#define NMR_SIMULATION_CUDA_H_
+#ifndef NMR_MAPPING_CUDA_H_
+#define NMR_MAPPING_CUDA_H_
 
 #include "cuda_runtime.h"
-#include "../NMR_defs.h"
+#include "../Defs.h"
 #include "../Walker.h"
-#include "../NMR_Simulation.h"
+#include "../Model.h"
 
 
 // Kernel declarations

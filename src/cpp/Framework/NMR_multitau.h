@@ -2,8 +2,8 @@
 #define NMR_MULTITAU_H
 
 // include configuration file classes
-#include "NMR_defs.h"
-#include "NMR_Simulation.h"
+#include "Defs.h"
+#include "Model.h"
 #include "NMR_cpmg.h"
 
 using namespace std;
@@ -11,7 +11,7 @@ using namespace std;
 class NMR_multitau
 {
 public:
-	NMR_Simulation &NMR;
+	Model &NMR;
 	NMR_cpmg *cpmg;
 	multitau_config MultiTau_config;
 	cpmg_config CPMG_config;
@@ -21,7 +21,7 @@ public:
     vector<double> signalTimes;
     vector<double> signalAmps;
     
-	NMR_multitau(NMR_Simulation &_NMR, 
+	NMR_multitau(Model &_NMR, 
 				 multitau_config _multitauConfig, 
 				 cpmg_config _cpmgConfig, 
 				 int _mpi_rank = 0, 

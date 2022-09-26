@@ -7,7 +7,7 @@
 
 #include "../Utils/ArgsParser.h"
 #include "../ConfigFiles/configFiles_defs.h"
-#include "../NMR_Simulation/NMR_Simulation.h"
+#include "../Framework/Framework.h"
 
 // #include "UnitTest_includes.h"
 

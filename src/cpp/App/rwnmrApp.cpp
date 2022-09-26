@@ -30,7 +30,7 @@ void rwnmrApp::buildEssentials()
     // // -----
 
     // -- Create NMR_Simulation object
-    this->NMR = new NMR_Simulation(rwNMR_Config, uCT_Config, (*this).getProjectRoot());
+    this->NMR = new Model(rwNMR_Config, uCT_Config, (*this).getProjectRoot());
     
     // Read digital rock image
     cout << "-- Loading uCT-image" << endl;
@@ -75,7 +75,7 @@ void rwnmrApp::CPMG(uint command_idx)
     // --
 
     // -- Create cpmg object
-    NMR_cpmg cpmg((*this).getNMR(), cpmg_Config);
+    NMR_cpmg cpmg((*this).getModel(), cpmg_Config);
     cpmg.run();
     cout << endl << "- cpmg executed succesfully" << endl << endl;
     // -----
@@ -93,7 +93,7 @@ void rwnmrApp::PFGSE(uint command_idx)
     
     // pfgse_config pfgse_Config((*this).getConfigRoot() + + this->args->getPath(command_idx));
 
-    NMR_PFGSE pfgse((*this).getNMR(), pfgse_Config);
+    NMR_PFGSE pfgse((*this).getModel(), pfgse_Config);
     pfgse.run();
     cout << "- pfgse sequence executed succesfully" << endl << endl;
     // -----
@@ -122,7 +122,7 @@ void rwnmrApp::MultiTau(uint command_idx)
     cpmg_config cpmg_Config(cpmg_config_path, (*this).getConfigRoot());
     // --
     
-    NMR_multitau multitau((*this).getNMR(), multitau_Config, cpmg_Config);
+    NMR_multitau multitau((*this).getModel(), multitau_Config, cpmg_Config);
     multitau.run();
     cout << "- multitau sequence executed succesfully" << endl << endl;
     // -----

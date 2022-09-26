@@ -1,7 +1,7 @@
 #ifndef BITBLOCK_H_
 #define BITBLOCK_H_
 
-#include "NMR_defs.h"
+#include "Defs.h"
 #include "Point3D.h"
 
 // define 2D block properties

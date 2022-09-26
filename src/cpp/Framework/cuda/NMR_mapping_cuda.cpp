@@ -1,4 +1,4 @@
-#include "NMR_Simulation_cuda.h"
+#include "NMR_mapping_cuda.h"
 
 // GPU kernel for Mapping simulation - a.k.a. walker's collision count
 // in this kernel, each thread will behave as a solitary walker
@@ -72,7 +72,7 @@ __global__ void map_2D( int *walker_px,
     }
 }
 
-void NMR_Simulation::mapSimulation_CUDA_2D_histograms(bool reset)
+void Model::mapSimulation_CUDA_2D_histograms(bool reset)
 {
     cout << "- starting RW-Mapping simulation (in GPU)... ";
     
@@ -697,7 +697,7 @@ __global__ void map_3D_mirror(int *walker_px,
 
 // function to call GPU kernel to execute
 // walker's "map" method in Graphics Processing Unit
-void NMR_Simulation::mapSimulation_CUDA_3D_histograms(bool reset)
+void Model::mapSimulation_CUDA_3D_histograms(bool reset)
 {   
     string bc = (*this).getBoundaryCondition();
 

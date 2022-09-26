@@ -1,7 +1,7 @@
 #ifndef WALKER_H_
 #define WALKER_H_
 
-#include "NMR_defs.h"
+#include "Defs.h"
 #include "Point3D.h"
 #include "BitBlock.h"
 

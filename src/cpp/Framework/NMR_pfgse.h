@@ -1,8 +1,8 @@
 #ifndef NMR_PFGSE_H
 #define NMR_PFGSE_H
 
-#include "NMR_defs.h"
-#include "NMR_Simulation.h"
+#include "Defs.h"
+#include "Model.h"
 #include "Walker.h"
 
 using namespace std;
@@ -10,7 +10,7 @@ using namespace std;
 class NMR_PFGSE
 {
 public:
-	NMR_Simulation &NMR;
+	Model &NMR;
 	pfgse_config PFGSE_config;
 	string name;
 	string dir;
@@ -55,7 +55,7 @@ public:
 	uint stepsTaken;
 	int currentTime;	
 
-	NMR_PFGSE(NMR_Simulation &_NMR, 
+	NMR_PFGSE(Model &_NMR, 
 			  pfgse_config _pfgseConfig,
 			  int _mpi_rank = 0, 
 			  int _mpi_processes = 0);	

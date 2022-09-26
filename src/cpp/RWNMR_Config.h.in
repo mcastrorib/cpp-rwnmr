@@ -5,7 +5,7 @@
 #cmakedefine USE_UTILS
 #cmakedefine USE_MATH
 #cmakedefine USE_CONFIGFILES
-#cmakedefine USE_NMR_SIMULATION
+#cmakedefine USE_FRAMEWORK
 #cmakedefine USE_RWNMRAPP
 #cmakedefine USE_UNITTEST
 

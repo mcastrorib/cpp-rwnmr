@@ -1,5 +1,5 @@
-#ifndef NMR_INCLUDES_H_
-#define NMR_INCLUDES_H_
+#ifndef FRAMEWORK_H_
+#define FRAMEWORK_H_
 
 #include "Point3D.h"
 #include "Walker.h" 
@@ -7,7 +7,7 @@
 #include "CollisionHistogram.h"
 #include "ChordLengthHistogram.h"
 #include "InternalField.h"
-#include "NMR_Simulation.h" 
+#include "Model.h" 
 #include "NMR_cpmg.h"
 #include "NMR_pfgse.h"
 #include "NMR_multitau.h"

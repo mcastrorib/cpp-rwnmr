@@ -1,7 +1,7 @@
 #ifndef POINT3D_H_
 #define POINT3D_H_
 
-#include "NMR_defs.h"
+#include "Defs.h"
 
 class Point3D
 {

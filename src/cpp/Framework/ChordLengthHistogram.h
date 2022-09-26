@@ -1,7 +1,7 @@
 #ifndef CHORD_LENGTH_HISTOGRAM_H_
 #define CHORD_LENGTH_HISTOGRAM_H_
 
-#include "NMR_defs.h"
+#include "Defs.h"
 #include "BitBlock.h"
 
 using namespace std;
