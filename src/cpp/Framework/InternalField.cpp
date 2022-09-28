@@ -34,21 +34,6 @@ InternalField::InternalField(const InternalField &_other)
 	this->data = _other.data;
 }
 
-void InternalField::setDimX(int _x)
-{
-	if(_x > 0)	this->dimX = _x;
-}
-
-void InternalField::setDimY(int _y)
-{
-	if(_y > 0)	this->dimY = _y;
-}
-
-void InternalField::setDimZ(int _z)
-{
-	if(_z > 0)	this->dimZ = _z;
-}
-
 void InternalField::setLinearRowScale()
 {
 	this->rowScale = (*this).getDimX(); 	

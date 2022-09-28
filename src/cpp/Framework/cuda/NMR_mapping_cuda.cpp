@@ -143,8 +143,8 @@ void Model::mapSimulation_CUDA_2D_histograms(bool reset)
     for(int hst_ID = 0; hst_ID < this->histogramList.size(); hst_ID++)
     {
         // set steps for each histogram
-        uint eBegin = this->histogramList[hst_ID].firstEcho;
-        uint eEnd = this->histogramList[hst_ID].lastEcho;
+        uint eBegin = this->histogramList[hst_ID].getFirstEcho();
+        uint eEnd = this->histogramList[hst_ID].getLastEcho();
         uint steps = this->stepsPerEcho * (eEnd - eBegin);
 
         // Host data copy
@@ -809,8 +809,8 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
     for(int hst_ID = 0; hst_ID < this->histogramList.size(); hst_ID++)
     {
         // set steps for each histogram
-        uint eBegin = this->histogramList[hst_ID].firstEcho;
-        uint eEnd = this->histogramList[hst_ID].lastEcho;
+        uint eBegin = this->histogramList[hst_ID].getFirstEcho();
+        uint eEnd = this->histogramList[hst_ID].getLastEcho();
         uint steps = this->stepsPerEcho * (eEnd - eBegin);
 
         // create a steps bucket

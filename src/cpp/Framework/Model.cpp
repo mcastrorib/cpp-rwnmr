@@ -1424,19 +1424,19 @@ void Model::initHistogramList()
     for(int idx = 0; idx < numberOfHistograms; idx++)
     {
         CollisionHistogram newHistogram;
-        newHistogram.firstEcho = idx * echosPerHistogram;
-        newHistogram.lastEcho = newHistogram.firstEcho + echosPerHistogram;
+        newHistogram.setFirstEcho(idx * echosPerHistogram);
+        newHistogram.setLastEcho(newHistogram.getFirstEcho() + echosPerHistogram);
         this->histogramList.push_back(newHistogram);
     }
 
     // charge rebalance 
-    this->histogramList.back().lastEcho += echosInLastHistogram;
+    this->histogramList.back().setLastEcho(this->histogramList.back().getLastEcho() + echosInLastHistogram);
 }
 
 void Model::createHistogram()
 {
     this->histogram.createBlankHistogram(this->rwNMR_config.getHistogramSize(), this->rwNMR_config.getHistogramScale());
-    int steps = this->histogramList.back().lastEcho * this->stepsPerEcho;
+    int steps = this->histogramList.back().getLastEcho() * this->stepsPerEcho;
     this->histogram.fillHistogram(this->walkers, steps);       
 }
 
@@ -1678,12 +1678,12 @@ void Model::saveHistogram(string filePath)
     string filename = filePath + "/NMR_histogram.txt";
     ofstream in(filename, std::ios::out);
  
-    const size_t num_points = this->histogram.bins.size();
+    const size_t num_points = this->histogram.getBins().size();
     if (in)
     {
         for (int i = 0; i < num_points; i++)
         {
-            in << this->histogram.bins[i] << "\t" << this->histogram.amps[i] << endl;
+            in << this->histogram.getBin(i) << "\t" << this->histogram.getAmp(i) << endl;
         }
         return;
     }
@@ -1704,13 +1704,13 @@ void Model::saveHistogramList(string filePath)
             else in.open(filename, std::ios::app);
 
             in << "histogram [" << hst_ID << "]" << endl;
-            const size_t num_points = this->histogramList[hst_ID].bins.size();
+            const size_t num_points = this->histogramList[hst_ID].getBins().size();
             if (in)
             {
                 // in << x_label << "\t" << y_label << endl;
                 for (int i = 0; i < num_points; i++)
                 {
-                    in << this->histogramList[hst_ID].bins[i] << "\t" << this->histogramList[hst_ID].amps[i] << endl;
+                    in << this->histogramList[hst_ID].getBin(i) << "\t" << this->histogramList[hst_ID].getAmp(i) << endl;
                 }
                 in << endl;
                 return;
@@ -1789,8 +1789,8 @@ void Model::mapSimulation_OMP(bool reset)
     // loop throughout list
     for(int hst_ID = 0; hst_ID < this->histogramList.size(); hst_ID++)
     {
-        int eBegin = this->histogramList[hst_ID].firstEcho;
-        int eEnd = this->histogramList[hst_ID].lastEcho;
+        int eBegin = this->histogramList[hst_ID].getFirstEcho();
+        int eEnd = this->histogramList[hst_ID].getLastEcho();
         for (uint id = 0; id < this->numberOfWalkers; id++)
         {
             for(uint echo = eBegin; echo < eEnd; echo++)

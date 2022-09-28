@@ -69,7 +69,7 @@ class MathFunctions
     }
 
     // Returns a vector<double> logarithmly space from 10^@exp_start to 10^@end with @points
-    static vector<double> logspace(double exp_start, double exp_end, uint points, double base)
+    static vector<double> logspace(double exp_start, double exp_end, uint points, double base=10.0)
     {
         vector<double> vec(points);
         double step = (exp_end - exp_start) / ((double) points - 1.0);

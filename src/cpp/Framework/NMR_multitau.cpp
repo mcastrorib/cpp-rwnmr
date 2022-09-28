@@ -286,8 +286,8 @@ void NMR_multitau::writeHistogram()
     for (int i = 0; i < num_points; i++)
     {
         file << setprecision(precision) 
-        << this->model.histogram.bins[i] 
-        << "," << this->model.histogram.amps[i] << endl;
+        << this->model.histogram.getBin(i) 
+        << "," << this->model.histogram.getAmp(i) << endl;
     }
 
     file.close();
@@ -319,8 +319,8 @@ void NMR_multitau::writeHistogramList()
     {
         for(int hIdx = 0; hIdx < histograms; hIdx++)
         {
-            file << setprecision(precision) << this->model.histogramList[hIdx].bins[i] << ",";
-            file << setprecision(precision) << this->model.histogramList[hIdx].amps[i] << ",";
+            file << setprecision(precision) << this->model.histogramList[hIdx].getBin(i) << ",";
+            file << setprecision(precision) << this->model.histogramList[hIdx].getAmp(i) << ",";
         }
 
         file << endl;

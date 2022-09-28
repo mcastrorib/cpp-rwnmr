@@ -226,7 +226,7 @@ void NMR_cpmg::createPenaltiesVector(vector<double> &_sigmoid)
     double artificial_steps = (double) this->model.getStepsPerEcho();
     for(int idx = 0; idx < this->model.histogram.getSize(); idx++)
     {   
-        artificial_xirate = this->model.histogram.bins[idx];
+        artificial_xirate = this->model.histogram.getBin(idx);
         toy.setXIrate(artificial_xirate);
         toy.setSurfaceRelaxivity(_sigmoid);
         toy.computeDecreaseFactor(this->model.getImageVoxelResolution(), this->model.getDiffusionCoefficient());
@@ -249,7 +249,7 @@ void NMR_cpmg::createPenaltiesVector(double rho)
     double artificial_steps = (double) this->model.getStepsPerEcho();
     for(int idx = 0; idx < this->model.histogram.getSize(); idx++)
     {   
-        artificial_xirate = this->model.histogram.bins[idx];
+        artificial_xirate = this->model.histogram.getBin(idx);
         toy.setXIrate(artificial_xirate);
         toy.setSurfaceRelaxivity(rho);
         toy.computeDecreaseFactor(this->model.getImageVoxelResolution(), this->model.getDiffusionCoefficient());
@@ -276,7 +276,7 @@ void NMR_cpmg::histogram_simulation()
 
     // initialize energyDistribution array
     double *energyDistribution = NULL;
-    energyDistribution = new double[this->model.histogram.size];
+    energyDistribution = new double[this->model.histogram.getSize()];
 
 
     // reset vector to store energy decay
@@ -286,25 +286,25 @@ void NMR_cpmg::histogram_simulation()
     // histogram simulation main loop    
     for(int hst_ID = 0; hst_ID < this->model.histogramList.size(); hst_ID++)
     {
-        for(uint id = 0; id < this->model.histogram.size; id++)
+        for(uint id = 0; id < this->model.histogram.getSize(); id++)
         {
-            energyDistribution[id] = this->signal_amps.back() * this->model.histogramList[hst_ID].amps[id];
+            energyDistribution[id] = this->signal_amps.back() * this->model.histogramList[hst_ID].getAmp(id);
         }
 
         double energyLvl;
-        int eBegin = this->model.histogramList[hst_ID].firstEcho;
-        int eEnd = this->model.histogramList[hst_ID].lastEcho;
+        int eBegin = this->model.histogramList[hst_ID].getFirstEcho();
+        int eEnd = this->model.histogramList[hst_ID].getLastEcho();
         for(uint echo = eBegin; echo < eEnd; echo++)
         {
             // apply penalties
-            for(uint id = 0; id < this->model.histogram.size; id++)
+            for(uint id = 0; id < this->model.histogram.getSize(); id++)
             {
                 energyDistribution[id] *= this->penalties[id];
             }
 
             // get global energy
             energyLvl = 0.0;
-            for(uint id = 0; id < this->model.histogram.size; id++)
+            for(uint id = 0; id < this->model.histogram.getSize(); id++)
             {
                 energyLvl += energyDistribution[id];
             }
@@ -572,8 +572,8 @@ void NMR_cpmg::writeHistogram()
     for (int i = 0; i < num_points; i++)
     {
         file << setprecision(precision) 
-        << this->model.histogram.bins[i] 
-        << "," << this->model.histogram.amps[i] << endl;
+        << this->model.histogram.getBin(i) 
+        << "," << this->model.histogram.getAmp(i) << endl;
     }
 
     file.close();
@@ -605,8 +605,8 @@ void NMR_cpmg::writeHistogramList()
     {
         for(int hIdx = 0; hIdx < histograms; hIdx++)
         {
-            file << setprecision(precision) << this->model.histogramList[hIdx].bins[i] << ",";
-            file << setprecision(precision) << this->model.histogramList[hIdx].amps[i] << ",";
+            file << setprecision(precision) << this->model.histogramList[hIdx].getBin(i) << ",";
+            file << setprecision(precision) << this->model.histogramList[hIdx].getAmp(i) << ",";
         }
 
         file << endl;
