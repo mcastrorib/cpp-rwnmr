@@ -14,64 +14,64 @@ NMR_multitau::NMR_multitau( Model &_model,
                                                   mpi_processes(_mpi_processes)
 {
     // Initialize cpmg object
-    this->cpmg = new NMR_cpmg(this->model, this->CPMG_config);
+    (*this).setCPMG(new NMR_cpmg((*this).getModel(), (*this).getCPMGConfig()));
 
 	// vectors object init
     vector<uint> requiredSteps();
     vector<double> signalTimes();
     vector<double> signalAmps();
 
-    (*this).setName();
+    (*this).createName();
     (*this).createDirectoryForData();
     (*this).setTauSequence();
 }
 
 
-void NMR_multitau::setName()
+void NMR_multitau::createName()
 {
     int precisionVal = 2;
     string tauMin, tauMax, points;
-    string scale = this->MultiTau_config.getTauScale();
+    string scale = (*this).getMultitauConfig().getTauScale();
     if(scale == "manual")
     {
-        vector<double> tauValues = this->MultiTau_config.getTauValues();
+        vector<double> tauValues = (*this).getMultitauConfig().getTauValues();
         tauMin = std::to_string(tauValues[0]);
         tauMax = std::to_string(tauValues[tauValues.size()-1]);
         points = std::to_string(tauValues.size());
     } else
     {
-        tauMin = std::to_string(this->MultiTau_config.getTauMin());
-        tauMax = std::to_string(this->MultiTau_config.getTauMax());
-        points = std::to_string(this->MultiTau_config.getTauPoints());
+        tauMin = std::to_string((*this).getMultitauConfig().getTauMin());
+        tauMax = std::to_string((*this).getMultitauConfig().getTauMax());
+        points = std::to_string((*this).getMultitauConfig().getTauPoints());
     }
 
-    string trimmedTauMin = tauMin.substr(0, std::to_string(this->MultiTau_config.getTauMin()).find(".") + precisionVal + 1);
-    string trimmedTauMax = tauMax.substr(0, std::to_string(this->MultiTau_config.getTauMax()).find(".") + precisionVal + 1);
-	this->name = "/NMR_multitau_min=" + trimmedTauMin + "ms_max=" + trimmedTauMax + "ms_pts=" + points + "_scale=" + scale;
+    string trimmedTauMin = tauMin.substr(0, std::to_string((*this).getMultitauConfig().getTauMin()).find(".") + precisionVal + 1);
+    string trimmedTauMax = tauMax.substr(0, std::to_string((*this).getMultitauConfig().getTauMax()).find(".") + precisionVal + 1);
+	(*this).setName("/NMR_multitau_min=" + trimmedTauMin + "ms_max=" + trimmedTauMax + "ms_pts=" + points + "_scale=" + scale);
 }
 
 void NMR_multitau::createDirectoryForData()
 {
-	string path = this->model.getDBPath();
-    BaseFunctions::createDirectory(path, this->model.simulationName + "/" + this->name);
-    this->dir = (path + this->model.simulationName + "/" + this->name);
+	string path = (*this).getModel().getDBPath();
+    BaseFunctions::createDirectory(path, (*this).getModel().simulationName + "/" + (*this).getName());
+    (*this).setDir(path + (*this).getModel().simulationName + "/" + (*this).getName());
 }
 
 void NMR_multitau::setTauSequence()
 {
-    double tauMin = this->MultiTau_config.getTauMin();
-    double tauMax = this->MultiTau_config.getTauMax();
-    int tauPoints = this->MultiTau_config.getTauPoints();
-    string scale = this->MultiTau_config.getTauScale();
+    double tauMin = (*this).getMultitauConfig().getTauMin();
+    double tauMax = (*this).getMultitauConfig().getTauMax();
+    int tauPoints = (*this).getMultitauConfig().getTauPoints();
+    string scale = (*this).getMultitauConfig().getTauScale();
 
     vector<double> times;
-    if(scale == "manual") times = this->MultiTau_config.getTauValues();
-    else if(scale == "log") times = (*this).logspace(log10(tauMin), log10(tauMax), tauPoints);
-    else times = (*this).linspace(tauMin, tauMax, tauPoints);
+    if(scale == "manual") times = (*this).getMultitauConfig().getTauValues();
+    else if(scale == "log") times = MathFunctions::logspace(log10(tauMin), log10(tauMax), tauPoints);
+    else times = MathFunctions::linspace(tauMin, tauMax, tauPoints);
 
-    double timeInterval = this->model.getTimeInterval();
-    if(this->requiredSteps.size() != 0) this->requiredSteps.clear();
-    if(this->signalTimes.size() != 0) this->signalTimes.clear();
+    double timeInterval = (*this).getModel().getTimeInterval();
+    if((*this).getRequiredSteps().size() != 0) (*this).clearRequiredSteps();
+    if((*this).getSignalTimes().size() != 0) (*this).clearSignalTimes();
     uint minSteps = 0;
     for(uint idx = 0; idx < times.size(); idx++)
     {
@@ -79,85 +79,85 @@ void NMR_multitau::setTauSequence()
         if(steps % 2 != 0) steps++;
         if(steps > minSteps)
         {
-            requiredSteps.push_back(steps);
+            (*this).addRequiredStep(steps);
             minSteps = steps;
         } else
         {
             steps = minSteps + 2;
-            requiredSteps.push_back(steps);
+            (*this).addRequiredStep(steps);
             minSteps = steps;
         }
 
-        signalTimes.push_back(steps*timeInterval);
+        (*this).addSignalTime(steps*timeInterval);
     }
 }
 
 void NMR_multitau::setExposureTime(uint index)
 {
-    this->model.setNumberOfStepsPerEcho(this->requiredSteps[index]);
-    if(!this->MultiTau_config.getCompleteDecay()) 
-        this->cpmg->setExposureTime(this->signalTimes[index]);
+    (*this).getModel().setNumberOfStepsPerEcho((*this).getRequiredStep(index));
+    if(!(*this).getMultitauConfig().getCompleteDecay()) 
+        (*this).getCPMG()->setExposureTime((*this).getSignalTime(index));
 }
 
 
 void NMR_multitau::setCPMG(uint index)
 {
     (*this).setExposureTime(index);
-    this->cpmg->setNMRTimeFramework(false);
+    (*this).getCPMG()->buildModelTimeFramework(false);
     
     int precisionVal = 3;
-    string te = std::to_string(this->requiredSteps[index] * this->model.getTimeInterval());
-    string sufix = "_te=" + te.substr(0, std::to_string(this->requiredSteps[index] * this->model.getTimeInterval()).find(".") + precisionVal + 1);
-    this->cpmg->setName(this->name, sufix);
-    this->cpmg->createDirectoryForData();
+    string te = std::to_string((*this).getRequiredStep(index) * (*this).getModel().getTimeInterval());
+    string sufix = "_te=" + te.substr(0, std::to_string((*this).getRequiredStep(index) * (*this).getModel().getTimeInterval()).find(".") + precisionVal + 1);
+    (*this).getCPMG()->buildName((*this).getName(), sufix);
+    (*this).getCPMG()->createDirectoryForData();
 }
 
 void NMR_multitau::runCPMG()
 {
-    this->cpmg->run_simulation();
-    int size = this->cpmg->signal_amps.size();
+    (*this).getCPMG()->run_simulation();
+    int size = (*this).getCPMG()->getSignalAmps().size();
     if(size > 1) 
     {
-        cout << "M[0] = " << this->cpmg->signal_amps[0] << endl;
-        cout << "M[1] = " << this->cpmg->signal_amps[1] << endl;
+        cout << "M[0] = " << (*this).getCPMG()->getSignalAmps(0) << endl;
+        cout << "M[1] = " << (*this).getCPMG()->getSignalAmps(1) << endl;
     }
 
     if(size > 0)
     {
-        this->signalAmps.push_back(this->cpmg->signal_amps[1]);
+        (*this).addSignalAmp((*this).getCPMG()->getSignalAmps(1));
     }
-    if(this->MultiTau_config.getCompleteDecay())
+    if((*this).getMultitauConfig().getCompleteDecay())
     {
-        this->cpmg->applyLaplace();
+        (*this).getCPMG()->applyLaplace();
     }
 }
 
 void NMR_multitau::saveCPMG()
 {
-    if(this->MultiTau_config.getCompleteDecay()) 
+    if((*this).getMultitauConfig().getCompleteDecay()) 
     {
         double time = omp_get_wtime();
         cout << "saving results...";
 
-        if(this->MultiTau_config.getSaveWalkers())
+        if((*this).getMultitauConfig().getSaveWalkers())
         {
-            this->cpmg->writeWalkers();
+            (*this).getCPMG()->writeWalkers();
         }
     
-        if(this->MultiTau_config.getSaveHistogram())
+        if((*this).getMultitauConfig().getSaveHistogram())
         {
-            this->cpmg->writeHistogram();
+            (*this).getCPMG()->writeHistogram();
         }    
     
-        if(this->MultiTau_config.getSaveHistogramList())
+        if((*this).getMultitauConfig().getSaveHistogramList())
         {
-            this->cpmg->writeHistogramList();
+            (*this).getCPMG()->writeHistogramList();
         }
     
-        if(this->MultiTau_config.getSaveDecay()) 
+        if((*this).getMultitauConfig().getSaveDecay()) 
         {
-            this->cpmg->writeT2decay();
-            this->cpmg->writeT2dist();
+            (*this).getCPMG()->writeT2decay();
+            (*this).getCPMG()->writeT2dist();
         }
 
         time = omp_get_wtime() - time;
@@ -171,7 +171,7 @@ void NMR_multitau::run()
     // first of all, reset conditions and map with highest time value
     double tick = omp_get_wtime();
     
-    for(uint index = 0; index < this->requiredSteps.size(); index++)
+    for(uint index = 0; index < (*this).getRequiredSteps().size(); index++)
     {
         (*this).setCPMG(index);
         (*this).runCPMG();
@@ -192,7 +192,7 @@ void NMR_multitau::save()
     cout << "saving results...";
     
     // write multitau data
-    if(this->MultiTau_config.getSaveDecay()) 
+    if((*this).getMultitauConfig().getSaveDecay()) 
     {
         (*this).writeDecay();
     }
@@ -203,7 +203,7 @@ void NMR_multitau::save()
 
 void NMR_multitau::writeDecay()
 {
-    string filename = this->dir + "/multitau_decay.csv";
+    string filename = (*this).getDir() + "/multitau_decay.csv";
 
     ofstream file;
     file.open(filename, ios::out);
@@ -213,16 +213,16 @@ void NMR_multitau::writeDecay()
         exit(1);
     }
 
-    const int num_points = this->signalAmps.size();
+    const int num_points = (*this).getSignalAmps().size();
     const int precision = std::numeric_limits<double>::max_digits10;
 
     file << "echo_time,signal" << endl;
-    if(this->signalTimes.size() == this->signalAmps.size())
+    if((*this).getSignalTimes().size() == (*this).getSignalAmps().size())
     {
         for (int idx = 0; idx < num_points; idx++)
         {
-            file << setprecision(precision) << this->signalTimes[idx] << ",";
-            file << setprecision(precision) << this->signalAmps[idx] << endl;    
+            file << setprecision(precision) << (*this).getSignalTime(idx) << ",";
+            file << setprecision(precision) << (*this).getSignalAmp(idx) << endl;    
         }
     }    
     file.close();
@@ -230,7 +230,7 @@ void NMR_multitau::writeDecay()
 
 void NMR_multitau::writeWalkers()
 {
-    string filename = this->dir + "/multitau_walkers.csv";
+    string filename = (*this).getDir() + "/multitau_walkers.csv";
     ofstream file;
     file.open(filename, ios::out);
     if (file.fail())
@@ -251,18 +251,18 @@ void NMR_multitau::writeWalkers()
     file << ",RNGSeed" << endl;
 
     const int precision = 6;
-    for (uint index = 0; index < this->model.walkers.size(); index++)
+    for (uint index = 0; index < (*this).getModel().walkers.size(); index++)
     {
-        file << setprecision(precision) << this->model.walkers[index].getInitialPositionX()
-        << "," << this->model.walkers[index].getInitialPositionY()
-        << "," << this->model.walkers[index].getInitialPositionZ()
-        << "," << this->model.walkers[index].getPositionX() 
-        << "," << this->model.walkers[index].getPositionY() 
-        << "," << this->model.walkers[index].getPositionZ() 
-        << "," << this->model.walkers[index].getCollisions() 
-        << "," << this->model.walkers[index].getXIrate() 
-        << "," << this->model.walkers[index].getEnergy() 
-        << "," << this->model.walkers[index].getInitialSeed() << endl;
+        file << setprecision(precision) << (*this).getModel().walkers[index].getInitialPositionX()
+        << "," << (*this).getModel().walkers[index].getInitialPositionY()
+        << "," << (*this).getModel().walkers[index].getInitialPositionZ()
+        << "," << (*this).getModel().walkers[index].getPositionX() 
+        << "," << (*this).getModel().walkers[index].getPositionY() 
+        << "," << (*this).getModel().walkers[index].getPositionZ() 
+        << "," << (*this).getModel().walkers[index].getCollisions() 
+        << "," << (*this).getModel().walkers[index].getXIrate() 
+        << "," << (*this).getModel().walkers[index].getEnergy() 
+        << "," << (*this).getModel().walkers[index].getInitialSeed() << endl;
     }
 
     file.close();
@@ -270,7 +270,7 @@ void NMR_multitau::writeWalkers()
 
 void NMR_multitau::writeHistogram()
 {
-    string filename = this->dir + "/multitau_histogram.csv";
+    string filename = (*this).getDir() + "/multitau_histogram.csv";
     ofstream file;
     file.open(filename, ios::out);
     if (file.fail())
@@ -281,13 +281,13 @@ void NMR_multitau::writeHistogram()
 
     file << "Bins"; 
     file << ",Amps" << endl;
-    const int num_points = this->model.histogram.getSize();
+    const int num_points = (*this).getModel().histogram.getSize();
     const int precision = std::numeric_limits<double>::max_digits10;
     for (int i = 0; i < num_points; i++)
     {
         file << setprecision(precision) 
-        << this->model.histogram.bins[i] 
-        << "," << this->model.histogram.amps[i] << endl;
+        << (*this).getModel().histogram.getBin(i) 
+        << "," << (*this).getModel().histogram.getAmp(i) << endl;
     }
 
     file.close();
@@ -295,7 +295,7 @@ void NMR_multitau::writeHistogram()
 
 void NMR_multitau::writeHistogramList()
 {
-    string filename = this->dir + "/multitau_histList.csv";
+    string filename = (*this).getDir() + "/multitau_histList.csv";
     ofstream file;
     file.open(filename, ios::out);
     if (file.fail())
@@ -304,7 +304,7 @@ void NMR_multitau::writeHistogramList()
         exit(1);
     }
 
-    const int histograms = this->model.histogramList.size();
+    const int histograms = (*this).getModel().histogramList.size();
 
     for(int hIdx = 0; hIdx < histograms; hIdx++)
     {
@@ -313,14 +313,14 @@ void NMR_multitau::writeHistogramList()
     }
     file << endl;
 
-    const int num_points = this->model.histogram.getSize();
+    const int num_points = (*this).getModel().histogram.getSize();
     const int precision = std::numeric_limits<double>::max_digits10;
     for (int i = 0; i < num_points; i++)
     {
         for(int hIdx = 0; hIdx < histograms; hIdx++)
         {
-            file << setprecision(precision) << this->model.histogramList[hIdx].bins[i] << ",";
-            file << setprecision(precision) << this->model.histogramList[hIdx].amps[i] << ",";
+            file << setprecision(precision) << (*this).getModel().histogramList[hIdx].getBin(i) << ",";
+            file << setprecision(precision) << (*this).getModel().histogramList[hIdx].getAmp(i) << ",";
         }
 
         file << endl;

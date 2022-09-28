@@ -7,7 +7,7 @@ InternalField::InternalField(BitBlock &_bitblock, double _resolution, double _gr
 																											 depthScale(0), 
 																											 data(NULL)
 {
-	(*this).setDims(_bitblock.imageColumns, _bitblock.imageRows, _bitblock.imageDepth);
+	(*this).setDims(_bitblock.getImageColumns(), _bitblock.getImageRows(), _bitblock.getImageDepth());
 	(*this).allocDataArray();
 	(*this).fillDataArray(_bitblock, _resolution, _gradient, _direction);
 	// (*this).show();
@@ -20,7 +20,7 @@ InternalField::InternalField(BitBlock &_bitblock, string _file) : dimX(0),
 																  depthScale(0), 
 																  data(NULL)
 {
-	(*this).setDims(_bitblock.imageColumns, _bitblock.imageRows, _bitblock.imageDepth);
+	(*this).setDims(_bitblock.getImageColumns(), _bitblock.getImageRows(), _bitblock.getImageDepth());
 	(*this).allocDataArray();
 	(*this).readDataFromFile(_file);
 	// (*this).show();
@@ -32,21 +32,6 @@ InternalField::InternalField(const InternalField &_other)
 	this->dimY = _other.dimY;
 	this->dimZ = _other.dimZ;
 	this->data = _other.data;
-}
-
-void InternalField::setDimX(int _x)
-{
-	if(_x > 0)	this->dimX = _x;
-}
-
-void InternalField::setDimY(int _y)
-{
-	if(_y > 0)	this->dimY = _y;
-}
-
-void InternalField::setDimZ(int _z)
-{
-	if(_z > 0)	this->dimZ = _z;
 }
 
 void InternalField::setLinearRowScale()

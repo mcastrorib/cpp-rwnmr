@@ -522,13 +522,13 @@ void NMR_PFGSE::simulation_cuda()
     cudaEventRecord(start, 0);
 
     // integer values for sizing issues
-    uint bitBlockColumns = this->model.bitBlock.blockColumns;
-    uint bitBlockRows = this->model.bitBlock.blockRows;
-    uint numberOfBitBlocks = this->model.bitBlock.numberOfBlocks;
     uint numberOfWalkers = this->model.numberOfWalkers;
-    int map_columns = this->model.bitBlock.imageColumns;
-    int map_rows = this->model.bitBlock.imageRows;
-    int map_depth = this->model.bitBlock.imageDepth;
+    uint bitBlockColumns = this->model.bitBlock.getBlockColumns();
+    uint bitBlockRows = this->model.bitBlock.getBlockRows();
+    uint numberOfBitBlocks = this->model.bitBlock.getNumberOfBlocks();
+    int map_columns = this->model.bitBlock.getImageColumns();
+    int map_rows = this->model.bitBlock.getImageRows();
+    int map_depth = this->model.bitBlock.getImageDepth();
     int shiftConverter = log2(this->model.voxelDivision);
     double voxelResolution = this->model.imageVoxelResolution;
     uint numberOfSteps = this->model.simulationSteps - this->stepsTaken;
@@ -585,7 +585,7 @@ void NMR_PFGSE::simulation_cuda()
     // Copy bitBlock3D data from host to device (only once)
     // assign pointer to bitBlock datastructure
     uint64_t *h_bitBlock;
-    h_bitBlock = this->model.bitBlock.blocks;
+    h_bitBlock = this->model.bitBlock.getBlocks();
     uint64_t *d_bitBlock;
     cudaMalloc((void **)&d_bitBlock, numberOfBitBlocks * sizeof(uint64_t));
     cudaMemcpy(d_bitBlock, h_bitBlock, numberOfBitBlocks * sizeof(uint64_t), cudaMemcpyHostToDevice);
@@ -1243,11 +1243,11 @@ void NMR_PFGSE::simulation_cuda()
     // }
 
     // get magnitudes M(k,t) - new
-    if(this->Mkt.size() > 0) this->Mkt.clear();
-    this->Mkt.reserve(this->gradientPoints);
+    if(this->mkt.size() > 0) this->mkt.clear();
+    this->mkt.reserve(this->gradientPoints);
     for(int point = 0; point < this->gradientPoints; point++)
     {
-        this->Mkt.push_back((h_globalPhase[point]));
+        this->mkt.push_back((h_globalPhase[point]));
     }
  
     // free pointers in host

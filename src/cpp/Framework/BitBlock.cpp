@@ -1,10 +1,8 @@
 //include
 #include "BitBlock.h"
 
-BitBlock::BitBlock()
-{
-    this->blocks = NULL;
-}
+BitBlock::BitBlock() : blocks(NULL)
+{}
 
 BitBlock::BitBlock(const BitBlock &_bitBlock)
 {
@@ -35,38 +33,38 @@ void BitBlock::createBlockMap(vector<Mat> &_binaryMap)
 // 2D block
 void BitBlock::setBlockMapDimensions_2D(Mat &_binaryMap)
 {
-    this->imageRows = _binaryMap.rows;
-    this->imageColumns = _binaryMap.cols;
+    (*this).setImageRows(_binaryMap.rows);
+    (*this).setImageColumns(_binaryMap.cols);
 
     // for 2D blocks, depth parameter is meaningless
-    this->imageDepth = 1;
-    this->blockDepth = 0;
+    (*this).setImageDepth(1);
+    (*this).setBlockDepth(0);
 
-    this->blockRows = this->imageRows / ROWSPERBLOCK2D;
-    if (this->imageRows % ROWSPERBLOCK2D != 0)
+    (*this).setBlockRows((*this).getImageRows() / ROWSPERBLOCK2D);
+    if ((*this).getImageRows() % ROWSPERBLOCK2D != 0)
     {
-        this->blockRows++;
+        (*this).setBlockRows((*this).getBlockRows() + 1);
     }
 
-    this->blockColumns = this->imageColumns / COLUMNSPERBLOCK2D;
-    if (this->imageColumns % COLUMNSPERBLOCK2D != 0)
+    (*this).setBlockColumns((*this).getImageColumns() / COLUMNSPERBLOCK2D);
+    if ((*this).getImageColumns() % COLUMNSPERBLOCK2D != 0)
     {
-        this->blockColumns++;
+        (*this).setBlockColumns((*this).getBlockColumns() + 1);
     }
 
-    this->numberOfBlocks = this->blockRows * this->blockColumns;
+    (*this).setNumberOfBlocks((*this).getBlockRows() * (*this).getBlockColumns());
 
     // alloc memory for bitblocks
-    this->blocks = new uint64_t[this->numberOfBlocks];
+    (*this).allocBlocks((*this).getNumberOfBlocks());
 }
 
 void BitBlock::createBitBlocksArray_2D(Mat &_binaryMap)
 {
     uint64_t newBlock;
 
-    for (int block_y = 0; block_y < this->blockRows; block_y++)
+    for (int block_y = 0; block_y < (*this).getBlockRows(); block_y++)
     {
-        for (int block_x = 0; block_x < this->blockColumns; block_x++)
+        for (int block_x = 0; block_x < (*this).getBlockColumns(); block_x++)
         {
             // initialize block
             newBlock = 0;
@@ -79,7 +77,7 @@ void BitBlock::createBitBlocksArray_2D(Mat &_binaryMap)
                     uint mapPixel_y = (block_y * ROWSPERBLOCK2D) + bit_y;
 
                     // check if pixel is inside image resolution
-                    if (mapPixel_x < this->imageColumns && mapPixel_y < this->imageRows)
+                    if (mapPixel_x < (*this).getImageColumns() && mapPixel_y < (*this).getImageRows())
                     {
                         Point3D pixel(mapPixel_x, mapPixel_y, 0);
 
@@ -93,7 +91,7 @@ void BitBlock::createBitBlocksArray_2D(Mat &_binaryMap)
             }
 
             // assign new block to blocks array
-            blocks[IDX2C(block_y, block_x, this->blockColumns)] = newBlock;
+            (*this).setBlock(newBlock, IDX2C(block_y, block_x, (*this).getBlockColumns()));
         }
     }
 }
@@ -113,20 +111,20 @@ void BitBlock::saveBitBlockArray_2D(string filename)
     fileObject << "bColumns, ";
     fileObject << "imgRows, ";
     fileObject << "imgColumns, " << endl;
-    fileObject << this->numberOfBlocks << ", ";
-    fileObject << this->blockRows << ", ";
-    fileObject << this->blockColumns << ", ";
-    fileObject << this->imageRows << ", ";
-    fileObject << this->imageColumns << endl;
+    fileObject << (*this).getNumberOfBlocks() << ", ";
+    fileObject << (*this).getBlockRows() << ", ";
+    fileObject << (*this).getBlockColumns() << ", ";
+    fileObject << (*this).getImageRows() << ", ";
+    fileObject << (*this).getImageColumns() << endl;
 
     fileObject << endl;
     fileObject << "blockID, ";
     fileObject << "blockData" << endl;
 
-    for (int index = 0; index < this->numberOfBlocks; index++)
+    for (int index = 0; index < (*this).getNumberOfBlocks(); index++)
     {
         fileObject << index << ", ";
-        fileObject << this->blocks[index] << endl;
+        fileObject << (*this).getBlock(index) << endl;
     }
 
     fileObject.close();
@@ -135,32 +133,32 @@ void BitBlock::saveBitBlockArray_2D(string filename)
 // 3D block
 void BitBlock::setBlockMapDimensions_3D(vector<Mat> &_binaryMap)
 {
-    this->imageRows = _binaryMap[0].rows;
-    this->imageColumns = _binaryMap[0].cols;
-    this->imageDepth = _binaryMap.size();
+    (*this).setImageRows(_binaryMap[0].rows);
+    (*this).setImageColumns(_binaryMap[0].cols);
+    (*this).setImageDepth(_binaryMap.size());
 
-    this->blockRows = this->imageRows / ROWSPERBLOCK3D;
-    if (this->imageRows % ROWSPERBLOCK3D != 0)
+    (*this).setBlockRows((*this).getImageRows() / ROWSPERBLOCK3D);
+    if ((*this).getImageRows() % ROWSPERBLOCK3D != 0)
     {
-        this->blockRows++;
+        (*this).setBlockRows((*this).getBlockRows() + 1);
     }
 
-    this->blockColumns = this->imageColumns / COLUMNSPERBLOCK3D;
-    if (this->imageColumns % COLUMNSPERBLOCK3D != 0)
+    (*this).setBlockColumns((*this).getImageColumns() / COLUMNSPERBLOCK3D);
+    if ((*this).getImageColumns() % COLUMNSPERBLOCK3D != 0)
     {
-        this->blockColumns++;
+        (*this).setBlockColumns((*this).getBlockColumns() + 1);
     }
 
-    this->blockDepth = this->imageDepth / DEPTHPERBLOCK3D;
-    if (this->imageDepth % DEPTHPERBLOCK3D != 0)
+    (*this).setBlockDepth((*this).getImageDepth() / DEPTHPERBLOCK3D);
+    if ((*this).getImageDepth() % DEPTHPERBLOCK3D != 0)
     {
-        this->blockDepth++;
+        (*this).setBlockDepth((*this).getBlockDepth() + 1);
     }
 
-    this->numberOfBlocks = this->blockRows * this->blockColumns * this->blockDepth;
-
+    (*this).setNumberOfBlocks((*this).getBlockRows() * (*this).getBlockColumns() * (*this).getBlockDepth());
+    
     // alloc memory for bitblocks
-    this->blocks = new uint64_t[this->numberOfBlocks];
+    (*this).allocBlocks((*this).getNumberOfBlocks());
 }
 
 void BitBlock::createBitBlocksArray_3D(vector<Mat> &_binaryMap)
@@ -168,13 +166,13 @@ void BitBlock::createBitBlocksArray_3D(vector<Mat> &_binaryMap)
     uint64_t newBlock;
 
     // Create progress bar object
-    ProgressBar pBar((double) (this->blockDepth));
+    ProgressBar pBar((double) ((*this).getBlockDepth()));
 
-    for (int block_z = 0; block_z < this->blockDepth; block_z++)
+    for (int block_z = 0; block_z < (*this).getBlockDepth(); block_z++)
     {
-        for (int block_y = 0; block_y < this->blockRows; block_y++)
+        for (int block_y = 0; block_y < (*this).getBlockRows(); block_y++)
         {
-            for (int block_x = 0; block_x < this->blockColumns; block_x++)
+            for (int block_x = 0; block_x < (*this).getBlockColumns(); block_x++)
             {
                 // initialize block
                 newBlock = 0;
@@ -190,7 +188,7 @@ void BitBlock::createBitBlocksArray_3D(vector<Mat> &_binaryMap)
                             uint mapPixel_z = (block_z * DEPTHPERBLOCK3D) + bit_z;
 
                             // check if pixel is inside image resolution
-                            if (mapPixel_x < this->imageColumns && mapPixel_y < this->imageRows && mapPixel_z < this->imageDepth)
+                            if (mapPixel_x < (*this).getImageColumns() && mapPixel_y < (*this).getImageRows() && mapPixel_z < (*this).getImageDepth())
                             {
                                 Point3D pixel(mapPixel_x, mapPixel_y, mapPixel_z);
 
@@ -207,8 +205,7 @@ void BitBlock::createBitBlocksArray_3D(vector<Mat> &_binaryMap)
                 }
 
                 // assign new block to blocks array
-                blocks[IDX2C_3D(block_x, block_y, block_z, this->blockColumns, this->blockRows)] = newBlock;
-
+                (*this).setBlock(newBlock, IDX2C_3D(block_x, block_y, block_z, (*this).getBlockColumns(), (*this).getBlockRows()));
             }
         }
 
@@ -235,22 +232,22 @@ void BitBlock::saveBitBlockArray_3D(string filename)
     fileObject << "imgRows, ";
     fileObject << "imgColumns, ";
     fileObject << "imgDepth, " << endl;
-    fileObject << this->numberOfBlocks << ", ";
-    fileObject << this->blockRows << ", ";
-    fileObject << this->blockColumns << ", ";
-    fileObject << this->blockDepth << ", ";
-    fileObject << this->imageRows << ", ";
-    fileObject << this->imageColumns << ", ";
-    fileObject << this->imageDepth << endl;
+    fileObject << (*this).getNumberOfBlocks() << ", ";
+    fileObject << (*this).getBlockRows() << ", ";
+    fileObject << (*this).getBlockColumns() << ", ";
+    fileObject << (*this).getBlockDepth() << ", ";
+    fileObject << (*this).getImageRows() << ", ";
+    fileObject << (*this).getImageColumns() << ", ";
+    fileObject << (*this).getImageDepth() << endl;
 
     fileObject << endl;
     fileObject << "blockID, ";
     fileObject << "blockData" << endl;
 
-    for (int index = 0; index < this->numberOfBlocks; index++)
+    for (int index = 0; index < (*this).getNumberOfBlocks(); index++)
     {
         fileObject << index << ", ";
-        fileObject << this->blocks[index] << endl;
+        fileObject << (*this).getBlock(index) << endl;
     }
 
     fileObject.close();

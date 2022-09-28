@@ -11,8 +11,8 @@ NMR_cpmg::NMR_cpmg( Model &_model,
                                         internalField(NULL)
 {
 	// vectors object init
-    vector<double> signal_amps();
-    vector<double> signal_times();
+    vector<double> signalAmps();
+    vector<double> signalTimes();
     vector<double> T2_bins();
     vector<double> T2_amps();
     vector<double> noise();
@@ -20,11 +20,10 @@ NMR_cpmg::NMR_cpmg( Model &_model,
     (*this).setExposureTime(this->CPMG_config.getObservationTime());
     (*this).setApplyBulkRelaxation(this->CPMG_config.getApplyBulk());
     (*this).setMethod(this->CPMG_config.getMethod());
-    (*this).setInternalField(this->CPMG_config.getResidualField());
-    // (*this).set();
+    (*this).buildInternalField(this->CPMG_config.getResidualField());
 }
 
-void NMR_cpmg::setInternalField(string _mode)
+void NMR_cpmg::buildInternalField(string _mode)
 {
     if(_mode == "uniform")
     {
@@ -56,23 +55,23 @@ void NMR_cpmg::checkInternalField()
     }
 }
 
-void NMR_cpmg::set()
+void NMR_cpmg::build()
 {
-	(*this).setName();
+	(*this).buildName();
 	(*this).createDirectoryForData();
-	(*this).setNMRTimeFramework();
+	(*this).buildModelTimeFramework();
 }
 
 void NMR_cpmg::run()
 {
-    (*this).set();
+    (*this).build();
     (*this).run_simulation();
     (*this).applyLaplace();
     (*this).save();
 }
 
 
-void NMR_cpmg::setName(string parent, string sufix)
+void NMR_cpmg::buildName(string parent, string sufix)
 {
     int precisionVal = 2;
     string bigDelta = std::to_string(this->exposureTime);
@@ -88,24 +87,24 @@ void NMR_cpmg::createDirectoryForData()
 }
 
 
-void NMR_cpmg::setNMRTimeFramework(bool _map)
+void NMR_cpmg::buildModelTimeFramework(bool _map)
 {
     this->model.setTimeFramework((*this).getExposureTime()); 
 
     // reserve memory space for signal amps
-    if(this->signal_amps.size() != 0) this->signal_amps.clear();
-    this->signal_amps.reserve(this->model.getNumberOfEchoes() + 1);
+    if(this->signalAmps.size() != 0) this->signalAmps.clear();
+    this->signalAmps.reserve(this->model.getNumberOfEchoes() + 1);
     
     // reserve memory space for signal times
     double time = 0.0;
     double delta_t = this->model.getStepsPerEcho() * this->model.getTimeInterval();
-    if(this->signal_times.size() != 0) this->signal_times.clear();
-    this->signal_times.reserve(this->model.getNumberOfEchoes() + 1);
-    this->signal_times.push_back(time);
+    if(this->signalTimes.size() != 0) this->signalTimes.clear();
+    this->signalTimes.reserve(this->model.getNumberOfEchoes() + 1);
+    this->signalTimes.push_back(time);
     for(int echo = 0; echo < this->model.getNumberOfEchoes(); echo++)
     {   
         time += delta_t;
-        this->signal_times.push_back(time);
+        this->signalTimes.push_back(time);
     }
 
     cout << "- Initial map time: " << (*this).getExposureTime() << " ms ";
@@ -168,7 +167,7 @@ void NMR_cpmg::image_simulation_omp()
 
     // reset vector to store energy decay
     this->resetSignal();
-    this->signal_amps.reserve(this->model.numberOfEchoes);
+    this->signalAmps.reserve(this->model.numberOfEchoes);
 
     // get initial energy state
     double energySum = 0.0;
@@ -176,7 +175,7 @@ void NMR_cpmg::image_simulation_omp()
     {
         energySum += this->model.walkers[id].energy;
     }
-    this->signal_amps.push_back(energySum);
+    this->signalAmps.push_back(energySum);
 
 
     energySum = 0.0;
@@ -203,7 +202,7 @@ void NMR_cpmg::image_simulation_omp()
         }
 
         //energySum = energySum / (double)numberOfWalkers;
-        this->signal_amps.push_back(energySum);
+        this->signalAmps.push_back(energySum);
     }
 
     cout << "Completed.";
@@ -226,7 +225,7 @@ void NMR_cpmg::createPenaltiesVector(vector<double> &_sigmoid)
     double artificial_steps = (double) this->model.getStepsPerEcho();
     for(int idx = 0; idx < this->model.histogram.getSize(); idx++)
     {   
-        artificial_xirate = this->model.histogram.bins[idx];
+        artificial_xirate = this->model.histogram.getBin(idx);
         toy.setXIrate(artificial_xirate);
         toy.setSurfaceRelaxivity(_sigmoid);
         toy.computeDecreaseFactor(this->model.getImageVoxelResolution(), this->model.getDiffusionCoefficient());
@@ -249,7 +248,7 @@ void NMR_cpmg::createPenaltiesVector(double rho)
     double artificial_steps = (double) this->model.getStepsPerEcho();
     for(int idx = 0; idx < this->model.histogram.getSize(); idx++)
     {   
-        artificial_xirate = this->model.histogram.bins[idx];
+        artificial_xirate = this->model.histogram.getBin(idx);
         toy.setXIrate(artificial_xirate);
         toy.setSurfaceRelaxivity(rho);
         toy.computeDecreaseFactor(this->model.getImageVoxelResolution(), this->model.getDiffusionCoefficient());
@@ -276,41 +275,41 @@ void NMR_cpmg::histogram_simulation()
 
     // initialize energyDistribution array
     double *energyDistribution = NULL;
-    energyDistribution = new double[this->model.histogram.size];
+    energyDistribution = new double[this->model.histogram.getSize()];
 
 
     // reset vector to store energy decay
     (*this).resetSignal();
-    this->signal_amps.push_back(1.0);
+    this->signalAmps.push_back(1.0);
 
     // histogram simulation main loop    
     for(int hst_ID = 0; hst_ID < this->model.histogramList.size(); hst_ID++)
     {
-        for(uint id = 0; id < this->model.histogram.size; id++)
+        for(uint id = 0; id < this->model.histogram.getSize(); id++)
         {
-            energyDistribution[id] = this->signal_amps.back() * this->model.histogramList[hst_ID].amps[id];
+            energyDistribution[id] = this->signalAmps.back() * this->model.histogramList[hst_ID].getAmp(id);
         }
 
         double energyLvl;
-        int eBegin = this->model.histogramList[hst_ID].firstEcho;
-        int eEnd = this->model.histogramList[hst_ID].lastEcho;
+        int eBegin = this->model.histogramList[hst_ID].getFirstEcho();
+        int eEnd = this->model.histogramList[hst_ID].getLastEcho();
         for(uint echo = eBegin; echo < eEnd; echo++)
         {
             // apply penalties
-            for(uint id = 0; id < this->model.histogram.size; id++)
+            for(uint id = 0; id < this->model.histogram.getSize(); id++)
             {
                 energyDistribution[id] *= this->penalties[id];
             }
 
             // get global energy
             energyLvl = 0.0;
-            for(uint id = 0; id < this->model.histogram.size; id++)
+            for(uint id = 0; id < this->model.histogram.getSize(); id++)
             {
                 energyLvl += energyDistribution[id];
             }
 
             // add to global energy vector
-            this->signal_amps.push_back(energyLvl);
+            this->signalAmps.push_back(energyLvl);
         }
     }
 
@@ -327,11 +326,11 @@ void NMR_cpmg::applyBulk()
     cout << "applying bulk relaxation." << endl;
     double bulkTime = -1.0 / this->model.getBulkRelaxationTime();
 
-    if(this->signal_amps.size() == this->signal_times.size())
+    if(this->signalAmps.size() == this->signalTimes.size())
     {
-        for(uint echo = 0; echo < this->signal_amps.size(); echo++)
+        for(uint echo = 0; echo < this->signalAmps.size(); echo++)
         {
-            this->signal_amps[echo] = exp(bulkTime * this->signal_times[echo]) * this->signal_amps[echo]; 
+            this->signalAmps[echo] = exp(bulkTime * this->signalTimes[echo]) * this->signalAmps[echo]; 
         }
     } 
     cout << "Ok." << endl;
@@ -339,26 +338,26 @@ void NMR_cpmg::applyBulk()
 
 void NMR_cpmg::resetSignal() 
 {
-    if (this->signal_amps.size() > 0)
+    if (this->signalAmps.size() > 0)
     {
-        this->signal_amps.clear();
+        this->signalAmps.clear();
     }
 }
 
 void NMR_cpmg::normalizeSignal()
 {
     // check if energy decay was done
-    if(this->signal_amps.size() == 0) 
+    if(this->signalAmps.size() == 0) 
     {
         cout << "no data available, could not apply normalization." << endl;
         return; 
     } 
 
     // normalize global energy signal
-    double normalizer = 1.0 / this->signal_amps[0];
-    for(uint echo = 0; echo < this->signal_amps.size(); echo++)
+    double normalizer = 1.0 / this->signalAmps[0];
+    for(uint echo = 0; echo < this->signalAmps.size(); echo++)
     {
-        this->signal_amps[echo] = normalizer * this->signal_amps[echo]; 
+        this->signalAmps[echo] = normalizer * this->signalAmps[echo]; 
     } 
 }
 
@@ -369,15 +368,15 @@ void NMR_cpmg::applyLaplace()
     double tick = omp_get_wtime();
 
     // check if energy decay was done
-    if(this->signal_amps.size() == 0) 
+    if(this->signalAmps.size() == 0) 
     {
         cout << "no data available, could not apply inversion." << endl;
         return; 
     }
 
     // reset T2 distribution from previous simulation
-    if(this->T2_bins.size() > 0) this->T2_bins.clear();
-    if(this->T2_amps.size() > 0) this->T2_amps.clear();
+    if(this->T2bins.size() > 0) this->T2bins.clear();
+    if(this->T2amps.size() > 0) this->T2amps.clear();
 
     // get copy of decay info and remove first elements
     vector<double> decay = (*this).getSignalAmps();
@@ -401,25 +400,25 @@ void NMR_cpmg::applyLaplace()
     nmr_inverter.invert(decay.size(), decay.data());
     for(uint i = 0; i < nmr_inverter.used_t2_bins.size(); i++)
     {
-        this->T2_bins.push_back(nmr_inverter.used_t2_bins[i]);
-        this->T2_amps.push_back(nmr_inverter.used_t2_amps[i]);
+        this->T2bins.push_back(nmr_inverter.used_t2_bins[i]);
+        this->T2amps.push_back(nmr_inverter.used_t2_amps[i]);
     }
 
 
     // Get noise vector
     vector<double> rawNoise = nmr_inverter.get_raw_noise();
     vector<double> newNoise;
-    newNoise.reserve(this->signal_amps.size());
+    newNoise.reserve(this->signalAmps.size());
     newNoise.push_back(0.0);
-    if(rawNoise.size() == (this->signal_amps.size() - 1))
+    if(rawNoise.size() == (this->signalAmps.size() - 1))
     {
-        for(int idx = 1; idx < this->signal_amps.size(); idx++)
+        for(int idx = 1; idx < this->signalAmps.size(); idx++)
         {
             newNoise.push_back(rawNoise[idx-1]);
         }
     } else
     {
-        for(int idx = 1; idx < this->signal_amps.size(); idx++)
+        for(int idx = 1; idx < this->signalAmps.size(); idx++)
         {
             newNoise.push_back(0.0);
         }
@@ -475,16 +474,16 @@ void NMR_cpmg::writeT2decay()
         exit(1);
     }
 
-    const size_t num_points = this->signal_amps.size();
+    const size_t num_points = this->signalAmps.size();
     const int precision = std::numeric_limits<double>::max_digits10;
 
     file << "time,signal,noise,noiseless" << endl;
     for (int idx = 0; idx < num_points; idx++)
     {
-        file << setprecision(precision) << this->signal_times[idx] << ",";
-        file << setprecision(precision) << this->signal_amps[idx] + this->noise[idx] << ",";
+        file << setprecision(precision) << this->signalTimes[idx] << ",";
+        file << setprecision(precision) << this->signalAmps[idx] + this->noise[idx] << ",";
         file << setprecision(precision) << this->noise[idx] << ",";
-        file << setprecision(precision) << this->signal_amps[idx] << endl;    
+        file << setprecision(precision) << this->signalAmps[idx] << endl;    
     }
     
     file.close();
@@ -502,13 +501,13 @@ void NMR_cpmg::writeT2dist()
         exit(1);
     }
 
-    const size_t num_points = T2_bins.size();
+    const size_t num_points = this->T2bins.size();
     const int precision = std::numeric_limits<double>::max_digits10;
 
     file << "NMRT2_bins,NMRT2_amps" << endl;
     for (int idx = 0; idx < num_points; idx++)
     {
-        file << setprecision(precision) << this->T2_bins[idx] << "," << this->T2_amps[idx] << endl;
+        file << setprecision(precision) << this->T2bins[idx] << "," << this->T2amps[idx] << endl;
     }
     
     file.close();
@@ -572,8 +571,8 @@ void NMR_cpmg::writeHistogram()
     for (int i = 0; i < num_points; i++)
     {
         file << setprecision(precision) 
-        << this->model.histogram.bins[i] 
-        << "," << this->model.histogram.amps[i] << endl;
+        << this->model.histogram.getBin(i) 
+        << "," << this->model.histogram.getAmp(i) << endl;
     }
 
     file.close();
@@ -605,8 +604,8 @@ void NMR_cpmg::writeHistogramList()
     {
         for(int hIdx = 0; hIdx < histograms; hIdx++)
         {
-            file << setprecision(precision) << this->model.histogramList[hIdx].bins[i] << ",";
-            file << setprecision(precision) << this->model.histogramList[hIdx].amps[i] << ",";
+            file << setprecision(precision) << this->model.histogramList[hIdx].getBin(i) << ",";
+            file << setprecision(precision) << this->model.histogramList[hIdx].getAmp(i) << ",";
         }
 
         file << endl;

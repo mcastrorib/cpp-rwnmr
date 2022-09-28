@@ -7,7 +7,7 @@ using namespace std;
 
 class cpmg_config
 {
-public:
+private:
     string config_filepath;
     // --- Physical attributes.
     double D0;
@@ -41,8 +41,7 @@ public:
     bool SAVE_HISTOGRAM;
     bool SAVE_HISTOGRAM_LIST;
     
-
-
+public:
     // default constructors
     cpmg_config(){};
     cpmg_config(const string configFile, const string croot);

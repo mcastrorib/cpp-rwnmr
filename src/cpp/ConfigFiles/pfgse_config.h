@@ -8,7 +8,7 @@ using namespace std;
 
 class pfgse_config
 {
-public:
+private:
     string config_filepath;
     // --- Physical attributes.
     bool APPLY_BULK;
@@ -43,7 +43,7 @@ public:
     bool SAVE_HISTOGRAM;
     bool SAVE_HISTOGRAM_LIST;
 
-
+public:
     // default constructors
     pfgse_config():THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0){};
     pfgse_config(const string configFile, const string croot);
