@@ -48,7 +48,7 @@ add_subdirectory(Framework)
 add_subdirectory(Math)
 add_subdirectory(ConfigFiles)
 add_subdirectory(Utils)
-list(APPEND EXTRA_LIBS UnitTest App Framework Math ConfigFiles Utils)
+list(APPEND EXTRA_LIBS App Framework Math ConfigFiles Utils)
 
 # Add the executable
 add_executable(rwnmr main.cpp)
@@ -61,9 +61,10 @@ target_include_directories(rwnmr PUBLIC "${PROJECT_BINARY_DIR}")
 
 ## Testing
 # Add the test executable
+list(APPEND TEST_LIBS UnitTest ${EXTRA_LIBS})
 add_executable(test-rwnmr testing.cpp)
 target_compile_options(test-rwnmr PUBLIC -O3)
-target_link_libraries(test-rwnmr PUBLIC ${EXTRA_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
+target_link_libraries(test-rwnmr PUBLIC ${TEST_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
 target_link_libraries(test-rwnmr PRIVATE CUDA::cudart)
 
 # Add the binary tree to the search path for include files so that it will find RandomWalkConfig.h
