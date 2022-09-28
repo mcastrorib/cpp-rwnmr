@@ -51,14 +51,14 @@ void rwnmrApp::exec()
 {
     (*this).buildEssentials();
 
-    uint commands = this->args.commands.size();
+    uint commands = this->args.getCommands().size();
     uint current = 2;
     while(current < commands)
     {
-        if(this->args.commands[current] == "cpmg") (*this).CPMG(current);
-        else if(this->args.commands[current] == "pfgse") (*this).PFGSE(current);
-        else if(this->args.commands[current] == "ga") (*this).GA(current);
-        else if(this->args.commands[current] == "multitau") (*this).MultiTau(current);
+        if(this->args.getCommand(current) == "cpmg") (*this).CPMG(current);
+        else if(this->args.getCommand(current) == "pfgse") (*this).PFGSE(current);
+        else if(this->args.getCommand(current) == "ga") (*this).GA(current);
+        else if(this->args.getCommand(current) == "multitau") (*this).MultiTau(current);
 
         current++;
     }

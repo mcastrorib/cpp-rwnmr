@@ -445,16 +445,16 @@ void Model::loadRockImage()
     this->binaryMap.reserve(numberOfImages);
 
     // constant strings
-    string currentDirectory = this->imagePath.path;
-    string currentFileName = this->imagePath.filename;
-    string currentExtension = this->imagePath.extension;
+    string currentDirectory = this->imagePath.getPath();
+    string currentFileName = this->imagePath.getFilename();
+    string currentExtension = this->imagePath.getExtension();
 
     // variable strings
     string currentFileID;
     string currentImagePath;
 
-    uint firstImage = this->imagePath.fileID;
-    uint digits = this->imagePath.digits;
+    uint firstImage = this->imagePath.getFileID();
+    uint digits = this->imagePath.getDigits();
 
     // create progress bar object
     ProgressBar pBar((double) (this->numberOfImages));
@@ -1523,15 +1523,15 @@ void Model::assemblyImagePath()
 {
     // User Input
      ImagePath input;
-     input.images = this->uCT_config.getSlices();
-     input.path = this->uCT_config.getDirPath();
-     input.filename = this->uCT_config.getFilename();
-     input.fileID = this->uCT_config.getFirstIdx();
-     input.digits = this->uCT_config.getDigits();
-     input.extension = this->uCT_config.getExtension();
+     input.setImages(this->uCT_config.getSlices());
+     input.setPath(this->uCT_config.getDirPath());
+     input.setFilename(this->uCT_config.getFilename());
+     input.setFileID(this->uCT_config.getFirstIdx());
+     input.setDigits(this->uCT_config.getDigits());
+     input.setExtension(this->uCT_config.getExtension());
      input.updateCompletePath();
 
-     (*this).setImage(input, input.images);
+     (*this).setImage(input, input.getImages());
 }
 
 string Model::createDirectoryForResults(string _path)
@@ -1560,7 +1560,7 @@ void Model::saveInfo(string filedir)
     fileObject << ">>> NMR SIMULATION 3D PARAMETERS: " << this->simulationName << endl;
     fileObject << "------------------------------------------------------" << endl;
     fileObject << "Data path: " << this->DBPath + this->simulationName << endl;
-    fileObject << "Image path: " << this->imagePath.completePath << endl;
+    fileObject << "Image path: " << this->imagePath.getCompletePath() << endl;
     fileObject << "Image resolution (um/voxel): " << this->imageVoxelResolution << endl;
     fileObject << "Diffusion coefficient (um^2/ms): " << this->diffusionCoefficient << endl;
     fileObject << "Number of images: " << this->numberOfImages << endl;
@@ -1612,7 +1612,7 @@ void Model::saveImageInfo(string filedir)
     }
 
     // write info 
-    fileObject << "image path: " << this->imagePath.completePath << endl;
+    fileObject << "image path: " << this->imagePath.getCompletePath() << endl;
     fileObject << "width(x): " << this->bitBlock.imageColumns << endl;
     fileObject << "height(y): " << this->bitBlock.imageRows << endl;
     fileObject << "depth(z): " << this->bitBlock.imageDepth << endl;
@@ -1734,7 +1734,7 @@ void Model::printDetails()
     cout << ">>> NMR SIMULATION 3D PARAMETERS: " << this->simulationName << endl;
     cout << "------------------------------------------------------" << endl;
     cout << "Data path: " << this->DBPath + this->simulationName << endl;
-    cout << "Image path: " << this->imagePath.completePath << endl;
+    cout << "Image path: " << this->imagePath.getCompletePath() << endl;
     cout << "Image resolution (um/voxel): " << this->imageVoxelResolution << endl;
     cout << "Diffusion coefficient (um^2/ms): " << this->diffusionCoefficient << endl;
     cout << "Number of images: " << this->numberOfImages << endl;

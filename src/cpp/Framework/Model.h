@@ -288,7 +288,7 @@ public:
     inline double getBulkRelaxationTime(){ return this->bulkRelaxationTime; }
 
     // image attributes
-    inline string getImagePath() { return this->imagePath.completePath; }
+    inline string getImagePath() { return this->imagePath.getCompletePath(); }
     inline uint getNumberOfImages() { return this->numberOfImages; }
     inline double getImageResolution() { return this->imageResolution; }
     inline double getImageVoxelResolution() { return this->imageVoxelResolution; }

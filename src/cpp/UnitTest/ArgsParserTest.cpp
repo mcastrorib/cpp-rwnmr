@@ -16,30 +16,30 @@ void ArgsParserTest::checkParser(int argc, char *argv[], vector<string> _expecte
 {
 	ArgsParser *parser = new ArgsParser(argc, argv);
 
-	if(parser->commands.size() != _expectedCommands.size())
+	if(parser->getCommands().size() != _expectedCommands.size())
 	{
 		cout << endl << "Error(" << _msg << "): commands size is incorrect" << endl;
 		exit(1);
 	} 
 
-	if(parser->paths.size() != _expectedPaths.size())
+	if(parser->getPaths().size() != _expectedPaths.size())
 	{
 		cout << endl << "Error(" << _msg << "): paths size is incorrect" << endl;
 		exit(1);
 	}
 
-	for(int idx = 0; idx < parser->commands.size(); idx++)
+	for(int idx = 0; idx < parser->getCommands().size(); idx++)
 	{
-		if(parser->commands[idx] != _expectedCommands[idx])
+		if(parser->getCommand(idx) != _expectedCommands[idx])
 		{
 			cout << endl << "Error(" << _msg << "): command(" << idx << ") is incorrect" << endl;
 			exit(1);		
 		}
 	}
 
-	for(int idx = 0; idx < parser->paths.size(); idx++)
+	for(int idx = 0; idx < parser->getPaths().size(); idx++)
 	{
-		if(parser->paths[idx] != _expectedPaths[idx])
+		if(parser->getPath(idx) != _expectedPaths[idx])
 		{
 			cout << endl << "Error(" << _msg << "): path(" << idx << ") is incorrect" << endl;
 			exit(1);		
