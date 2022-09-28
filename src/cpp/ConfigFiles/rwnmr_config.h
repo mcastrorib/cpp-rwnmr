@@ -7,7 +7,7 @@ using namespace std;
 
 class rwnmr_config
 {
-public:
+private:
     string config_filepath;
     string NAME;
     uint WALKERS;
@@ -57,6 +57,7 @@ public:
     uint NMR_T2_TAG;
     uint NMR_END_TAG;
 
+public:
     // default constructors
     rwnmr_config(){};
     rwnmr_config(const string configFile, const string croot);

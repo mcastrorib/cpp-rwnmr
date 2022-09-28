@@ -7,7 +7,7 @@ using namespace std;
 
 class multitau_config
 {
-public:
+private:
     string config_filepath;
     double TAU_MIN;
     double TAU_MAX;
@@ -22,7 +22,8 @@ public:
     bool SAVE_WALKERS;
     bool SAVE_HISTOGRAM;
     bool SAVE_HISTOGRAM_LIST;
-    
+
+public:   
     // default constructors
     multitau_config(){};
     multitau_config(const string configFile, const string croot);

@@ -257,10 +257,10 @@ void Model::setTimeFramework(double _time)
 
 void Model::readImage()
 {
-    if(this->uCT_config.IMG_FILES.size() == this->uCT_config.SLICES)
+    if(this->uCT_config.getImgFiles().size() == this->uCT_config.getSlices())
     {
-        this->numberOfImages = this->uCT_config.SLICES;
-        this->depth = this->uCT_config.SLICES;
+        this->numberOfImages = this->uCT_config.getSlices();
+        this->depth = this->uCT_config.getSlices();
         (*this).assemblyImagePath();
         (*this).loadRockImageFromList();
     }
