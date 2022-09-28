@@ -20,7 +20,7 @@ using namespace cv;
 
 class BitBlock
 {
-public:
+private:
     uint64_t *blocks;
     int numberOfBlocks;
     int imageRows;
@@ -30,6 +30,7 @@ public:
     int blockColumns;
     int blockDepth;
 
+public:
     // methods:
 
     // class constructor
@@ -44,6 +45,31 @@ public:
         delete[] this->blocks;
         this->blocks = NULL;
     };
+
+    void setBlocks(uint64_t *_blocks){ this->blocks = _blocks; }
+    void setBlock(uint64_t _block, uint idx){ this->blocks[idx] = _block; }
+    void setNumberOfBlocks(int _n){ this->numberOfBlocks = _n; }
+    void setImageRows(int _rows){ this->imageRows = _rows; }
+    void setImageColumns(int _cols){ this->imageColumns = _cols; }
+    void setImageDepth(int _depth){ this->imageDepth = _depth; }
+    void setBlockRows(int _rows){ this->blockRows = _rows; }
+    void setBlockColumns(int _cols){ this->blockColumns = _cols; }
+    void setBlockDepth(int _depth){ this->blockDepth = _depth; }
+
+
+    uint64_t *getBlocks(){ return this->blocks; }
+    uint64_t getBlock(uint idx){ return this->blocks[idx]; }
+    int getNumberOfBlocks(){ return this->numberOfBlocks;}
+    int getImageRows(){ return this->imageRows; }
+    int getImageColumns(){ return this->imageColumns; };
+    int getImageDepth(){ return this->imageDepth; };
+    int getBlockRows(){ return this->blockRows; };
+    int getBlockColumns(){ return this->blockColumns; };
+    int getBlockDepth(){ return this->blockDepth; };
+
+    void allocBlocks(uint size){
+        this->blocks = new uint64_t[size];
+    }
 
     void clear()
     {
@@ -132,20 +158,6 @@ public:
     {
         return ((this->blocks[_blockIndex] >> _bitIndex) & 1ull);
     }
-
-    // inline 'get' methods
-    // attributes
-    inline int getNumberOfBlocks() { return this->numberOfBlocks; }
-    inline int getImageRows() { return this->imageRows; }
-    inline int getImageColumns() { return this->imageColumns; }
-    inline int getImageDepth() { return this->imageDepth; }
-    inline int getBlockRows() { return this->blockRows; }
-    inline int getBlockColumns() { return this->blockColumns; }
-    inline int getBlockDepth() { return this->blockDepth; }
-
-    // bitblock array
-    inline uint64_t *getBitBlockArray() { return this->blocks; }
-    inline uint64_t getBitBlock(int id) { return this->blocks[id]; }
 };
 
 #endif

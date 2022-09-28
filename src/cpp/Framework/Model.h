@@ -6,7 +6,6 @@
 #include "BitBlock.h"
 #include "Walker.h"
 #include "CollisionHistogram.h"
-#include "ChordLengthHistogram.h"
 
 using namespace std;
 using namespace cv;

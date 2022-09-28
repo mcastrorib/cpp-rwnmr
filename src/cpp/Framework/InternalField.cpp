@@ -7,7 +7,7 @@ InternalField::InternalField(BitBlock &_bitblock, double _resolution, double _gr
 																											 depthScale(0), 
 																											 data(NULL)
 {
-	(*this).setDims(_bitblock.imageColumns, _bitblock.imageRows, _bitblock.imageDepth);
+	(*this).setDims(_bitblock.getImageColumns(), _bitblock.getImageRows(), _bitblock.getImageDepth());
 	(*this).allocDataArray();
 	(*this).fillDataArray(_bitblock, _resolution, _gradient, _direction);
 	// (*this).show();
@@ -20,7 +20,7 @@ InternalField::InternalField(BitBlock &_bitblock, string _file) : dimX(0),
 																  depthScale(0), 
 																  data(NULL)
 {
-	(*this).setDims(_bitblock.imageColumns, _bitblock.imageRows, _bitblock.imageDepth);
+	(*this).setDims(_bitblock.getImageColumns(), _bitblock.getImageRows(), _bitblock.getImageDepth());
 	(*this).allocDataArray();
 	(*this).readDataFromFile(_file);
 	// (*this).show();

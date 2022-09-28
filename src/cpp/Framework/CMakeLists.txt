@@ -8,7 +8,6 @@ add_library(Framework
 			Model.cpp 
 			./cuda/NMR_mapping_cuda.cpp 
 			CollisionHistogram.cpp 
-			ChordLengthHistogram.cpp
 			InternalField.cpp
 			NMR_cpmg.cpp
 			./cuda/NMR_cpmg_cuda.cpp
@@ -84,7 +83,6 @@ install(FILES
     Walker.h 
     BitBlock.h
 		CollisionHistogram.h
-		ChordLengthHistogram.h
 		InternalField.h
 		Model.h 
 		./cuda/NMR_mapping_cuda.h 

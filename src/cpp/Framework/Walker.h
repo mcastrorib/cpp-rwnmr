@@ -222,7 +222,7 @@ public:
         }
     };
 
-    inline void checkBorder_2D(const BitBlock &_bitBlock)
+    inline void checkBorder_2D(BitBlock &_bitBlock)
     {
         switch (this->nextDirection)
         {
@@ -235,7 +235,7 @@ public:
 
         case South:
 
-            if (this->position_y == _bitBlock.imageRows - 1)
+            if (this->position_y == _bitBlock.getImageRows() - 1)
             {
                 nextDirection = North;
             }
@@ -249,7 +249,7 @@ public:
             break;
 
         case East:
-            if (this->position_x == _bitBlock.imageColumns - 1)
+            if (this->position_x == _bitBlock.getImageColumns() - 1)
             {
                 nextDirection = West;
             }
@@ -373,7 +373,7 @@ public:
         }
     };
 
-    inline void checkBorder_3D(const BitBlock &_bitBlock)
+    inline void checkBorder_3D(BitBlock &_bitBlock)
     {
         switch (this->nextDirection)
         {
@@ -386,7 +386,7 @@ public:
 
         case South:
 
-            if (this->position_y == _bitBlock.imageRows - 1)
+            if (this->position_y == _bitBlock.getImageRows() - 1)
             {
                 nextDirection = North;
             }
@@ -400,14 +400,14 @@ public:
             break;
 
         case East:
-            if (this->position_x == _bitBlock.imageColumns - 1)
+            if (this->position_x == _bitBlock.getImageColumns() - 1)
             {
                 nextDirection = West;
             }
             break;
 
         case Up:
-            if (this->position_z == _bitBlock.imageDepth - 1)
+            if (this->position_z == _bitBlock.getImageDepth() - 1)
             {
                 nextDirection = Down;
             }
