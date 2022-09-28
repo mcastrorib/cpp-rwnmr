@@ -103,28 +103,28 @@ void NMR_multitau::setExposureTime(uint index)
 void NMR_multitau::setCPMG(uint index)
 {
     (*this).setExposureTime(index);
-    (*this).getCPMG()->setNMRTimeFramework(false);
+    (*this).getCPMG()->buildModelTimeFramework(false);
     
     int precisionVal = 3;
     string te = std::to_string((*this).getRequiredStep(index) * (*this).getModel().getTimeInterval());
     string sufix = "_te=" + te.substr(0, std::to_string((*this).getRequiredStep(index) * (*this).getModel().getTimeInterval()).find(".") + precisionVal + 1);
-    (*this).getCPMG()->setName((*this).getName(), sufix);
+    (*this).getCPMG()->buildName((*this).getName(), sufix);
     (*this).getCPMG()->createDirectoryForData();
 }
 
 void NMR_multitau::runCPMG()
 {
     (*this).getCPMG()->run_simulation();
-    int size = (*this).getCPMG()->signal_amps.size();
+    int size = (*this).getCPMG()->getSignalAmps().size();
     if(size > 1) 
     {
-        cout << "M[0] = " << (*this).getCPMG()->signal_amps[0] << endl;
-        cout << "M[1] = " << (*this).getCPMG()->signal_amps[1] << endl;
+        cout << "M[0] = " << (*this).getCPMG()->getSignalAmps(0) << endl;
+        cout << "M[1] = " << (*this).getCPMG()->getSignalAmps(1) << endl;
     }
 
     if(size > 0)
     {
-        (*this).addSignalAmp((*this).getCPMG()->signal_amps[1]);
+        (*this).addSignalAmp((*this).getCPMG()->getSignalAmps(1));
     }
     if((*this).getMultitauConfig().getCompleteDecay())
     {

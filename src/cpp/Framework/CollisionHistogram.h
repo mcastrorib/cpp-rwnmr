@@ -4,8 +4,6 @@
 #include "Defs.h"
 #include "Walker.h"
 
-using namespace std;
-
 class CollisionHistogram
 {
 private:	

@@ -5,8 +5,6 @@
 #include "Model.h"
 #include "Walker.h"
 
-using namespace std;
-
 class NMR_PFGSE
 {
 private:

@@ -944,11 +944,11 @@ void NMR_cpmg::image_simulation_cuda()
 
     // reset vector to store energy decay
     (*this).resetSignal();
-    this->signal_amps.reserve(this->model.getNumberOfEchoes() + 1); // '+1' to accomodate time 0.0
+    this->signalAmps.reserve(this->model.getNumberOfEchoes() + 1); // '+1' to accomodate time 0.0
 
     // get initial energy global state
     double energySum = ((double) this->model.walkers.size()) * this->model.walkers[0].getEnergy();
-    this->signal_amps.push_back(energySum);
+    this->signalAmps.push_back(energySum);
 
     reset_time += omp_get_wtime() - tick;
 
@@ -1676,7 +1676,7 @@ void NMR_cpmg::image_simulation_cuda()
     tick = omp_get_wtime();
     for (uint echo = 0; echo < numberOfEchoes; echo++)
     {
-        this->signal_amps.push_back(h_globalEnergy[echo]);
+        this->signalAmps.push_back(h_globalEnergy[echo]);
     }
     buffer_time += omp_get_wtime() - tick;
 

@@ -6,8 +6,6 @@
 #include "Model.h"
 #include "NMR_cpmg.h"
 
-using namespace std;
-
 class NMR_multitau
 {
 private:

@@ -15,9 +15,6 @@
 #define DEPTHPERBLOCK3D 4
 #define IDX2C_3D(i, j, k, lx, ly) ((k * (lx * ly)) + ((j) * (lx)) + (i))
 
-using namespace std;
-using namespace cv;
-
 class BitBlock
 {
 private:

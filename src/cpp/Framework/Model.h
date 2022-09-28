@@ -7,9 +7,6 @@
 #include "Walker.h"
 #include "CollisionHistogram.h"
 
-using namespace std;
-using namespace cv;
-
 class Model
 {
 public:
