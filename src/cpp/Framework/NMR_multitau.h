@@ -10,7 +10,7 @@ using namespace std;
 
 class NMR_multitau
 {
-public:
+private:
 	Model &model;
 	NMR_cpmg *cpmg;
 	multitau_config MultiTau_config;
@@ -20,7 +20,8 @@ public:
 	vector<uint> requiredSteps;
     vector<double> signalTimes;
     vector<double> signalAmps;
-    
+
+public:
 	NMR_multitau(Model &_model, 
 				 multitau_config _multitauConfig, 
 				 cpmg_config _cpmgConfig, 
@@ -36,7 +37,39 @@ public:
 		}
 	};
 
-	void setName();
+	void setModel(Model &_model){ this->model = _model; }
+	void setCPMG(NMR_cpmg *_cpmg){ this->cpmg = _cpmg; }
+	void setMultitauConfig(multitau_config _config){ this->MultiTau_config = _config; }
+	void setCPMGConfig(cpmg_config _config){ this->CPMG_config = _config; }
+	void setName(string _name){ this->name = _name; }
+	void setDir(string _dir){ this->dir = _dir; }
+	void setRequiredSteps(vector<uint> _vec){ this->requiredSteps = _vec; }
+	void setSignalTimes(vector<double> _vec){ this->signalTimes = _vec; }
+	void setSignalAmps(vector<double> _vec){ this->signalAmps = _vec; }
+	void setRequiredStep(uint _val, uint idx){ this->requiredSteps[idx] = _val; }
+	void setSignalTime(double _val, uint idx){ this->signalTimes[idx] = _val; }
+	void setSignalAmp(double _val, uint idx){ this->signalAmps[idx] = _val; }
+	void addRequiredStep(uint _val){ this->requiredSteps.push_back(_val); }
+	void addSignalTime(double _val){ this->signalTimes.push_back(_val); }
+	void addSignalAmp(double _val){ this->signalAmps.push_back(_val); }
+	void clearRequiredSteps(){ this->requiredSteps.clear(); }
+	void clearSignalTimes(){ this->signalTimes.clear(); }
+	void clearSignalAmps(){ this->signalAmps.clear(); }
+
+	Model &getModel(){return this->model;}
+	NMR_cpmg *getCPMG(){ return this->cpmg; }
+	multitau_config getMultitauConfig(){ return this->MultiTau_config; }
+	cpmg_config getCPMGConfig(){ return this->CPMG_config; }
+	string getName(){ return this->name; }
+	string getDir(){ return this->dir; }
+	vector<uint> getRequiredSteps(){ return this->requiredSteps; }
+	uint getRequiredStep(uint idx){ return this->requiredSteps[idx]; }
+    vector<double> getSignalTimes(){ return this->signalTimes; }
+	double getSignalTime(uint idx){ return this->signalTimes[idx]; }
+    vector<double> getSignalAmps(){ return this->signalAmps; }
+	double getSignalAmp(uint idx){ return this->signalAmps[idx]; }
+
+	void createName();
 	void createDirectoryForData();
 	void setTauSequence();
 	void setExposureTime(uint index);

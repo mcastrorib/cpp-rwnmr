@@ -7,17 +7,17 @@ NMR_PFGSE::NMR_PFGSE(Model &_model,
 					 int _mpi_rank,
 					 int _mpi_processes) : model(_model),
 										   PFGSE_config(_pfgseConfig),
-										   D_sat(0.0),
-										   D_sat_error(0.0),
-										   D_sat_stdev(0.0),
-										   D_msd(0.0),
-										   D_msd_stdev(0.0),
+										   Dsat(0.0),
+										   DsatError(0.0),
+										   DsatStdev(0.0),
+										   Dmsd(0.0),
+										   DmsdStdev(0.0),
 										   msd(0.0),
-										   msd_stdev(0.0),
+										   msdStdev(0.0),
 										   vecMsd(0.0, 0.0, 0.0),
-										   vecMsd_stdev(0.0, 0.0, 0.0),
+										   vecMsdStdev(0.0, 0.0, 0.0),
 										   vecDmsd(0.0, 0.0, 0.0),
-										   vecDmsd_stdev(0.0, 0.0, 0.0),
+										   vecDmsdStdev(0.0, 0.0, 0.0),
 										   stepsTaken(0),
 										   currentTime(0),
 										   DsatAdjustSamples(0),
@@ -32,28 +32,28 @@ NMR_PFGSE::NMR_PFGSE(Model &_model,
 	vector<double> exposureTimes();
 	vector<double> gradient();
 	vector<double> rawNoise();
-	vector<double> RHS();
-	vector<double> Mkt();
-	vector<double> Mkt_stdev();
-	vector<double> LHS();
-	vector<double> LHS_stdev();
+	vector<double> rhs();
+	vector<double> mkt();
+	vector<double> mktStdev();
+	vector<double> lhs();
+	vector<double> lhs_stdev();
 	vector<Vector3D> vecGradient();
 	vector<Vector3D> vecK();
 
 	// read config file
-	Vector3D gradient_max = this->PFGSE_config.getMaxGradient();
-	this->gradient_X = gradient_max.getX();
-	this->gradient_Y = gradient_max.getY();
-	this->gradient_Z = gradient_max.getZ();	
+	Vector3D gradientMax = this->PFGSE_config.getMaxGradient();
+	this->gradientX = gradientMax.getX();
+	this->gradientY = gradientMax.getY();
+	this->gradientZ = gradientMax.getZ();	
 	this->gradientPoints = this->PFGSE_config.getGradientSamples();
 	this->exposureTimes = this->PFGSE_config.getTimeValues(); 
 	this->pulseWidth = this->PFGSE_config.getPulseWidth();
 	(*this).setApplyBulkRelaxation(this->PFGSE_config.getApplyBulk());
 	(*this).setNoiseAmp(this->PFGSE_config.getNoiseAmp());
 	(*this).setTargetSNR(this->PFGSE_config.getTargetSNR());
-	(*this).setThresholdFromSamples(this->gradientPoints);
-	(*this).setGradientVector();
-	(*this).setVectorK();
+	(*this).buildThresholdFromSamples(this->gradientPoints);
+	(*this).buildGradientVector();
+	(*this).buildVectorK();
 
 	// new
 	(*this).setName();
@@ -64,10 +64,10 @@ void NMR_PFGSE::set()
 {
 	// (*this).setName();
 	// (*this).createDirectoryForData();
-	(*this).setNMRTimeFramework();
-	(*this).setVectorMkt();
-	(*this).setVectorLHS();
-	(*this).setVectorRHS();
+	(*this).buildModelTimeFramework();
+	(*this).buildVectorMkt();
+	(*this).buildVectorLHS();
+	(*this).buildVectorRHS();
 }
 
 void NMR_PFGSE::run()
@@ -112,9 +112,9 @@ void NMR_PFGSE::applyThreshold()
 	double threshold_value = this->PFGSE_config.getThresholdValue();
 	uint threshold_window = this->PFGSE_config.getThresholdWindow();
 	if(threshold_window > (*this).getGradientPoints()) threshold_window = (*this).getGradientPoints();
-	if(threshold_type == "lhs") (*this).setThresholdFromLHS(threshold_value, threshold_window);
-	else if(threshold_type == "samples") (*this).setThresholdFromSamples(int(threshold_value));
-	else (*this).setThresholdFromSamples(this->gradientPoints);
+	if(threshold_type == "lhs") (*this).buildThresholdFromLHS(threshold_value, threshold_window);
+	else if(threshold_type == "samples") (*this).buildThresholdFromSamples(int(threshold_value));
+	else (*this).buildThresholdFromSamples(this->gradientPoints);
 }
 
 void NMR_PFGSE::resetModel()
@@ -228,23 +228,23 @@ void NMR_PFGSE::createDirectoryForData()
     
 }
 
-void NMR_PFGSE::setGradientVector(double _GF, int _GPoints)
+void NMR_PFGSE::buildGradientVector(double _GF, int _GPoints)
 {
-	this->gradient_max = _GF;
+	this->gradientMax = _GF;
 	this->gradientPoints = _GPoints;
-	(*this).setGradientVector();
+	(*this).buildGradientVector();
 }
 
-void NMR_PFGSE::setVectorMkt()
+void NMR_PFGSE::buildVectorMkt()
 {
-	if(this->Mkt.size() > 0) this->Mkt.clear();
-	this->Mkt.reserve(this->gradientPoints);
+	if(this->mkt.size() > 0) this->mkt.clear();
+	this->mkt.reserve(this->gradientPoints);
 
-	if(this->Mkt_stdev.size() > 0) this->Mkt_stdev.clear();
-	this->Mkt_stdev.reserve(this->gradientPoints);
+	if(this->mktStdev.size() > 0) this->mktStdev.clear();
+	this->mktStdev.reserve(this->gradientPoints);
 }
 
-void NMR_PFGSE::setGradientVector()
+void NMR_PFGSE::buildGradientVector()
 {
 	if(this->vecGradient.size() > 0) this->vecGradient.clear();
 	this->vecGradient.reserve(this->gradientPoints);
@@ -252,9 +252,9 @@ void NMR_PFGSE::setGradientVector()
 	if(this->gradient.size() > 0) this->gradient.clear();
 	this->gradient.reserve(this->gradientPoints);
 	
-	double gapX = (this->gradient_X) / ((double) (this->gradientPoints - 1));
-	double gapY = (this->gradient_Y) / ((double) (this->gradientPoints - 1));
-	double gapZ = (this->gradient_Z) / ((double) (this->gradientPoints - 1));
+	double gapX = (this->gradientX) / ((double) (this->gradientPoints - 1));
+	double gapY = (this->gradientY) / ((double) (this->gradientPoints - 1));
+	double gapZ = (this->gradientZ) / ((double) (this->gradientPoints - 1));
 	
 	double gvalueX = 0.0;
 	double gvalueY = 0.0;
@@ -271,7 +271,7 @@ void NMR_PFGSE::setGradientVector()
 	}
 }
 
-void NMR_PFGSE::setVectorK()
+void NMR_PFGSE::buildVectorK()
 {
 	if(this->vecK.size() > 0) this->vecK.clear();
 	this->vecK.reserve(this->gradientPoints);
@@ -279,15 +279,15 @@ void NMR_PFGSE::setVectorK()
 	double Kx, Ky, Kz;
 	for(uint index = 0; index < this->gradientPoints; index++)
 	{
-		Kx = (*this).computeWaveVectorK(this->vecGradient[index].getX(), (*this).getPulseWidth(), (*this).getGiromagneticRatio());
-		Ky = (*this).computeWaveVectorK(this->vecGradient[index].getY(), (*this).getPulseWidth(), (*this).getGiromagneticRatio());
-		Kz = (*this).computeWaveVectorK(this->vecGradient[index].getZ(), (*this).getPulseWidth(), (*this).getGiromagneticRatio());
+		Kx = (*this).computeWaveVectorK(this->vecGradient[index].getX(), (*this).getPulseWidth(), (*this).getModel().getGiromagneticRatio());
+		Ky = (*this).computeWaveVectorK(this->vecGradient[index].getY(), (*this).getPulseWidth(), (*this).getModel().getGiromagneticRatio());
+		Kz = (*this).computeWaveVectorK(this->vecGradient[index].getZ(), (*this).getPulseWidth(), (*this).getModel().getGiromagneticRatio());
 		Vector3D Knew(Kx, Ky, Kz);
 		this->vecK.push_back(Knew);
 	}
 }
 
-void NMR_PFGSE::setNMRTimeFramework()
+void NMR_PFGSE::buildModelTimeFramework()
 {
 	cout << endl << "-- Exposure time: " << this->exposureTime << " ms";
 	this->model.setTimeFramework(this->exposureTime);
@@ -322,48 +322,48 @@ void NMR_PFGSE::runInitialMapSimulation()
 	}
 }
 
-void NMR_PFGSE::setVectorRHS()
+void NMR_PFGSE::buildVectorRHS()
 {
-	if(this->RHS.size() > 0) this->RHS.clear();
-	this->RHS.reserve(this->gradientPoints);
+	if(this->rhs.size() > 0) this->rhs.clear();
+	this->rhs.reserve(this->gradientPoints);
 
 	for(uint idx = 0; idx < this->gradientPoints; idx++)
 	{
-		double rhs = (*this).computeRHS(this->vecK[idx].getNorm());
+		double vrhs = (*this).computeRHS(this->vecK[idx].getNorm());
 		// double rhs = (*this).computeRHS_legacy(this->gradient[idx]);
-		this->RHS.push_back(rhs);
+		this->rhs.push_back(vrhs);
 	}
 }
 
-void NMR_PFGSE::setThresholdFromLHS(double _value, uint _window)
+void NMR_PFGSE::buildThresholdFromLHS(double _value, uint _window)
 {
 
-	if(this->LHS.size() < _window) 
+	if(this->lhs.size() < _window) 
 		return;
 
 	if(_value > 0.0 && _value < 1.0)
 	{
 		if((*this).getNoiseAmp() == 0.0)
 		{
-			(*this).setThresholdFromLHSValue(_value, _window);
+			(*this).buildThresholdFromLHSValue(_value, _window);
 		} 
 		else
 		{
-			(*this).setThresholdFromLHSWindow(_value, _window);
+			(*this).buildThresholdFromLHSWindow(_value, _window);
 		}
 	}
 }
 
-void NMR_PFGSE::setThresholdFromLHSValue(double _value, uint _window)
+void NMR_PFGSE::buildThresholdFromLHSValue(double _value, uint _window)
 {
 	uint minSize = _window;
 	int idx = minSize - 1;
 	bool isGreater = true;
 	double logValue = log(_value);
 
-	while(idx < this->LHS.size() && isGreater == true)
+	while(idx < this->lhs.size() && isGreater == true)
 	{
-		if(this->LHS[idx] < logValue)
+		if(this->lhs[idx] < logValue)
 		{
 			isGreater = false;
 		}
@@ -377,14 +377,14 @@ void NMR_PFGSE::setThresholdFromLHSValue(double _value, uint _window)
 	this->DsatAdjustSamples = idx;
 }
 
-void NMR_PFGSE::setThresholdFromLHSWindow(double _value, uint _window)
+void NMR_PFGSE::buildThresholdFromLHSWindow(double _value, uint _window)
 {
-	if(this->LHS.size() < _window) 
+	if(this->lhs.size() < _window) 
 		return;
 
 	vector<double> windowValues;
 	for(uint idx = 0; idx < _window; idx++) 
-		windowValues.push_back(this->LHS[idx]);
+		windowValues.push_back(this->lhs[idx]);
 	int idx = _window;
 	bool isGreater = true;
 	double logValue = log(_value);
@@ -394,10 +394,10 @@ void NMR_PFGSE::setThresholdFromLHSWindow(double _value, uint _window)
 		isGreater = false;
 	}
 	
-	while(idx < this->LHS.size() && isGreater == true)
+	while(idx < this->lhs.size() && isGreater == true)
 	{
 		uint currentIdx = idx % _window;
-		windowValues[currentIdx] = this->LHS[idx];
+		windowValues[currentIdx] = this->lhs[idx];
 
 		if((*this).mean(windowValues) < logValue)
 		{
@@ -413,7 +413,7 @@ void NMR_PFGSE::setThresholdFromLHSWindow(double _value, uint _window)
 	this->DsatAdjustSamples = idx;
 }
 
-void NMR_PFGSE::setThresholdFromSamples(int _samples)
+void NMR_PFGSE::buildThresholdFromSamples(int _samples)
 {
 	if(_samples <= this->gradientPoints && _samples > 1)	
 	{
@@ -429,7 +429,7 @@ double NMR_PFGSE::computeRHS(double _kValue)
 
 double NMR_PFGSE::computeRHS_legacy(double _Gvalue)
 {
-	double gamma = (*this).getGiromagneticRatio();
+	double gamma = (*this).getModel().getGiromagneticRatio();
 	// if(this->PFGSE_config.getUseWaveVectorTwoPi()) gamma *= TWO_PI;
 	
 	return (-1.0e-10) * (gamma * this->pulseWidth) * (gamma * this->pulseWidth) 
@@ -437,13 +437,13 @@ double NMR_PFGSE::computeRHS_legacy(double _Gvalue)
 			* _Gvalue *  _Gvalue ;  
 }
 
-void NMR_PFGSE::setVectorLHS()
+void NMR_PFGSE::buildVectorLHS()
 {
-	if(this->LHS.size() > 0) this->LHS.clear();
-	this->LHS.reserve(this->gradientPoints);
+	if(this->lhs.size() > 0) this->lhs.clear();
+	this->lhs.reserve(this->gradientPoints);
 
-	if(this->LHS_stdev.size() > 0) this->LHS_stdev.clear();
-	this->LHS_stdev.reserve(this->gradientPoints);
+	if(this->lhsStdev.size() > 0) this->lhsStdev.clear();
+	this->lhsStdev.reserve(this->gradientPoints);
 }
 
 double NMR_PFGSE::computeLHS(double _Mg, double _M0)
@@ -462,7 +462,7 @@ double NMR_PFGSE::computeWaveVectorK(double gradientMagnitude, double pulse_widt
 
 void NMR_PFGSE::runSequence()
 {
-	// run pfgse experiment -- this method will fill Mkt vector
+	// run pfgse experiment -- this method will fill mkt vector
 	(*this).simulation();
 
 	// apply bulk relaxation to raw signal
@@ -485,9 +485,9 @@ void NMR_PFGSE::applyBulk()
 	double bulkMagnitude = exp(bulkTime * (*this).getExposureTime());
 	
 	// Apply bulk relaxation in simulated signal
-	for(uint kIdx = 0; kIdx < this->Mkt.size(); kIdx++)
+	for(uint kIdx = 0; kIdx < this->mkt.size(); kIdx++)
 	{
-		this->Mkt[kIdx] *= bulkMagnitude;
+		this->mkt[kIdx] *= bulkMagnitude;
 	}
 }
 
@@ -527,8 +527,8 @@ double NMR_PFGSE::computeTargetNoiseAmp()
 	double uss = 0.0;
 	for(uint idx = 0; idx < (*this).getGradientPoints(); idx++)
 	{
-		sss += this->Mkt[idx] * this->Mkt[idx];
-		uss += this->Mkt[idx];
+		sss += this->mkt[idx] * this->mkt[idx];
+		uss += this->mkt[idx];
 	}
 	sss /= (double) (*this).getGradientPoints();
 	uss /= (double) (*this).getGradientPoints();
@@ -538,7 +538,7 @@ double NMR_PFGSE::computeTargetNoiseAmp()
 
 double NMR_PFGSE::computeCurrentSNR()
 {
-	if(this->Mkt.size() != this->rawNoise.size() or this->rawNoise.size() == 0)
+	if(this->mkt.size() != this->rawNoise.size() or this->rawNoise.size() == 0)
 		return 0.0;
 
 	// sum of squared signal/noise data
@@ -546,7 +546,7 @@ double NMR_PFGSE::computeCurrentSNR()
 	double ssn = 0.0;
 	for(uint idx = 0; idx < (*this).getGradientPoints(); idx++)
 	{
-		sss += this->Mkt[idx] * this->Mkt[idx];
+		sss += this->mkt[idx] * this->mkt[idx];
 		ssn += this->rawNoise[idx] * this->rawNoise[idx];
 	}
 
@@ -556,11 +556,11 @@ double NMR_PFGSE::computeCurrentSNR()
 void NMR_PFGSE::applyNoiseToSignal()
 {
 	// Add noise to signal
-	if((*this).getNoiseAmp() > 0.0 and this->Mkt.size() == this->getGradientPoints())
+	if((*this).getNoiseAmp() > 0.0 and this->mkt.size() == this->getGradientPoints())
 	{
 		for(uint kIdx = 0; kIdx < this->getGradientPoints(); kIdx++)
 		{
-			this->Mkt[kIdx] += this->rawNoise[kIdx];		
+			this->mkt[kIdx] += this->rawNoise[kIdx];		
 		}			
 	}
 }
@@ -621,49 +621,49 @@ void NMR_PFGSE::recoverDsatWithoutSampling()
 	int idx_end = this->gradientPoints;
 
 	// Normalize for k=0
-	double M0 = this->Mkt[0];
+	double M0 = this->mkt[0];
 	vector<double> normMkt;
 	for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 	{
-		normMkt.push_back(this->Mkt[kIdx] / M0);
+		normMkt.push_back(this->mkt[kIdx] / M0);
 	}
 	
 
 	for(uint point = idx_begin; point < idx_end; point++)
 	{	
 		// this->LHS.push_back((*this).computeLHS(this->Mkt[point], this->Mkt[0]));
-		this->LHS.push_back((*this).computeLHS(normMkt[point], normMkt[0]));
+		this->lhs.push_back((*this).computeLHS(normMkt[point], normMkt[0]));
 	}
 
 	// fill standard deviation vectors with null values
 	for(uint point = 0; point < this->gradientPoints; point++)
 	{
-		this->Mkt_stdev.push_back(0.0);
-		this->LHS_stdev.push_back(0.0);
+		this->mktStdev.push_back(0.0);
+		this->lhsStdev.push_back(0.0);
 	}
 
 	(*this).applyThreshold();
-	cout << "points to sample: " << this->DsatAdjustSamples << " where lhs: " << exp(this->LHS[this->DsatAdjustSamples-1]) << endl;
+	cout << "points to sample: " << this->DsatAdjustSamples << " where lhs: " << exp(this->lhs[this->DsatAdjustSamples-1]) << endl;
 	vector<double> RHS_buffer; RHS_buffer.reserve(this->DsatAdjustSamples);
 	vector<double> LHS_buffer; LHS_buffer.reserve(this->DsatAdjustSamples);
 	// fill RHS data buffer only once
 	for(int point = 0; point < this->DsatAdjustSamples; point++)
 	{
-		RHS_buffer.push_back(this->RHS[point]);
-		LHS_buffer.push_back(this->LHS[point]);
+		RHS_buffer.push_back(this->rhs[point]);
+		LHS_buffer.push_back(this->lhs[point]);
 	}
 	bool intercept = false;
 	LeastSquareAdjust lsa(RHS_buffer, LHS_buffer, intercept);
 	lsa.setPoints(this->DsatAdjustSamples);
 	lsa.solve();
 	
-	(*this).setD_sat(lsa.getB());
+	(*this).setDsat(lsa.getB());
 	double DstdError = sqrt(lsa.getMSE() * (((double) this->DsatAdjustSamples) /((double) this->DsatAdjustSamples - 1.0)));
-	(*this).setD_sat_error(DstdError);
+	(*this).setDsatError(DstdError);
 
 	// log results
-	cout << "D(" << (*this).getExposureTime((*this).getCurrentTime()) << " ms) {s&t} = " << (*this).getD_sat();
-	cout << "[+/- " << 1.96 * (*this).getD_sat_error() << "]" << endl;	
+	cout << "D(" << (*this).getExposureTime((*this).getCurrentTime()) << " ms) {s&t} = " << (*this).getDsat();
+	cout << "[+/- " << 1.96 * (*this).getDsatError() << "]" << endl;	
 }
 
 double ** NMR_PFGSE::getSamplesMagnitude()
@@ -687,7 +687,7 @@ double ** NMR_PFGSE::getSamplesMagnitude()
 double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 {
 	/* 
-		alloc table for Mkt data each row will represent a wavevector K value, 
+		alloc table for mkt data each row will represent a wavevector K value, 
 		while each column represent a sample of random walkers
 	*/
 	double **Mkt_samples;
@@ -961,18 +961,18 @@ void NMR_PFGSE::recoverDsatWithSampling()
 
 	
 	// copy data to class members
-	this->Mkt = meanMkt;
-	this->Mkt_stdev = stDevMkt;
+	this->mkt = meanMkt;
+	this->mktStdev = stDevMkt;
 	this->rawNoise = meanNoise;
-	this->LHS = meanLHS;
-	this->LHS_stdev = stDevLHS;
+	this->lhs = meanLHS;
+	this->lhsStdev = stDevLHS;
 
 	/*
 		Stejskal-Tanner (s&t)
 	*/
 	tick = omp_get_wtime();
 	vector<double> Dsat; Dsat.reserve(this->model.walkerSamples);
-	vector<double> Dsat_error; Dsat_error.reserve(this->model.walkerSamples);
+	vector<double> DsatError; DsatError.reserve(this->model.walkerSamples);
 	double DstdError;
 	(*this).applyThreshold();
 	cout << "points to sample: " << this->DsatAdjustSamples << endl;
@@ -982,7 +982,7 @@ void NMR_PFGSE::recoverDsatWithSampling()
 	// fill RHS data buffer only once
 	for(int point = 0; point < this->DsatAdjustSamples; point++)
 	{
-		RHS_buffer.push_back(this->RHS[point]);
+		RHS_buffer.push_back(this->rhs[point]);
 	}
 
 	for(int sample = 0; sample < this->model.walkerSamples; sample++)
@@ -1003,21 +1003,21 @@ void NMR_PFGSE::recoverDsatWithSampling()
 		lsa.solve();
 		Dsat.push_back(lsa.getB());
 		DstdError = sqrt(lsa.getMSE() * (((double) this->DsatAdjustSamples) /((double) this->DsatAdjustSamples - 1.0)));
-		Dsat_error.push_back(DstdError);		
+		DsatError.push_back(DstdError);		
 	}
 	lsTime = omp_get_wtime() - tick;	
 
 	// 
 	double meanDsat = (*this).mean(Dsat);
-	double meanDsatError = (*this).mean(Dsat_error);
-	(*this).setD_sat(meanDsat);
-	(*this).setD_sat_error(meanDsatError);
-	(*this).setD_sat_StdDev(((*this).stdDev(Dsat, meanDsat)));
+	double meanDsatError = (*this).mean(DsatError);
+	(*this).setDsat(meanDsat);
+	(*this).setDsatError(meanDsatError);
+	(*this).setDsatStdev(((*this).stdDev(Dsat, meanDsat)));
 
 	// log results	
-	cout << "D(" << (*this).getExposureTime((*this).getCurrentTime()) << " ms) {s&t} = " << (*this).getD_sat();
-	cout << " +/- " << (*this).getD_sat_stdev();
-	cout << " [+/- " << 1.96 * (*this).getD_sat_error() << "]" << endl;
+	cout << "D(" << (*this).getExposureTime((*this).getCurrentTime()) << " ms) {s&t} = " << (*this).getDsat();
+	cout << " +/- " << (*this).getDsatStdev();
+	cout << " [+/- " << 1.96 * (*this).getDsatError() << "]" << endl;
 	
 	if(time_verbose)
     {
@@ -1127,7 +1127,7 @@ void NMR_PFGSE::recoverDmsdWithoutSampling()
 
 	// set diffusion coefficient (see eq 2.18 - ref. Bergman 1995)
 	squaredDisplacement = squaredDisplacement / aliveWalkerFraction;
-	(*this).setD_msd(squaredDisplacement/(6.0 * (*this).getExposureTime()));
+	(*this).setDmsd(squaredDisplacement/(6.0 * (*this).getExposureTime()));
 	(*this).setMsd(squaredDisplacement);
 
 	nDx /= aliveWalkerFraction;
@@ -1139,7 +1139,7 @@ void NMR_PFGSE::recoverDmsdWithoutSampling()
 					   (nDz / (2.0 * (*this).getExposureTime()))); 
 
 	
-	cout << "D(" << (*this).getExposureTime((*this).getCurrentTime()) << " ms) {msd} = " << (*this).getD_msd() << endl;
+	cout << "D(" << (*this).getExposureTime((*this).getCurrentTime()) << " ms) {msd} = " << (*this).getDmsd() << endl;
 	cout << "Dxx = " << this->vecDmsd.getX() << ", \t";
 	cout << "Dyy = " << this->vecDmsd.getY() << ", \t";
 	cout << "Dzz = " << this->vecDmsd.getZ() << endl;
@@ -1247,22 +1247,22 @@ void NMR_PFGSE::recoverDmsdWithSampling()
 	
 	// set mean value among all the samples
 	(*this).setMsd(meanMsd);
-	(*this).setD_msd(meanDmsd);
+	(*this).setDmsd(meanDmsd);
 	(*this).setVecMsd(meanMsdX, meanMsdY, meanMsdZ);
 	(*this).setVecDmsd(meanDmsdX, meanDmsdY, meanDmsdZ);
 
 	// set std deviation among all the samples
-	(*this).setD_msd_StdDev((*this).stdDev(Dmsd, meanDmsd));
-	(*this).setMsdStdDev((*this).stdDev(msd, meanMsd));
-	(*this).setVecDmsdStdDev((*this).stdDev(DmsdX, meanDmsdX), (*this).stdDev(DmsdY, meanDmsdY), (*this).stdDev(DmsdZ, meanDmsdZ));
-	(*this).setVecMsdStdDev((*this).stdDev(msdX, meanMsdX), (*this).stdDev(msdY, meanMsdY), (*this).stdDev(msdZ, meanMsdZ));
+	(*this).setDmsdStdev((*this).stdDev(Dmsd, meanDmsd));
+	(*this).setMsdStdev((*this).stdDev(msd, meanMsd));
+	(*this).setVecDmsdStdev((*this).stdDev(DmsdX, meanDmsdX), (*this).stdDev(DmsdY, meanDmsdY), (*this).stdDev(DmsdZ, meanDmsdZ));
+	(*this).setVecMsdStdev((*this).stdDev(msdX, meanMsdX), (*this).stdDev(msdY, meanMsdY), (*this).stdDev(msdZ, meanMsdZ));
 	
 	// print results
-	cout << "D(" << (*this).getExposureTime((*this).getCurrentTime()) << " ms) {msd} = " << (*this).getD_msd();
-	cout << " +/- " << (*this).getD_msd_stdev() << endl;
-	cout << "Dxx = " << this->vecDmsd.getX() << " +/- " << 1.96 * this->vecDmsd_stdev.getX() << endl;
-	cout << "Dyy = " << this->vecDmsd.getY() << " +/- " << 1.96 * this->vecDmsd_stdev.getY() << endl;
-	cout << "Dzz = " << this->vecDmsd.getZ() << " +/- " << 1.96 * this->vecDmsd_stdev.getZ() << endl;	
+	cout << "D(" << (*this).getExposureTime((*this).getCurrentTime()) << " ms) {msd} = " << (*this).getDmsd();
+	cout << " +/- " << (*this).getDmsdStdev() << endl;
+	cout << "Dxx = " << this->vecDmsd.getX() << " +/- " << 1.96 * this->vecDmsdStdev.getX() << endl;
+	cout << "Dyy = " << this->vecDmsd.getY() << " +/- " << 1.96 * this->vecDmsdStdev.getY() << endl;
+	cout << "Dzz = " << this->vecDmsd.getZ() << " +/- " << 1.96 * this->vecDmsdStdev.getZ() << endl;	
 }
 
 void NMR_PFGSE::reset(double newBigDelta)
@@ -1270,21 +1270,21 @@ void NMR_PFGSE::reset(double newBigDelta)
 	(*this).clear();
 	(*this).setExposureTime(newBigDelta);
 	(*this).set();
-	(*this).setThresholdFromSamples(this->gradientPoints);
+	(*this).buildThresholdFromSamples(this->gradientPoints);
 }
 
 void NMR_PFGSE::reset()
 {
 	(*this).clear();
 	(*this).set();
-	(*this).setThresholdFromSamples(this->gradientPoints);
+	(*this).buildThresholdFromSamples(this->gradientPoints);
 }
 
 void NMR_PFGSE::clear()
 {
 	if(this->gradient.size() > 0) this->gradient.clear();
-	if(this->LHS.size() > 0) this->LHS.clear();
-	if(this->RHS.size() > 0) this->RHS.clear();
+	if(this->lhs.size() > 0) this->lhs.clear();
+	if(this->rhs.size() > 0) this->rhs.clear();
 }
 
 void NMR_PFGSE::presave()
@@ -1348,7 +1348,7 @@ void NMR_PFGSE::writeParameters()
 	file << "RWNMR-PFGSE Parameters" << endl; 
 	file << setprecision(precision) << "D_0: " << this->model.getDiffusionCoefficient() << endl;  
     file << setprecision(precision) << "Pulse width: " << this->pulseWidth << endl;
-    file << setprecision(precision) << "Giromagnetic Ratio: " << (*this).getGiromagneticRatio() << endl;
+    file << setprecision(precision) << "Giromagnetic Ratio: " << (*this).getModel().getGiromagneticRatio() << endl;
 	file << setprecision(precision) << "Gradient direction: {" 
 		 << (maxGradient.getX() / maxGradient.getNorm()) << ", "
 		 << (maxGradient.getY() / maxGradient.getNorm()) << ", "
@@ -1425,12 +1425,12 @@ void NMR_PFGSE::writeEchoes()
     {
         file << setprecision(precision) << index
         << "," << this->gradient[index]
-        << "," << this->Mkt[index]
+        << "," << this->mkt[index]
         << "," << this->rawNoise[index]
-        << "," << this->Mkt_stdev[index]
-        << "," << this->LHS[index]
-        << "," << this->LHS_stdev[index]
-        << "," << this->RHS[index] << endl;
+        << "," << this->mktStdev[index]
+        << "," << this->lhs[index]
+        << "," << this->lhsStdev[index]
+        << "," << this->rhs[index] << endl;
     }
 
     file.close();
@@ -1459,12 +1459,12 @@ void NMR_PFGSE::writeMsd()
     file << "DmsdZ(mean),DmsdZ(std)" << endl;
 
     const int precision = std::numeric_limits<double>::max_digits10;
-    file << setprecision(precision) << this->vecMsd.getX() << "," << this->vecMsd_stdev.getX() << ",";
-    file << setprecision(precision) << this->vecMsd.getY() << "," << this->vecMsd_stdev.getY() << ",";
-    file << setprecision(precision) << this->vecMsd.getZ() << "," << this->vecMsd_stdev.getZ() << ",";
-    file << setprecision(precision) << this->vecDmsd.getX() << "," << this->vecDmsd_stdev.getX() << ",";
-    file << setprecision(precision) << this->vecDmsd.getY() << "," << this->vecDmsd_stdev.getY() << ",";
-    file << setprecision(precision) << this->vecDmsd.getZ() << "," << this->vecDmsd_stdev.getZ();  
+    file << setprecision(precision) << this->vecMsd.getX() << "," << this->vecMsdStdev.getX() << ",";
+    file << setprecision(precision) << this->vecMsd.getY() << "," << this->vecMsdStdev.getY() << ",";
+    file << setprecision(precision) << this->vecMsd.getZ() << "," << this->vecMsdStdev.getZ() << ",";
+    file << setprecision(precision) << this->vecDmsd.getX() << "," << this->vecDmsdStdev.getX() << ",";
+    file << setprecision(precision) << this->vecDmsd.getY() << "," << this->vecDmsdStdev.getY() << ",";
+    file << setprecision(precision) << this->vecDmsd.getZ() << "," << this->vecDmsdStdev.getZ();  
 
     file.close();
 }
@@ -1583,18 +1583,18 @@ void NMR_PFGSE::createResultsFile()
     }
 
 	file << "Time";
-    file << ",D_sat";
-    file << ",D_sat(error)";
-    file << ",D_sat(std)";
-    file << ",D_sat(pts)";
-    file << ",D_msd";
-    file << ",D_msd(std)";
-    file << ",D_msdX";
-    file << ",D_msdX(std)";
-    file << ",D_msdY";
-    file << ",D_msdY(std)";
-    file << ",D_msdZ";
-    file << ",D_msdZ(std)";
+    file << ",Dsat";
+    file << ",Dsat(error)";
+    file << ",Dsat(std)";
+    file << ",Dsat(pts)";
+    file << ",Dmsd";
+    file << ",Dmsd(std)";
+    file << ",DmsdX";
+    file << ",DmsdX(std)";
+    file << ",DmsdY";
+    file << ",DmsdY(std)";
+    file << ",DmsdZ";
+    file << ",DmsdZ(std)";
     file << endl;
     file.close();
 }
@@ -1613,18 +1613,18 @@ void NMR_PFGSE::writeResults()
 
     const int precision = std::numeric_limits<double>::max_digits10;
     file << setprecision(precision)  << this->exposureTimes[this->getCurrentTime()]
-    << "," << this->D_sat
-    << "," << this->D_sat_error
-    << "," << this->D_sat_stdev
+    << "," << this->Dsat
+    << "," << this->DsatError
+    << "," << this->DsatStdev
     << "," << this->DsatAdjustSamples
-    << "," << this->D_msd
-    << "," << this->D_msd_stdev
+    << "," << this->Dmsd
+    << "," << this->DmsdStdev
     << "," << this->vecDmsd.getX()
-    << "," << this->vecDmsd_stdev.getX()
+    << "," << this->vecDmsdStdev.getX()
     << "," << this->vecDmsd.getY()
-    << "," << this->vecDmsd_stdev.getY()
+    << "," << this->vecDmsdStdev.getY()
     << "," << this->vecDmsd.getZ()
-    << "," << this->vecDmsd_stdev.getZ()
+    << "," << this->vecDmsdStdev.getZ()
     << endl; 
 	file.close();
 }
@@ -1646,7 +1646,7 @@ void NMR_PFGSE::simulation_omp()
     }
 
     // set derivables
-    double gamma = (*this).getGiromagneticRatio();
+    double gamma = (*this).getModel().getGiromagneticRatio();
     
 	myAllocator arrayFactory; 
 	double *globalPhase = arrayFactory.getDoubleArray(this->gradientPoints);
@@ -1766,7 +1766,7 @@ void NMR_PFGSE::simulation_omp()
 	// get magnitudes M(k,t)
     for(int point = 0; point < this->gradientPoints; point++)
     {
-        this->Mkt.push_back((globalPhase[point]/globalEnergy));
+        this->mkt.push_back((globalPhase[point]/globalEnergy));
     }
 
 	// delete global phase array

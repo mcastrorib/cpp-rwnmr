@@ -1243,11 +1243,11 @@ void NMR_PFGSE::simulation_cuda()
     // }
 
     // get magnitudes M(k,t) - new
-    if(this->Mkt.size() > 0) this->Mkt.clear();
-    this->Mkt.reserve(this->gradientPoints);
+    if(this->mkt.size() > 0) this->mkt.clear();
+    this->mkt.reserve(this->gradientPoints);
     for(int point = 0; point < this->gradientPoints; point++)
     {
-        this->Mkt.push_back((h_globalPhase[point]));
+        this->mkt.push_back((h_globalPhase[point]));
     }
  
     // free pointers in host
