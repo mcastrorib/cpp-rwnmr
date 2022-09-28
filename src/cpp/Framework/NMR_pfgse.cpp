@@ -1707,7 +1707,6 @@ void NMR_PFGSE::simulation_omp()
 					wavevector_k.setX(kx);
 					wavevector_k.setY(ky);
 					wavevector_k.setZ(kz);
-					wavevector_k.setNorm();
 					
 					walkerPhase = walkerEnergy * cos(wavevector_k.dotProduct(dR) * resolution);
 
@@ -1754,7 +1753,6 @@ void NMR_PFGSE::simulation_omp()
 				wavevector_k.setX(kx);
 				wavevector_k.setY(ky);
 				wavevector_k.setZ(kz);
-				wavevector_k.setNorm();
 				
 				walkerPhase = walkerEnergy * cos(wavevector_k.dotProduct(dR) * resolution);
 

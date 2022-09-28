@@ -1,12 +1,12 @@
 // include class header file
 #include "rwnmrApp.h"
 
-rwnmrApp::rwnmrApp(int argc, char **argv, string _root) : project_root(_root), args(argc, argv), model(NULL)
+rwnmrApp::rwnmrApp(int argc, char **argv, string _root) : projectRoot(_root), args(argc, argv), model(NULL)
 {
     (*this).setConfigRoot((*this).getProjectRoot() + CONFIG_ROOT);   
 }
 
-rwnmrApp::rwnmrApp(ArgsParser _args, string _root) : project_root(_root), args(_args), model(NULL)
+rwnmrApp::rwnmrApp(ArgsParser _args, string _root) : projectRoot(_root), args(_args), model(NULL)
 {
     (*this).setConfigRoot((*this).getProjectRoot() + CONFIG_ROOT); 
 }
@@ -30,20 +30,20 @@ void rwnmrApp::buildEssentials()
     // // -----
 
     // -- Create NMR_Simulation object
-    this->model = new Model(rwNMR_Config, uCT_Config, (*this).getProjectRoot());
-    
+    // this->model = new Model(rwNMR_Config, uCT_Config, (*this).getProjectRoot());
+    (*this).setModel(new Model(rwNMR_Config, uCT_Config, (*this).getProjectRoot()));
     // Read digital rock image
     cout << "-- Loading uCT-image" << endl;
-    this->model->readImage();
+    (*this).getModel().readImage();
 
     // Create and set up random walkers
     cout << endl << "-- Setting random walkers" << endl;
-    this->model->setWalkers();
+    (*this).getModel().setWalkers();
 
     // Save image info
     cout << endl << "-- Saving uCT-image info" << endl;
-    this->model->save();
-    cout << endl; this->model->info();
+    (*this).getModel().save();
+    cout << endl; (*this).getModel().info();
     // -----    
 }
 
@@ -51,14 +51,14 @@ void rwnmrApp::exec()
 {
     (*this).buildEssentials();
 
-    uint commands = this->args.getCommands().size();
+    uint commands = (*this).getArgs().getCommands().size();
     uint current = 2;
     while(current < commands)
     {
-        if(this->args.getCommand(current) == "cpmg") (*this).CPMG(current);
-        else if(this->args.getCommand(current) == "pfgse") (*this).PFGSE(current);
-        else if(this->args.getCommand(current) == "ga") (*this).GA(current);
-        else if(this->args.getCommand(current) == "multitau") (*this).MultiTau(current);
+        if((*this).getArgsCommand(current) == "cpmg") (*this).CPMG(current);
+        else if((*this).getArgsCommand(current) == "pfgse") (*this).PFGSE(current);
+        else if((*this).getArgsCommand(current) == "ga") (*this).GA(current);
+        else if((*this).getArgsCommand(current) == "multitau") (*this).MultiTau(current);
 
         current++;
     }
@@ -91,8 +91,6 @@ void rwnmrApp::PFGSE(uint command_idx)
     pfgse_config pfgse_Config(pfgse_config_path, (*this).getConfigRoot());
     // --
     
-    // pfgse_config pfgse_Config((*this).getConfigRoot() + + this->args->getPath(command_idx));
-
     NMR_PFGSE pfgse((*this).getModel(), pfgse_Config);
     pfgse.run();
     cout << "- pfgse sequence executed succesfully" << endl << endl;

@@ -146,28 +146,24 @@ public:
 		this->vecMsd.setX(msdX);
 		this->vecMsd.setY(msdY);
 		this->vecMsd.setZ(msdZ);
-		this->vecMsd.setNorm();
 	}
 	void setVecDmsd(double DmsdX, double DmsdY, double DmsdZ) 
 	{
 		this->vecDmsd.setX(DmsdX);
 		this->vecDmsd.setY(DmsdY);
 		this->vecDmsd.setZ(DmsdZ);
-		this->vecDmsd.setNorm();
 	}
 	void setVecMsdStdDev(double msdX_stdev, double msdY_stdev, double msdZ_stdev) 
 	{
 		this->vecMsd_stdev.setX(msdX_stdev);
 		this->vecMsd_stdev.setY(msdY_stdev);
 		this->vecMsd_stdev.setZ(msdZ_stdev);
-		this->vecMsd_stdev.setNorm();
 	}
 	void setVecDmsdStdDev(double DmsdX_stdev, double DmsdY_stdev, double DmsdZ_stdev) 
 	{
 		this->vecDmsd_stdev.setX(DmsdX_stdev);
 		this->vecDmsd_stdev.setY(DmsdY_stdev);
 		this->vecDmsd_stdev.setZ(DmsdZ_stdev);
-		this->vecDmsd_stdev.setNorm();
 	}
 
 	void resetCurrentTime() { this->currentTime = 0; }

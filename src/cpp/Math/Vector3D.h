@@ -15,7 +15,6 @@ private:
     double x;
     double y;
     double z;
-    double _norm;
 
 public:
 
@@ -37,20 +36,16 @@ public:
     void setX(double _x) { this->x = _x; }
     void setY(double _y) { this->y = _y; }
     void setZ(double _z) { this->z = _z; }
-    void setNorm()
-    {
-        this->_norm = sqrt((*this).getX()*(*this).getX() + 
-                           (*this).getY()*(*this).getY() + 
-                           (*this).getZ()*(*this).getZ());
-    }
-
+    
     // get methods
     double getX() const { return this->x; }
     double getY() const { return this->y; }
     double getZ() const { return this->z; }
     double getNorm()  
     { 
-        return this->_norm; 
+        return sqrt((*this).getX()*(*this).getX() + 
+                    (*this).getY()*(*this).getY() + 
+                    (*this).getZ()*(*this).getZ());; 
     }
 
     void printInfo();
