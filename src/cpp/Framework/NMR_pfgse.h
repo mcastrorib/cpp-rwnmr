@@ -242,7 +242,7 @@ public:
 	void recoverDmsdWithSampling();	
 	void clear();
 	void resetModel();
-	void updateWalkersXIrate(uint _rwsteps);
+	void updateWalkersXiRate(uint _rwsteps);
 	void reset(double _newBigDelta);
 	void reset();
 	void presave();

@@ -122,7 +122,7 @@ void CollisionHistogram::createAmpsLinearVector(vector<Walker> &_walkers, uint _
 	double steps = (double) _numberOfSteps;
 	for(uint id = 0; id < _walkers.size(); id++)
 	{
-		xi_rate = _walkers[id].collisions / steps;
+		xi_rate = _walkers[id].getCollisions() / steps;
 		histogramIndex = floor(xi_rate / this->gap);
 		if(histogramIndex >= this->size) histogramIndex--;
 		(*this).setAmp((*this).getAmp(histogramIndex) + 1.0, histogramIndex);
@@ -141,20 +141,20 @@ void CollisionHistogram::createBinsLogVector(vector<Walker> &_walkers, uint _num
 	// find min rate to generate bins accordingly
 	double steps = (double) _numberOfSteps;
 	uint first_idx = 0;
-	while(first_idx < _walkers.size() and _walkers[first_idx].collisions == 0)
+	while(first_idx < _walkers.size() and _walkers[first_idx].getCollisions() == 0)
 	{
 		first_idx++;	
 	}
 
 	if(first_idx < _walkers.size())
 	{
-		double min_rate = _walkers[first_idx].collisions / steps;
+		double min_rate = _walkers[first_idx].getCollisions() / steps;
 		double xi_rate;
 		for(uint id = first_idx; id < _walkers.size(); id++)
 		{
-			if(_walkers[id].collisions != 0)
+			if(_walkers[id].getCollisions() != 0)
 			{
-				xi_rate = _walkers[id].collisions / steps;
+				xi_rate = _walkers[id].getCollisions() / steps;
 				if(xi_rate < min_rate)
 				{
 					min_rate = xi_rate;
@@ -205,12 +205,12 @@ void CollisionHistogram::createAmpsLogVector(vector<Walker> &_walkers, uint _num
 
 	for(uint id = 0; id < _walkers.size(); id++)
 	{
-		if(_walkers[id].collisions == 0)
+		if(_walkers[id].getCollisions() == 0)
 		{
 			(*this).setAmp((*this).getAmp(0) + 1.0, 0);
 		} else
 		{
-			xi_rate = (_walkers[id].collisions / steps);
+			xi_rate = (_walkers[id].getCollisions() / steps);
 			histogramIndex = floor( round( (log10(xi_rate) - min_val) / logGap ) );
 			histogramIndex += 1;
 			if(histogramIndex > 0)

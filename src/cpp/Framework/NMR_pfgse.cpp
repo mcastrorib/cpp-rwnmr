@@ -156,7 +156,7 @@ void NMR_PFGSE::resetModel()
     }   
 }
 
-void NMR_PFGSE::updateWalkersXIrate(uint _rwsteps)
+void NMR_PFGSE::updateWalkersXiRate(uint _rwsteps)
 {
 	// update walker's xirate with omp parallel for
 
@@ -176,14 +176,14 @@ void NMR_PFGSE::updateWalkersXIrate(uint _rwsteps)
 
             for (uint id = loop_start; id < loop_finish; id++)
             {
-                this->model.walkers[id].updateXIrate(_rwsteps);
+                this->model.walkers[id].updateXiRate(_rwsteps);
             }
         }
     } else
     {
         for (uint id = 0; id < this->model.walkers.size(); id++)
         {
-            this->model.walkers[id].updateXIrate(_rwsteps);
+            this->model.walkers[id].updateXiRate(_rwsteps);
         }
     }   
 }
@@ -736,15 +736,15 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 			for(uint idx = 0; idx < walkersPerSample; idx++)
 	        {
 	            // Get walker displacement
-				dX = ((double) this->model.walkers[offset + idx].initialPosition.getX() - (double) this->model.walkers[offset + idx].position_x);
-				dY = ((double) this->model.walkers[offset + idx].initialPosition.getY() - (double) this->model.walkers[offset + idx].position_y);
-				dZ = ((double) this->model.walkers[offset + idx].initialPosition.getZ() - (double) this->model.walkers[offset + idx].position_z);
+				dX = ((double) this->model.walkers[offset + idx].getInitialPositionX() - (double) this->model.walkers[offset + idx].getCurrentPositionX());
+				dY = ((double) this->model.walkers[offset + idx].getInitialPositionY() - (double) this->model.walkers[offset + idx].getCurrentPositionY());
+				dZ = ((double) this->model.walkers[offset + idx].getInitialPositionZ() - (double) this->model.walkers[offset + idx].getCurrentPositionZ());
 				Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
 					
 				for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 				{
 					phase = this->vecK[kIdx].dotProduct(dR);	
-					Mkt_samples[kIdx][sampleId] += cos(phase) * this->model.walkers[idx].energy;	
+					Mkt_samples[kIdx][sampleId] += cos(phase) * this->model.walkers[idx].getEnergy();	
 				}
 	        }
 
@@ -789,15 +789,15 @@ double ** NMR_PFGSE::computeSamplesMagnitude()
 		for(uint idx = 0; idx < walkersPerSample; idx++)
 		{
 			// Get walker displacement
-			dX = ((double) this->model.walkers[offset + idx].initialPosition.getX() - (double) this->model.walkers[offset + idx].position_x);
-			dY = ((double) this->model.walkers[offset + idx].initialPosition.getY() - (double) this->model.walkers[offset + idx].position_y);
-			dZ = ((double) this->model.walkers[offset + idx].initialPosition.getZ() - (double) this->model.walkers[offset + idx].position_z);
+			dX = ((double) this->model.walkers[offset + idx].getInitialPositionX() - (double) this->model.walkers[offset + idx].getCurrentPositionX());
+			dY = ((double) this->model.walkers[offset + idx].getInitialPositionY() - (double) this->model.walkers[offset + idx].getCurrentPositionY());
+			dZ = ((double) this->model.walkers[offset + idx].getInitialPositionZ() - (double) this->model.walkers[offset + idx].getCurrentPositionZ());
 			Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
 			
 			for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 			{
 				phase = this->vecK[kIdx].dotProduct(dR);
-				Mkt_samples[kIdx][sample] += cos(phase) * this->model.walkers[idx].energy;;	
+				Mkt_samples[kIdx][sample] += cos(phase) * this->model.walkers[idx].getEnergy();;	
 			}
 		}		 
 	}
@@ -1099,24 +1099,24 @@ void NMR_PFGSE::recoverDmsdWithoutSampling()
 
 		// Get walker displacement
 		// X:
-		X0 = (double) particle.initialPosition.getX();
-		XF = (double) particle.position_x;
+		X0 = (double) particle.getInitialPositionX();
+		XF = (double) particle.getCurrentPositionX();
 		displacementX = resolution * (XF - X0);
 		displacementX *= displacementX;
 		
 		// Y:
-		Y0 = (double) particle.initialPosition.getY();
-		YF = (double) particle.position_y;
+		Y0 = (double) particle.getInitialPositionY();
+		YF = (double) particle.getCurrentPositionY();
 		displacementY = resolution * (YF - Y0);
 		displacementY *= displacementY;
 
 		// Z:
-		Z0 = (double) particle.initialPosition.getZ();
-		ZF = (double) particle.position_z;
+		Z0 = (double) particle.getInitialPositionZ();
+		ZF = (double) particle.getCurrentPositionZ();
 		displacementZ = resolution * (ZF - Z0);
 		displacementZ *= displacementZ;
 
-		absorptionFraction = (absorption * particle.energy + nonAbsorption);
+		absorptionFraction = (absorption * particle.getEnergy() + nonAbsorption);
 		aliveWalkerFraction += absorptionFraction;
 		nDx += (absorptionFraction * displacementX);
 		nDy += (absorptionFraction * displacementY);
@@ -1191,24 +1191,24 @@ void NMR_PFGSE::recoverDmsdWithSampling()
 
 			// Get walker displacement
 			// X:
-			X0 = (double) particle.initialPosition.getX();
-			XF = (double) particle.position_x;
+			X0 = (double) particle.getInitialPositionX();
+			XF = (double) particle.getCurrentPositionX();
 			displacementX = resolution * (XF - X0);
 			displacementX *= displacementX;
 			
 			// Y:
-			Y0 = (double) particle.initialPosition.getY();
-			YF = (double) particle.position_y;
+			Y0 = (double) particle.getInitialPositionY();
+			YF = (double) particle.getCurrentPositionY();
 			displacementY = resolution * (YF - Y0);
 			displacementY *= displacementY;
 
 			// Z:
-			Z0 = (double) particle.initialPosition.getZ();
-			ZF = (double) particle.position_z;
+			Z0 = (double) particle.getInitialPositionZ();
+			ZF = (double) particle.getCurrentPositionZ();
 			displacementZ = resolution * (ZF - Z0);
 			displacementZ *= displacementZ;
 
-			absorptionFraction = (absorption * particle.energy + nonAbsorption);
+			absorptionFraction = (absorption * particle.getEnergy() + nonAbsorption);
 			aliveWalkerFraction += absorptionFraction;
 			nDx += (absorptionFraction * displacementX);
 			nDy += (absorptionFraction * displacementY);
@@ -1497,11 +1497,11 @@ void NMR_PFGSE::writeWalkers()
         file << setprecision(precision) << this->model.walkers[index].getInitialPositionX()
         << "," << this->model.walkers[index].getInitialPositionY()
         << "," << this->model.walkers[index].getInitialPositionZ()
-        << "," << this->model.walkers[index].getPositionX() 
-        << "," << this->model.walkers[index].getPositionY() 
-        << "," << this->model.walkers[index].getPositionZ() 
+        << "," << this->model.walkers[index].getCurrentPositionX() 
+        << "," << this->model.walkers[index].getCurrentPositionY() 
+        << "," << this->model.walkers[index].getCurrentPositionZ() 
         << "," << this->model.walkers[index].getCollisions() 
-        << "," << this->model.walkers[index].getXIrate() 
+        << "," << this->model.walkers[index].getXiRate() 
         << "," << this->model.walkers[index].getEnergy() 
         << "," << this->model.walkers[index].getInitialSeed() << endl;
     }
@@ -1686,16 +1686,16 @@ void NMR_PFGSE::simulation_omp()
 				}
 
 				// get final individual signal
-				walkerEnergy = this->model.walkers[id].energy;
+				walkerEnergy = this->model.walkers[id].getEnergy();
 				#pragma omp critical
 				{
 					globalEnergy += walkerEnergy;
 				}
 
 				// get final individual phase
-				double dX = ((double) this->model.walkers[id].position_x) - ((double) this->model.walkers[id].initialPosition.getX());
-				double dY = ((double) this->model.walkers[id].position_y) - ((double) this->model.walkers[id].initialPosition.getY());
-				double dZ = ((double) this->model.walkers[id].position_z) - ((double) this->model.walkers[id].initialPosition.getZ());
+				double dX = ((double) this->model.walkers[id].getCurrentPositionX()) - ((double) this->model.walkers[id].getInitialPositionX());
+				double dY = ((double) this->model.walkers[id].getCurrentPositionY()) - ((double) this->model.walkers[id].getInitialPositionY());
+				double dZ = ((double) this->model.walkers[id].getCurrentPositionZ()) - ((double) this->model.walkers[id].getInitialPositionZ());
 
 				Vector3D dR(dX,dY,dZ);
 				Vector3D wavevector_k;
@@ -1734,14 +1734,14 @@ void NMR_PFGSE::simulation_omp()
 			}
 
 			// get final individual signal
-			walkerEnergy = this->model.walkers[id].energy;
+			walkerEnergy = this->model.walkers[id].getEnergy();
 			globalEnergy += walkerEnergy;
 			
 
 			// get final individual phase
-			double dX = ((double) this->model.walkers[id].position_x) - ((double) this->model.walkers[id].initialPosition.getX());
-			double dY = ((double) this->model.walkers[id].position_y) - ((double) this->model.walkers[id].initialPosition.getY());
-			double dZ = ((double) this->model.walkers[id].position_z) - ((double) this->model.walkers[id].initialPosition.getZ());
+			double dX = ((double) this->model.walkers[id].getCurrentPositionX()) - ((double) this->model.walkers[id].getInitialPositionX());
+			double dY = ((double) this->model.walkers[id].getCurrentPositionY()) - ((double) this->model.walkers[id].getInitialPositionY());
+			double dZ = ((double) this->model.walkers[id].getCurrentPositionZ()) - ((double) this->model.walkers[id].getInitialPositionZ());
 
 			Vector3D dR(dX,dY,dZ);
 			Vector3D wavevector_k;

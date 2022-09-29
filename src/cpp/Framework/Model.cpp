@@ -188,9 +188,9 @@ void Model::applyVoxelDivision(uint _shifts)
                 idx = pack * packSize + i;
 
                 // randomly place walker in voxel sites
-                shiftX = ((int) this->walkers[idx].initialPosition.getX() * shiftFactor) + dist(Model::_rng);
-                shiftY = ((int) this->walkers[idx].initialPosition.getY() * shiftFactor) + dist(Model::_rng);
-                shiftZ = ((int) this->walkers[idx].initialPosition.getZ() * shiftFactor) + dist(Model::_rng);
+                shiftX = ((int) this->walkers[idx].getInitialPositionX() * shiftFactor) + dist(Model::_rng);
+                shiftY = ((int) this->walkers[idx].getInitialPositionY() * shiftFactor) + dist(Model::_rng);
+                shiftZ = ((int) this->walkers[idx].getInitialPositionZ() * shiftFactor) + dist(Model::_rng);
                 this->walkers[idx].placeWalker(shiftX, shiftY, shiftZ);
 
                 // update collision penalty
@@ -207,9 +207,9 @@ void Model::applyVoxelDivision(uint _shifts)
             idx = (walkerPacks - 1) * packSize + i;
 
             // randomly place walker in voxel sites
-            shiftX = ((int) this->walkers[idx].initialPosition.getX() * shiftFactor) + dist(Model::_rng);
-            shiftY = ((int) this->walkers[idx].initialPosition.getY() * shiftFactor) + dist(Model::_rng);
-            shiftZ = ((int) this->walkers[idx].initialPosition.getZ() * shiftFactor) + dist(Model::_rng);
+            shiftX = ((int) this->walkers[idx].getInitialPositionX() * shiftFactor) + dist(Model::_rng);
+            shiftY = ((int) this->walkers[idx].getInitialPositionY() * shiftFactor) + dist(Model::_rng);
+            shiftZ = ((int) this->walkers[idx].getInitialPositionZ() * shiftFactor) + dist(Model::_rng);
             this->walkers[idx].placeWalker(shiftX, shiftY, shiftZ);
 
             // update collision penalty
@@ -1456,7 +1456,7 @@ void Model::updateWalkersRelaxativity(vector<double> &sigmoid)
 {
     for (uint id = 0; id < this->walkers.size(); id++)
     {
-        this->walkers[id].updateXIrate(this->simulationSteps);
+        this->walkers[id].updateXiRate(this->simulationSteps);
         this->walkers[id].setSurfaceRelaxivity(sigmoid);
         this->walkers[id].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
     }
@@ -1466,7 +1466,7 @@ void Model::updateWalkersRelaxativity(double rho)
 {
     for (uint id = 0; id < this->walkers.size(); id++)
     {
-        this->walkers[id].updateXIrate(this->simulationSteps);
+        this->walkers[id].updateXiRate(this->simulationSteps);
         this->walkers[id].setSurfaceRelaxivity(rho);
         this->walkers[id].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
     }
@@ -1654,11 +1654,11 @@ void Model::saveWalkers(string filedir)
         file << setprecision(precision) << this->walkers[index].getInitialPositionX()
         << "," << this->walkers[index].getInitialPositionY()
         << "," << this->walkers[index].getInitialPositionZ()
-        << "," << this->walkers[index].getPositionX() 
-        << "," << this->walkers[index].getPositionY() 
-        << "," << this->walkers[index].getPositionZ() 
+        << "," << this->walkers[index].getCurrentPositionX() 
+        << "," << this->walkers[index].getCurrentPositionY() 
+        << "," << this->walkers[index].getCurrentPositionZ() 
         << "," << this->walkers[index].getCollisions() 
-        << "," << this->walkers[index].getXIrate() 
+        << "," << this->walkers[index].getXiRate() 
         << "," << this->walkers[index].getEnergy() 
         << "," << this->walkers[index].getInitialSeed() << endl;
     }
@@ -1807,7 +1807,7 @@ void Model::mapSimulation_OMP(bool reset)
 
         for (uint id = 0; id < this->numberOfWalkers; id++)
         {
-            this->walkers[id].tCollisions += this->walkers[id].collisions;
+            this->walkers[id].setTCollisions(this->walkers[id].getTCollisions() + this->walkers[id].getCollisions());
             this->walkers[id].resetCollisions();
         }
     }
@@ -1815,7 +1815,7 @@ void Model::mapSimulation_OMP(bool reset)
     // recover walkers collisions from total sum and create a global histogram
     for (uint id = 0; id < this->numberOfWalkers; id++)
     {
-        this->walkers[id].collisions = this->walkers[id].tCollisions;   
+        this->walkers[id].setCollisions(this->walkers[id].getTCollisions());   
     }
     (*this).createHistogram();
 

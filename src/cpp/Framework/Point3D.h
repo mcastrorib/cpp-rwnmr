@@ -5,6 +5,11 @@
 
 class Point3D
 {
+private:
+    int x;
+    int y;
+    int z;
+
 public:
 
     // methods
@@ -48,11 +53,6 @@ public:
     void setX(int _x){ this->x=_x; }
     void setY(int _y){ this->y=_y; }
     void setZ(int _z){ this->z=_z; }
-
-private:
-    int x;
-    int y;
-    int z;
 
 };
 

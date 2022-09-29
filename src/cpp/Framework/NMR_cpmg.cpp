@@ -173,7 +173,7 @@ void NMR_cpmg::image_simulation_omp()
     double energySum = 0.0;
     for (uint id = 0; id < this->model.walkers.size(); id++)
     {
-        energySum += this->model.walkers[id].energy;
+        energySum += this->model.walkers[id].getEnergy();
     }
     this->signalAmps.push_back(energySum);
 
@@ -198,7 +198,7 @@ void NMR_cpmg::image_simulation_omp()
         // #pragma omp parallel for if(NMR_OPENMP) reduction(+:energySum) private(id) shared(walkers)
         for (id = 0; id < this->model.numberOfWalkers; id++)
         {
-            energySum += this->model.walkers[id].energy;
+            energySum += this->model.walkers[id].getEnergy();
         }
 
         //energySum = energySum / (double)numberOfWalkers;
@@ -226,7 +226,7 @@ void NMR_cpmg::createPenaltiesVector(vector<double> &_sigmoid)
     for(int idx = 0; idx < this->model.histogram.getSize(); idx++)
     {   
         artificial_xirate = this->model.histogram.getBin(idx);
-        toy.setXIrate(artificial_xirate);
+        toy.setXiRate(artificial_xirate);
         toy.setSurfaceRelaxivity(_sigmoid);
         toy.computeDecreaseFactor(this->model.getImageVoxelResolution(), this->model.getDiffusionCoefficient());
         this->penalties[idx] = pow(toy.getDecreaseFactor(), (artificial_xirate * artificial_steps));
@@ -249,7 +249,7 @@ void NMR_cpmg::createPenaltiesVector(double rho)
     for(int idx = 0; idx < this->model.histogram.getSize(); idx++)
     {   
         artificial_xirate = this->model.histogram.getBin(idx);
-        toy.setXIrate(artificial_xirate);
+        toy.setXiRate(artificial_xirate);
         toy.setSurfaceRelaxivity(rho);
         toy.computeDecreaseFactor(this->model.getImageVoxelResolution(), this->model.getDiffusionCoefficient());
         this->penalties[idx] = pow(toy.getDecreaseFactor(), (artificial_xirate * artificial_steps));
@@ -541,11 +541,11 @@ void NMR_cpmg::writeWalkers()
         file << setprecision(precision) << this->model.walkers[index].getInitialPositionX()
         << "," << this->model.walkers[index].getInitialPositionY()
         << "," << this->model.walkers[index].getInitialPositionZ()
-        << "," << this->model.walkers[index].getPositionX() 
-        << "," << this->model.walkers[index].getPositionY() 
-        << "," << this->model.walkers[index].getPositionZ() 
+        << "," << this->model.walkers[index].getCurrentPositionX() 
+        << "," << this->model.walkers[index].getCurrentPositionY() 
+        << "," << this->model.walkers[index].getCurrentPositionZ() 
         << "," << this->model.walkers[index].getCollisions() 
-        << "," << this->model.walkers[index].getXIrate() 
+        << "," << this->model.walkers[index].getXiRate() 
         << "," << this->model.walkers[index].getEnergy() 
         << "," << this->model.walkers[index].getInitialSeed() << endl;
     }

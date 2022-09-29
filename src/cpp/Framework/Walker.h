@@ -7,13 +7,11 @@
 
 class Walker
 {
-public:
+private:
     // Object attributes:
     Point3D initialPosition;
-    int position_x, position_y, position_z;
+    Point3D currentPosition;
     direction nextDirection;
-
-    // RNG seeds
     uint64_t initialSeed;
     uint64_t currentSeed;
 
@@ -22,9 +20,10 @@ public:
     double decreaseFactor;
     uint collisions;
     uint tCollisions;
-    double xi_rate;
+    double xiRate;
     double energy;
 
+public:
     // default constructor
     Walker();
     Walker(bool _3rdDim);
@@ -34,10 +33,81 @@ public:
     // virtual destructor
     virtual ~Walker(){};
 
-    //Class methods:
-    void createRandomSeed();
-    void setRandomSeed(uint64_t _seed);
+    // Set methods:
+    void setInitialPosition(Point3D _pos){ this->initialPosition = _pos;}
+    void setInitialPosition(int _x, int _y, int _z){ 
+        this->initialPosition.setX(_x);
+        this->initialPosition.setY(_y);
+        this->initialPosition.setZ(_z);
+    }
+    void setInitialPositionX(int _x){this->initialPosition.setX(_x);}
+    void setInitialPositionY(int _y){this->initialPosition.setY(_y);}
+    void setInitialPositionZ(int _z){this->initialPosition.setZ(_z);}
+
+    void setCurrentPosition(Point3D _pos){ this->currentPosition = _pos;}
+    void setCurrentPosition(int _x, int _y, int _z){ 
+        this->currentPosition.setX(_x);
+        this->currentPosition.setY(_y);
+        this->currentPosition.setZ(_z);
+    }
+    void setCurrentPositionX(int _x){this->currentPosition.setX(_x);}
+    void setCurrentPositionY(int _y){this->currentPosition.setY(_y);}
+    void setCurrentPositionZ(int _z){this->currentPosition.setZ(_z);}
+    void setNextDirection(direction _nd){ this->nextDirection = _nd;}  
     void setInitialSeed(uint64_t _seed){ this->initialSeed = _seed; }
+    void setCurrentSeed(uint64_t _seed){ this->currentSeed = _seed; }
+    void setRandomSeed(uint64_t _seed);
+    void setSurfaceRelaxivity(double _rho){ this->surfaceRelaxivity = _rho; }
+    void setSurfaceRelaxivity(vector<double> &parameters)
+    {
+        double off = 1.e-6;
+
+        // Set 1st Sigmoid Curve
+        double K1 = parameters[0];
+        double A1 = parameters[1];
+        double eps1 = parameters[2];
+        double B1 = parameters[3];
+
+        double shapeFunction1;
+        shapeFunction1 = A1 + ((K1 - A1) / (1 + exp((-1) * B1 * ((this->xiRate + off) - eps1))));
+
+        // Set 2nd Sigmoid Curve
+        double K2 = parameters[4];
+        double A2 = parameters[5];
+        double eps2 = parameters[6];
+        double B2 = parameters[7];
+
+        double shapeFunction2;
+        shapeFunction2 = A2 + ((K2 - A2) / (1 + exp((-1) * B2 * ((this->xiRate + off) - eps2))));
+
+        this->surfaceRelaxivity = shapeFunction1 + shapeFunction2;
+    }
+    void setDecreaseFactor(double _v){ this->decreaseFactor = _v; }
+    void setCollisions(uint _c){ this->collisions = _c; }
+    void setTCollisions(uint _c){ this->tCollisions = _c; }
+    void setXiRate(double _v){ this->xiRate = _v; }
+    void setEnergy(double _v){ this->energy = _v; }
+
+    // Get methods
+    Point3D getInitialPosition(){ return this->initialPosition;}
+    int getInitialPositionX(){ return this->initialPosition.getX(); }
+    int getInitialPositionY(){ return this->initialPosition.getY(); }
+    int getInitialPositionZ(){ return this->initialPosition.getZ(); }
+    Point3D getCurrentPosition(){ return this->currentPosition;}
+    int getCurrentPositionX(){ return this->currentPosition.getX(); }
+    int getCurrentPositionY(){ return this->currentPosition.getY(); }
+    int getCurrentPositionZ(){ return this->currentPosition.getZ(); }
+    direction getNextDirection(){ return this->nextDirection;}
+    uint64_t getInitialSeed(){ return this->initialSeed; }
+    uint64_t getCurrentSeed(){ return this->currentSeed; }
+    double getSurfaceRelaxivity(){ return this->surfaceRelaxivity; }
+    double getDecreaseFactor(){ return this->decreaseFactor; }
+    uint getCollisions(){ return this->collisions; }
+    uint getTCollisions(){ return this->tCollisions; }
+    double getXiRate(){ return this->xiRate; }
+    double getEnergy(){ return this->energy; }
+
+    void createRandomSeed();
 
     // supermethods
     typedef void (Walker::*map_ptr)(BitBlock &);
@@ -64,9 +134,9 @@ public:
     // Inline methods
     inline void resetPosition()
     {
-        this->position_x = initialPosition.getX();
-        this->position_y = initialPosition.getY();
-        this->position_z = initialPosition.getZ();
+        this->currentPosition.setX(this->initialPosition.getX());
+        this->currentPosition.setY(this->initialPosition.getY());
+        this->currentPosition.setZ(this->initialPosition.getZ());
     };
 
     inline void resetCollisions()
@@ -89,47 +159,17 @@ public:
         this->currentSeed = this->initialSeed;
     };
 
-    void setXIrate(double _xi_rate) { this->xi_rate = _xi_rate; }
 
-    void updateXIrate(uint _numberOfSteps)
+    void updateXiRate(uint _numberOfSteps)
     {
         double steps = (double) _numberOfSteps;
         if(LOG_XIRATE) 
         {
-            this->xi_rate = log10((double) this->collisions) / log10(steps);
+            this->xiRate = log10((double) this->collisions) / log10(steps);
         } else 
         {
-            this->xi_rate =  (double) this->collisions / steps;
+            this->xiRate =  (double) this->collisions / steps;
         }
-    }
-
-    void setSurfaceRelaxivity(vector<double> &parameters)
-    {
-
-        // Set 1st Sigmoid Curve
-        double K1 = parameters[0];
-        double A1 = parameters[1];
-        double eps1 = parameters[2];
-        double B1 = parameters[3];
-
-        double shapeFunction1;
-        shapeFunction1 = A1 + ((K1 - A1) / (1 + exp((-1) * B1 * (this->xi_rate - eps1))));
-
-        // Set 2nd Sigmoid Curve
-        double K2 = parameters[4];
-        double A2 = parameters[5];
-        double eps2 = parameters[6];
-        double B2 = parameters[7];
-
-        double shapeFunction2;
-        shapeFunction2 = A2 + ((K2 - A2) / (1 + exp((-1) * B2 * (this->xi_rate - eps2))));
-
-        this->surfaceRelaxivity = shapeFunction1 + shapeFunction2;
-    }
-
-    void setSurfaceRelaxivity(double rho)
-    {
-        this->surfaceRelaxivity = rho;
     }
 
     inline void computeDecreaseFactor(double _walkerStepLength,
@@ -164,7 +204,9 @@ public:
 
     inline Point3D computeNextPosition_2D()
     {
-        Point3D nextPosition = {this->position_x, this->position_y, this->position_z};
+        Point3D nextPosition = {this->currentPosition.getX(), 
+                                this->currentPosition.getY(), 
+                                this->currentPosition.getZ()};
         switch (nextDirection)
         {
         case North:
@@ -192,7 +234,7 @@ public:
         switch (this->nextDirection)
         {
         case North:
-            if (this->position_y == 0)
+            if (this->currentPosition.getY() == 0)
             {
                 nextDirection = South;
             }
@@ -200,21 +242,21 @@ public:
 
         case South:
 
-            if (this->position_y == _binaryMap.rows - 1)
+            if (this->currentPosition.getY() == _binaryMap.rows - 1)
             {
                 nextDirection = North;
             }
             break;
 
         case West:
-            if (this->position_x == 0)
+            if (this->currentPosition.getX() == 0)
             {
                 nextDirection = East;
             }
             break;
 
         case East:
-            if (this->position_x == _binaryMap.cols - 1)
+            if (this->currentPosition.getX() == _binaryMap.cols - 1)
             {
                 nextDirection = West;
             }
@@ -227,7 +269,7 @@ public:
         switch (this->nextDirection)
         {
         case North:
-            if (this->position_y == 0)
+            if (this->currentPosition.getY() == 0)
             {
                 nextDirection = South;
             }
@@ -235,21 +277,21 @@ public:
 
         case South:
 
-            if (this->position_y == _bitBlock.getImageRows() - 1)
+            if (this->currentPosition.getY() == _bitBlock.getImageRows() - 1)
             {
                 nextDirection = North;
             }
             break;
 
         case West:
-            if (this->position_x == 0)
+            if (this->currentPosition.getX() == 0)
             {
                 nextDirection = East;
             }
             break;
 
         case East:
-            if (this->position_x == _bitBlock.getImageColumns() - 1)
+            if (this->currentPosition.getX() == _bitBlock.getImageColumns() - 1)
             {
                 nextDirection = West;
             }
@@ -291,7 +333,9 @@ public:
 
     inline Point3D computeNextPosition_3D()
     {
-        Point3D nextPosition = {this->position_x, this->position_y, this->position_z};
+        Point3D nextPosition = {this->currentPosition.getX(), 
+                                this->currentPosition.getY(), 
+                                this->currentPosition.getZ()};
         switch (nextDirection)
         {
         case North:
@@ -324,12 +368,12 @@ public:
 
     inline void checkBorder_3D(vector<Mat> &_binaryMap)
     {
-        uint slice = this->position_z;
+        uint slice = this->currentPosition.getZ();
 
         switch (this->nextDirection)
         {
         case North:
-            if (this->position_y == 0)
+            if (this->currentPosition.getY() == 0)
             {
                 nextDirection = South;
             }
@@ -337,35 +381,35 @@ public:
 
         case South:
 
-            if (this->position_y == _binaryMap[slice].rows - 1)
+            if (this->currentPosition.getY() == _binaryMap[slice].rows - 1)
             {
                 nextDirection = North;
             }
             break;
 
         case West:
-            if (this->position_x == 0)
+            if (this->currentPosition.getX() == 0)
             {
                 nextDirection = East;
             }
             break;
 
         case East:
-            if (this->position_x == _binaryMap[slice].cols - 1)
+            if (this->currentPosition.getX() == _binaryMap[slice].cols - 1)
             {
                 nextDirection = West;
             }
             break;
 
         case Up:
-            if (this->position_z == _binaryMap.size() - 1)
+            if (this->currentPosition.getZ() == _binaryMap.size() - 1)
             {
                 nextDirection = Down;
             }
             break;
 
         case Down:
-            if (this->position_z == 0)
+            if (this->currentPosition.getZ() == 0)
             {
                 nextDirection = Up;
             }
@@ -378,7 +422,7 @@ public:
         switch (this->nextDirection)
         {
         case North:
-            if (this->position_y == 0)
+            if (this->currentPosition.getY() == 0)
             {
                 nextDirection = South;
             }
@@ -386,35 +430,35 @@ public:
 
         case South:
 
-            if (this->position_y == _bitBlock.getImageRows() - 1)
+            if (this->currentPosition.getY() == _bitBlock.getImageRows() - 1)
             {
                 nextDirection = North;
             }
             break;
 
         case West:
-            if (this->position_x == 0)
+            if (this->currentPosition.getX() == 0)
             {
                 nextDirection = East;
             }
             break;
 
         case East:
-            if (this->position_x == _bitBlock.getImageColumns() - 1)
+            if (this->currentPosition.getX() == _bitBlock.getImageColumns() - 1)
             {
                 nextDirection = West;
             }
             break;
 
         case Up:
-            if (this->position_z == _bitBlock.getImageDepth() - 1)
+            if (this->currentPosition.getZ() == _bitBlock.getImageDepth() - 1)
             {
                 nextDirection = Down;
             }
             break;
 
         case Down:
-            if (this->position_z == 0)
+            if (this->currentPosition.getZ() == 0)
             {
                 nextDirection = Up;
             }
@@ -440,9 +484,9 @@ public:
 
     inline void moveWalker(Point3D _nextPosition)
     {
-        this->position_x = _nextPosition.getX();
-        this->position_y = _nextPosition.getY();
-        this->position_z = _nextPosition.getZ();
+        this->currentPosition.setX(_nextPosition.getX());
+        this->currentPosition.setY(_nextPosition.getY());
+        this->currentPosition.setZ(_nextPosition.getZ());
     };
 
     inline void placeWalker(uint x0 = 0, uint y0 = 0, uint z0 = 0)
@@ -455,7 +499,9 @@ public:
 
     inline void printPosition()
     {
-        cout << "{" << position_x << ", " << position_y << ", " << position_z << "}" << endl;
+        cout << "{" << this->currentPosition.getX() 
+        << ", " << currentPosition.getY() 
+        << ", " << currentPosition.getZ() << "}" << endl;
     };
 
     inline void printPosition(Point3D position)
@@ -463,27 +509,6 @@ public:
         cout << "{" << position.getX() << ", " << position.getY() << ", " << position.getZ() << "}" << endl;
     };
 
-    // 'get' inline methods
-    // coordinate and orientation
-    inline Point3D getInitialPosition() { return this->initialPosition; }
-    inline int getInitialPositionX() { return this->initialPosition.getX(); }
-    inline int getInitialPositionY() { return this->initialPosition.getY(); }
-    inline int getInitialPositionZ() { return this->initialPosition.getZ(); }
-    inline int getPositionX() { return this->position_x; }
-    inline int getPositionY() { return this->position_y; }
-    inline int getPositionZ() { return this->position_z; }
-    inline direction getNextDirection() { return this->nextDirection; }
-
-    // RNG seeds
-    inline uint64_t getInitialSeed() { return this->initialSeed; }
-    inline uint64_t getCurrentSeed() { return this->currentSeed; }
-
-    // physical attributes
-    inline double getSurfaceRelaxivity() { return this->surfaceRelaxivity; }
-    inline double getDecreaseFactor() { return this->decreaseFactor; }
-    inline uint getCollisions() { return this->collisions; }
-    inline double getXIrate() { return this->xi_rate; }
-    inline double getEnergy() { return this->energy; }
 
 private:
     inline uint64_t xorShift64(struct xorshift64_state *state)
