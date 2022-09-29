@@ -10,37 +10,38 @@
 class Model
 {
 public:
+    // RNG State
+    static std::mt19937 _rng;
+    vector<Walker> walkers;
+    BitBlock bitBlock;
+
+private:
     // Class attributes:
     // Config attributes
     rwnmr_config rwNMR_config;
     uct_config uCT_config;
 
-    // RNG State
-    static std::mt19937 _rng;
-
     // RW simulation parameters
-    string simulationName;
-    string simulationDirectory;
-    string DBPath;
+    string name;
+    string dir;
+    string dbPath;
     uint simulationSteps;
     uint stepsPerEcho;
     uint numberOfEchoes;
     uint64_t initialSeed;
     bool seedFlag;
-    bool gpu_use;
+    bool gpuUsage;
 
     uint numberOfPores;
     double porosity;
     uint interfacePoreMatrix;
-    double SVp;
+    double svpRatio;
     double walkerOccupancy;
     uint numberOfWalkers;
     uint walkerSamples;
 
-    // vector objects
     vector<Point3D> pores;
-    vector<uint> walkersIDList;
-    vector<Walker> walkers;
+    vector<uint> walkersIdxList;
 
     // physical properties
     double timeInterval; // time interval between each walker step
@@ -57,10 +58,7 @@ public:
     uint width;
     uint depth;
     vector<Mat> binaryMap;
-    BitBlock bitBlock;
     string boundaryCondition;
-
-    // digital voxel/image amplification
     int voxelDivision;
     bool voxelDivisionApplied;
 
@@ -68,6 +66,7 @@ public:
     CollisionHistogram histogram;
     vector<CollisionHistogram> histogramList;
 
+public:
     // NMR_3D methods:
     // default constructors
     Model(rwnmr_config _rwNMR_config, uct_config _uCT_config, string _project_root);
@@ -78,26 +77,25 @@ public:
     {
         this->rwNMR_config = _otherSimulation.rwNMR_config;
         this->uCT_config = _otherSimulation.uCT_config;
-        this->simulationName = _otherSimulation.simulationName;
-        this->simulationDirectory = _otherSimulation.simulationDirectory;
+        this->name = _otherSimulation.name;
+        this->dir = _otherSimulation.dir;
         this->simulationSteps = _otherSimulation.simulationSteps;
         this->stepsPerEcho = _otherSimulation.stepsPerEcho;
         this->numberOfEchoes = _otherSimulation.numberOfEchoes;
         this->initialSeed = _otherSimulation.initialSeed;
         this->seedFlag = _otherSimulation.seedFlag;
-        this->gpu_use = _otherSimulation.gpu_use;
-        this->boundaryCondition = _otherSimulation.boundaryCondition;
+        this->gpuUsage = _otherSimulation.gpuUsage;
 
         this->numberOfPores = _otherSimulation.numberOfPores;
         this->porosity = _otherSimulation.porosity;
+        this->interfacePoreMatrix = _otherSimulation.interfacePoreMatrix;
+        this->svpRatio = _otherSimulation.svpRatio;
         this->walkerOccupancy = _otherSimulation.walkerOccupancy;
         this->numberOfWalkers = _otherSimulation.numberOfWalkers;
         this->walkerSamples = _otherSimulation.walkerSamples;
 
-        // vectors attributes copy pointers to otherImage's vectors
-        // should be tested if it works or if it should be done explicitly
         this->pores = _otherSimulation.pores;
-        this->walkersIDList = _otherSimulation.walkersIDList;
+        this->walkersIdxList = _otherSimulation.walkersIdxList;
         this->walkers = _otherSimulation.walkers;
 
         this->timeInterval = _otherSimulation.timeInterval;
@@ -109,13 +107,14 @@ public:
         this->numberOfImages = _otherSimulation.numberOfImages;
         this->imageResolution = _otherSimulation.imageResolution;
         this->imageVoxelResolution = _otherSimulation.imageVoxelResolution;
-        this->voxelDivision = _otherSimulation.voxelDivision;
-        this->voxelDivisionApplied = _otherSimulation.voxelDivisionApplied;
         this->height = _otherSimulation.height;
         this->width = _otherSimulation.width;
         this->depth = _otherSimulation.depth;
         this->binaryMap = _otherSimulation.binaryMap;
         this->bitBlock = _otherSimulation.bitBlock;
+        this->boundaryCondition = _otherSimulation.boundaryCondition;
+        this->voxelDivision = _otherSimulation.voxelDivision;
+        this->voxelDivisionApplied = _otherSimulation.voxelDivisionApplied;
 
         this->histogram = _otherSimulation.histogram;
         this->histogramList = _otherSimulation.histogramList;
@@ -131,80 +130,141 @@ public:
         cout << "Simulation model object destroyed." << endl;
     }
 
-    void reset()
-    {
-        if (this->walkers.size() > 0)
-        {
-            walkers.clear();
-        }
-        // free(this->bitBlock.blocks);
-        // this->bitBlock.blocks = NULL;
-    }
+    // Set methods
+    void setRWNMRConfig(rwnmr_config _config){ this->rwNMR_config = _config; }
+    void setUCTConfig(uct_config _config){ this->uCT_config = _config; }
+    void setName(string _n){ this->name = _n; }
+    void setDir(string _d){ this->dir = _d; }
+    void setDbPath(string _p){ this->dbPath = _p; }
+    void setSimulationSteps(uint _s){ this->simulationSteps = _s; }
+    void setStepsPerEcho(uint _s){ this->stepsPerEcho = _s; }
+    void setNumberOfEchoes(uint _n){ this->numberOfEchoes = _n; }
+    void setInitialSeed(uint64_t _is){ this->initialSeed = _is; }
+    void setSeedFlag(bool _v){ this->seedFlag = _v; }
+    void setGpuUsage(bool _v){ this->gpuUsage = _v; }
+    void setNumberOfPores(uint _np){ this->numberOfPores = _np; }
+    void setPorosity(double _v){ this->porosity = _v; }
+    void setInterfacePoreMatrix(uint _v){ this->interfacePoreMatrix = _v; }
+    void setSvpRatio(double _r){ this->svpRatio = _r; }
+    void setWalkerOccupancy(double _wo){ this->walkerOccupancy = _wo; }
+    void setNumberOfWalkers(uint _nw){ this->numberOfWalkers = _nw; }
+    void setWalkerSamples(uint _ws){ this->walkerSamples = _ws; }
+    void setPores(vector<Point3D> _p){ this->pores = _p; }
+    void setPores(Point3D _p, uint _idx){ this->pores[_idx] = _p; }
+    void addPores(Point3D _p){ this->pores.push_back(_p); }
+    void clearPores(){ this->pores.clear(); }
+    void setWalkersIdxList(vector<uint> _wid){ this->walkersIdxList = _wid; }
+    void setWalkersIdxList(uint _wid, uint _idx){ this->walkersIdxList[_idx] = _wid; }
+    void addWalkerIdxList(uint _wid){ this->walkersIdxList.push_back(_wid); }
+    void clearWalkerIdxList(){ this->walkersIdxList.clear(); }    
+    void setWalkers(vector<Walker> _w){ this->walkers = _w; }
+    void setWalkers(Walker _w, uint _idx){ this->walkers[_idx] = _w; }
+    void addWalkers(Walker _w){ this->walkers.push_back(_w); }
+    void clearWalkers(){ this->walkers.clear(); }
+    void setTimeInterval(double _t){ this->timeInterval = _t; }
+    void setDiffusionCoefficient(double _d){ this->diffusionCoefficient = _d; }
+    void setGiromagneticRatio(double _g){ this->giromagneticRatio = _g; }
+    void setBulkRelaxationTime(double _bt){ this->bulkRelaxationTime = _bt; }
+    void setImagePath(ImagePath _p){ this->imagePath = _p; }
+    void setNumberOfImages(uint _n){ this->numberOfImages = _n; }
+    void setImageResolution(double _r){ this->imageResolution = _r; }
+    void setImageVoxelResolution(double _vr){ this->imageVoxelResolution = _vr; }
+    void setHeight(uint _h){ this->height = _h; }
+    void setWidth(uint _w){ this->width = _w; }
+    void setDepth(uint _d){ this->depth = _d; }
+    void setBinaryMap(vector<Mat> _bm){ this->binaryMap = _bm; }
+    void setBinaryMap(Mat _bm, uint _idx){ this->binaryMap[_idx] = _bm; }
+    void addBinaryMap(Mat _bm){ this->binaryMap.push_back(_bm); }
+    void clearBinaryMap(){ this->binaryMap.clear(); }
+    void setBitBlock(BitBlock _bb){ this->bitBlock = _bb; }
+    void setBoundaryCondition(string _bc){ this->boundaryCondition = _bc; }
+    void setVoxelDivision(int _v){ this->voxelDivision = _v; }
+    void setVoxelDivisionApplied(bool _b){ this->voxelDivisionApplied = _b; }
+    void setHistogram(CollisionHistogram _h){ this->histogram = _h; }
+    void setHistogramList(vector<CollisionHistogram> _hl){ this->histogramList = _hl; }
+    void setHistogramList(CollisionHistogram _hl, uint _idx){ this->histogramList[_idx] = _hl; }
+    void addHistogramList(CollisionHistogram _hl){ this->histogramList.push_back(_hl); }
+    void clearHistogramList(){ this->histogramList.clear(); }
+    
 
-    void clear()
-    {
-        // RW simulation parameters
-        this->numberOfPores = 0;
-        this->numberOfWalkers = 0;
-
-        // vector objects
-        this->pores.clear();
-        this->walkers.clear();
-
-        // image attributes
-        this->binaryMap.clear();
-        this->bitBlock.clear();
-
-        // histogram used in fast simulations
-        this->histogram.clear();
-        this->histogramList.clear();
-    }
+    // Get methods
+    rwnmr_config getRWNMRConfig(){ return this->rwNMR_config; }
+    uct_config getUCTConfig(){ return this->uCT_config; }
+    string getName(){ return this->name; }
+    string getDir(){ return this->dir; }
+    string getDbPath(){ return this->dbPath; }
+    uint getSimulationSteps(){ return this->simulationSteps; }
+    uint getStepsPerEcho(){ return this->stepsPerEcho; }
+    uint getNumberOfEchoes(){ return this->numberOfEchoes; }
+    uint64_t getInitialSeed(){ return this->initialSeed; }
+    bool getSeedFlag(){ return this->seedFlag; }
+    bool getGpuUsage(){ return this->gpuUsage; }
+    uint getNumberOfPores(){ return this->numberOfPores; }
+    double getPorosity(){ return this->porosity; }
+    uint getInterfacePoreMatrix(){ return this->interfacePoreMatrix; }
+    double getSvpRatio(){ return this->svpRatio; }
+    double getWalkerOccupancy(){ return this->walkerOccupancy; }
+    uint getNumberOfWalkers(){ return this->numberOfWalkers; }
+    uint getWalkerSamples(){ return this->walkerSamples; }
+    vector<Point3D> getPores(){ return this->pores; }
+    Point3D getPores(uint idx){ return this->pores[idx]; }
+    vector<uint> getWalkersIdxList(){ return this->walkersIdxList; }
+    uint getWalkersIdxList(uint idx){ return this->walkersIdxList[idx]; }
+    vector<Walker> getWalkers(){ return this->walkers; }
+    Walker getWalkers(uint idx){ return this->walkers[idx]; }
+    double getTimeInterval(){ return this->timeInterval; }
+    double getDiffusionCoefficient(){ return this->diffusionCoefficient; }
+    double getGiromagneticRatio(){ return this->giromagneticRatio; }
+    double getBulkRelaxationTime(){ return this->bulkRelaxationTime; }
+    ImagePath getImagePath(){ return this->imagePath; }
+    uint getNumberOfImages(){ return this->numberOfImages; }
+    double getImageResolution(){ return this->imageResolution; }
+    double getImageVoxelResolution(){ return this->imageVoxelResolution; }  
+    uint getHeight(){ return this->height; }
+    uint getWidth(){ return this->width; }
+    uint getDepth(){ return this->depth; }
+    vector<Mat> getBinaryMap(){ return this->binaryMap; }
+    Mat getBinaryMap(uint idx){ return this->binaryMap[idx]; }
+    BitBlock getBitBlock(){ return this->bitBlock; }
+    string getBoundaryCondition(){ return this->boundaryCondition; }
+    int getVoxelDivision(){ return this->voxelDivision; }
+    bool getVoxelDivisionApplied(){ return this->voxelDivisionApplied; }
+    CollisionHistogram getHistogram(){ return this->histogram; }
+    vector<CollisionHistogram> getHistogramList(){ return this->histogramList; }
+    CollisionHistogram getHistogramList(uint idx){ return this->histogramList[idx]; }
 
     // Class methods:
     // read
-    void setImage(ImagePath path, uint images);
     void readImage();
     void loadRockImage();
     void loadRockImageFromList();
     void createBinaryMap(Mat &_rockImage, uint slice);
     void createBitBlockMap();
-
-    // set walkers
-    void setSimulation(double occupancy, uint64_t seed, bool use_GPU);
-    void setGPU(bool _useGPU);
-    void setImageOccupancy(double _occupancy);
-    void setInitialSeed(uint64_t _seed, bool _flag=false);
-    void setFreeDiffusionCoefficient(double _D0);
-    void setGiromagneticRatio(double _gamma, string _unit = "rad");
-    void setBulkRelaxationTime(double _bulkTime);
-    void setImageResolution(double _resolution);
-    void setImageVoxelResolution();
-    void setBoundaryCondition(string _bc);
-    void setTimeInterval();
-    void setVoxelDivision(uint _shifts);
+    void initSeed(bool _flag=false);
+    void initGiromagneticRatio(double _gamma, string _unit = "rad");
+    void initImageVoxelResolution();
+    void initTimeInterval();
+    void initVoxelDivision(uint _shifts);
     void applyVoxelDivision(uint _shifts);
-    void setNumberOfStepsPerEcho(uint _stepsPerEcho);
-    void setNumberOfStepsFromTime(double time);
-    void setTimeFramework(uint _steps);
-    void setTimeFramework(double _time);
-    void setWalkers(void);
-    void setWalkers(Point3D _point, uint _numberOfWalkers);
-    void setWalkers(Point3D _point1, Point3D _point2, uint _numberOfWalkers);
-    void setWalkers(uint _numberOfWalkers, bool _randomInsertion = false);
+    void initNumberOfStepsFromTime(double time);
+    void buildTimeFramework(uint _steps);
+    void buildTimeFramework(double _time);
+    void initWalkers(void);
+    void initWalkers(Point3D _point, uint _numberOfWalkers);
+    void initWalkers(Point3D _point1, Point3D _point2, uint _numberOfWalkers);
+    void initWalkers(uint _numberOfWalkers, bool _randomInsertion = false);
     void countPoresInBinaryMap();
     void countPoresInBitBlock();
     void countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2);
     void updatePorosity();
     void countInterfacePoreMatrix();
-    void updateSVp();
+    void updateSvpRatio();
     void updateNumberOfPores();
     void createPoreList();
     void createPoreList(Point3D _vertex1, Point3D _vertex2);
     void freePoreList(){ if(this->pores.size() > 0) this->pores.clear();}
-    void setNumberOfWalkers(uint _numberOfWalkers = 0);
-    void setWalkerSamples(uint _samples);
     void updateWalkerOccupancy();
-    void createWalkersIDList();
+    void createWalkersIdxList();
     uint removeRandomIndexFromPool(vector<uint> &_pool, uint _randomIndex);
     void createWalkers();
     void placeWalkers();
@@ -257,43 +317,6 @@ public:
     void info();
     void dummy(){ cout << "hey, I'm here dude." << endl;}
 
-    // 'get' inline methods
-    // simulation parameters
-    inline string getSimulationName() { return this->simulationName; }
-    inline string getDBPath() { return this->DBPath; }
-    inline uint getSimulationSteps() { return this->simulationSteps; }
-    inline uint getStepsPerEcho() { return this->stepsPerEcho; }
-    inline uint getNumberOfEchoes() { return this->numberOfEchoes; }
-    inline uint64_t getInitialSeed() { return this->initialSeed; }
-    inline bool getSeedFlag() { return this->seedFlag; }
-    inline bool getGPU() { return this->gpu_use; }
-    inline string getBoundaryCondition() { return this->boundaryCondition; }
-
-    // pore e walkers
-    inline uint getNumberOfPores() { return this->numberOfPores; }
-    inline double getWalkerOccupancy() { return this->walkerOccupancy; }
-    inline uint getNumberOfWalkers() { return this->numberOfWalkers; }
-    inline uint getWalkerSamples() { return this->walkerSamples; }
-    inline vector<Point3D> getPores() { return this->pores; }
-    inline vector<Walker> getWalkers() { return this->walkers; }
-
-    // physical attributes
-    inline double getTimeInterval() { return this->timeInterval; }
-    inline double getDiffusionCoefficient() { return this->diffusionCoefficient; }
-    inline double getGiromagneticRatio() { return this->giromagneticRatio; }
-    inline double getBulkRelaxationTime(){ return this->bulkRelaxationTime; }
-
-    // image attributes
-    inline string getImagePath() { return this->imagePath.getCompletePath(); }
-    inline uint getNumberOfImages() { return this->numberOfImages; }
-    inline double getImageResolution() { return this->imageResolution; }
-    inline double getImageVoxelResolution() { return this->imageVoxelResolution; }
-    inline uint getVoxelDivision() { return this->voxelDivision; }
-    inline uint getImageHeight() { return this->height; }
-    inline uint getImageWidth() { return this->width; }
-    inline uint getImageDepth() { return this->depth; }
-    inline vector<Mat> getBinaryMap() { return this->binaryMap; }
-    inline BitBlock getBitBlock() { return this->bitBlock; }
     inline string convertFileIDToString(uint id, uint digits)
     {
         stringstream result;
@@ -307,9 +330,35 @@ public:
     void saveWalkers(string filedir);
     void saveBitBlock(string filedir);
     void saveHistogram(string filedir);
-    void saveHistogramList(string filedir);
-    
+    void saveHistogramList(string filedir);    
     void assemblyImagePath();
+
+    void reset()
+    {
+        if (this->walkers.size() > 0)
+        {
+            walkers.clear();
+        }
+    }
+
+    void clear()
+    {
+        // RW simulation parameters
+        this->numberOfPores = 0;
+        this->numberOfWalkers = 0;
+
+        // vector objects
+        this->pores.clear();
+        this->walkers.clear();
+
+        // image attributes
+        this->binaryMap.clear();
+        this->bitBlock.clear();
+
+        // histogram used in fast simulations
+        this->histogram.clear();
+        this->histogramList.clear();
+    }
 };
 
 #endif

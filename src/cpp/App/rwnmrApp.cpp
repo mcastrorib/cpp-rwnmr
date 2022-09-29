@@ -38,7 +38,7 @@ void rwnmrApp::buildEssentials()
 
     // Create and set up random walkers
     cout << endl << "-- Setting random walkers" << endl;
-    (*this).getModel().setWalkers();
+    (*this).getModel().initWalkers();
 
     // Save image info
     cout << endl << "-- Saving uCT-image info" << endl;

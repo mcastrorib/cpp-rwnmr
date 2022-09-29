@@ -52,9 +52,9 @@ void NMR_multitau::createName()
 
 void NMR_multitau::createDirectoryForData()
 {
-	string path = (*this).getModel().getDBPath();
-    BaseFunctions::createDirectory(path, (*this).getModel().simulationName + "/" + (*this).getName());
-    (*this).setDir(path + (*this).getModel().simulationName + "/" + (*this).getName());
+	string path = (*this).getModel().getDbPath();
+    BaseFunctions::createDirectory(path, (*this).getModel().getName() + "/" + (*this).getName());
+    (*this).setDir(path + (*this).getModel().getName() + "/" + (*this).getName());
 }
 
 void NMR_multitau::setTauSequence()
@@ -94,7 +94,7 @@ void NMR_multitau::setTauSequence()
 
 void NMR_multitau::setExposureTime(uint index)
 {
-    (*this).getModel().setNumberOfStepsPerEcho((*this).getRequiredStep(index));
+    (*this).getModel().setStepsPerEcho((*this).getRequiredStep(index));
     if(!(*this).getMultitauConfig().getCompleteDecay()) 
         (*this).getCPMG()->setExposureTime((*this).getSignalTime(index));
 }
@@ -281,13 +281,13 @@ void NMR_multitau::writeHistogram()
 
     file << "Bins"; 
     file << ",Amps" << endl;
-    const int num_points = (*this).getModel().histogram.getSize();
+    const int num_points = (*this).getModel().getHistogram().getSize();
     const int precision = std::numeric_limits<double>::max_digits10;
     for (int i = 0; i < num_points; i++)
     {
         file << setprecision(precision) 
-        << (*this).getModel().histogram.getBin(i) 
-        << "," << (*this).getModel().histogram.getAmp(i) << endl;
+        << (*this).getModel().getHistogram().getBin(i) 
+        << "," << (*this).getModel().getHistogram().getAmp(i) << endl;
     }
 
     file.close();
@@ -304,7 +304,7 @@ void NMR_multitau::writeHistogramList()
         exit(1);
     }
 
-    const int histograms = (*this).getModel().histogramList.size();
+    const int histograms = (*this).getModel().getHistogramList().size();
 
     for(int hIdx = 0; hIdx < histograms; hIdx++)
     {
@@ -313,14 +313,14 @@ void NMR_multitau::writeHistogramList()
     }
     file << endl;
 
-    const int num_points = (*this).getModel().histogram.getSize();
+    const int num_points = (*this).getModel().getHistogram().getSize();
     const int precision = std::numeric_limits<double>::max_digits10;
     for (int i = 0; i < num_points; i++)
     {
         for(int hIdx = 0; hIdx < histograms; hIdx++)
         {
-            file << setprecision(precision) << (*this).getModel().histogramList[hIdx].getBin(i) << ",";
-            file << setprecision(precision) << (*this).getModel().histogramList[hIdx].getAmp(i) << ",";
+            file << setprecision(precision) << (*this).getModel().getHistogramList()[hIdx].getBin(i) << ",";
+            file << setprecision(precision) << (*this).getModel().getHistogramList()[hIdx].getAmp(i) << ",";
         }
 
         file << endl;

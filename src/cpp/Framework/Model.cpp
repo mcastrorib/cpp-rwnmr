@@ -16,7 +16,7 @@ Model::Model(rwnmr_config _rwNMR_config,
                                                          numberOfPores(0),
                                                          porosity(-1.0),
                                                          interfacePoreMatrix(0),
-                                                         SVp(-1.0),
+                                                         svpRatio(-1.0),
                                                          walkerOccupancy(-1.0),
                                                          voxelDivisionApplied(false),
                                                          histogram()
@@ -24,30 +24,25 @@ Model::Model(rwnmr_config _rwNMR_config,
     // init vector objects
     vector<Mat> binaryMap();
     vector<Point3D> pores();
-    vector<uint> walkersIDList();
+    vector<uint> walkersIdxList();
     vector<Walker> walkers();
     vector<CollisionHistogram> histogramList();
 
     // set simulation name and directory to save results
-    this->DBPath = _project_root + "./db/";
-    this->simulationName = this->rwNMR_config.getName();
-    this->simulationDirectory = (*this).createDirectoryForResults(this->DBPath);
+    (*this).setDbPath(_project_root + "./db/");
+    (*this).setName(this->rwNMR_config.getName());
+    (*this).setDir((*this).createDirectoryForResults((*this).getDbPath()));
 
     // assign attributes from rwnmr config files
     (*this).setNumberOfWalkers(this->rwNMR_config.getWalkers());
     (*this).setWalkerSamples(this->rwNMR_config.getWalkerSamples());
-    (*this).setFreeDiffusionCoefficient(this->rwNMR_config.getD0());
-    (*this).setGiromagneticRatio(this->rwNMR_config.getGiromagneticRatio(), this->rwNMR_config.getGiromagneticUnit());
+    (*this).setDiffusionCoefficient(this->rwNMR_config.getD0());
+    (*this).initGiromagneticRatio(this->rwNMR_config.getGiromagneticRatio(), this->rwNMR_config.getGiromagneticUnit());
     (*this).setBulkRelaxationTime(this->rwNMR_config.getBulkTime());
-    (*this).setNumberOfStepsPerEcho(this->rwNMR_config.getStepsPerEcho());
-    (*this).setGPU(this->rwNMR_config.getGPUUsage());
-    if(this->rwNMR_config.getSeed() == 0)
-    {
-        (*this).setInitialSeed(mRNG::RNG_uint64(), true);
-    } else
-    {
-        (*this).setInitialSeed(this->rwNMR_config.getSeed(), true);
-    }   
+    (*this).setStepsPerEcho(this->rwNMR_config.getStepsPerEcho());
+    (*this).setGpuUsage(this->rwNMR_config.getGPUUsage());
+    (*this).initSeed(true);
+    
     // Initialize random state
     Model::_rng.seed((*this).getInitialSeed());
     Model::_rng.discard(4096);
@@ -57,90 +52,43 @@ Model::Model(rwnmr_config _rwNMR_config,
     (*this).setImageResolution(this->uCT_config.getResolution());
 
     (*this).setVoxelDivision(0);
-    (*this).setImageVoxelResolution();
+    (*this).initImageVoxelResolution();
     if(this->uCT_config.getVoxelDivision() > 0) this->voxelDivisionApplied = true; 
 
     // set default time step measurement
-    (*this).setTimeInterval(); 
+    (*this).initTimeInterval(); 
     (*this).setBoundaryCondition(this->rwNMR_config.getBC());
 }
 
-void Model::setImage(ImagePath _path, uint _images)
+void Model::initSeed(bool _flag)
 {
-    this->imagePath = _path;
-    this->numberOfImages = _images;
-    this->depth = this->numberOfImages;
-}
-
-void Model::setSimulation(double _occupancy, uint64_t _seed, bool _use_GPU)
-{ 
-    this->gpu_use = _use_GPU;
-    this->walkerOccupancy = _occupancy;
-    this->initialSeed = _seed; 
-    if (this->initialSeed != this->rwNMR_config.getSeed())
-    {
-        this->seedFlag = true;
-    }
+    if(this->rwNMR_config.getSeed() == 0)
+        (*this).setInitialSeed(mRNG::RNG_uint64());        
     else
-    {
-        this->seedFlag = false;
-    }
+        (*this).setInitialSeed(this->rwNMR_config.getSeed());
+    (*this).setSeedFlag(_flag);
 }
 
-void Model::setGPU(bool _useGPU)
-{
-    this->gpu_use = _useGPU;
-}
-
-void Model::setImageOccupancy(double _occupancy)
-{
-    this->walkerOccupancy = _occupancy;
-}
-
-void Model::setInitialSeed(uint64_t _seed, bool _flag)
-{
-    this->initialSeed = _seed; 
-    this->seedFlag = _flag;
-}
-
-void Model::setBoundaryCondition(string _bc)
-{
-    this->boundaryCondition = _bc;
-}
-
-void Model::setFreeDiffusionCoefficient(double _D0)
-{
-    this->diffusionCoefficient = _D0;
-}
-
-void Model::setGiromagneticRatio(double _gamma, string _unit)
+void Model::initGiromagneticRatio(double _gamma, string _unit)
 {
     if(_unit == "mhertz") this->giromagneticRatio = _gamma * TWO_PI;
     else this->giromagneticRatio = _gamma;
 }
 
-void Model::setBulkRelaxationTime(double _bulkTime)
+
+void Model::initImageVoxelResolution()
 {
-    this->bulkRelaxationTime = _bulkTime;
+    (*this).setImageVoxelResolution((*this).getImageResolution() / (double) (*this).getVoxelDivision());
 }
 
-void Model::setImageResolution(double _resolution)
+void Model::initTimeInterval()
 {
-    this->imageResolution = _resolution;
+    (*this).setTimeInterval(((*this).getImageVoxelResolution() * 
+                             (*this).getImageVoxelResolution()) / 
+                             (6.0 * (*this).getDiffusionCoefficient()));
 }
 
-void Model::setImageVoxelResolution()
-{
-    this->imageVoxelResolution = this->imageResolution / (double) this->voxelDivision;
-}
-
-void Model::setTimeInterval()
-{
-    this->timeInterval = (this->imageVoxelResolution * this->imageVoxelResolution) / 
-                         (6 * this->diffusionCoefficient);
-}
-
-void Model::setVoxelDivision(uint _shifts)
+void Model::initVoxelDivision(uint _shifts)
 {
     this->voxelDivision = pow(2,_shifts);
     if(this->voxelDivision > 1) this->voxelDivisionApplied = true;
@@ -154,13 +102,13 @@ void Model::applyVoxelDivision(uint _shifts)
 
     // reset resolution scales
     uint previousDivision = (*this).getVoxelDivision();
-    (*this).setVoxelDivision(_shifts);
-    (*this).setImageVoxelResolution();
+    (*this).initVoxelDivision(_shifts);
+    (*this).initImageVoxelResolution();
 
     // // trying to maintain steps per echo
-    (*this).setTimeInterval();
+    (*this).initTimeInterval();
     uint steps = (*this).getStepsPerEcho() * (*this).getNumberOfEchoes();
-    (*this).setTimeFramework(steps);
+    (*this).buildTimeFramework(steps);
 
     // if walkers exists, fill intra-voxel sites //
     if(this->walkers.size() > 0)
@@ -225,13 +173,8 @@ void Model::applyVoxelDivision(uint _shifts)
     cout << " in " << time << " seconds." << endl; 
 }
 
-void Model::setNumberOfStepsPerEcho(uint _stepsPerEcho)
-{
-    this->stepsPerEcho = _stepsPerEcho;
-}
-
 // param @_time needs to be in miliseconds
-void Model::setNumberOfStepsFromTime(double _time)
+void Model::initNumberOfStepsFromTime(double _time)
 {
     // _time = _time;
     this->simulationSteps =  round( _time * (6 * this->diffusionCoefficient / (this->imageVoxelResolution * this->imageVoxelResolution))); 
@@ -240,7 +183,7 @@ void Model::setNumberOfStepsFromTime(double _time)
     if(this->simulationSteps < this->stepsPerEcho) this->simulationSteps = this->stepsPerEcho;
 }
 
-void Model::setTimeFramework(uint _steps)
+void Model::buildTimeFramework(uint _steps)
 {
     if(_steps < this->stepsPerEcho) _steps = this->stepsPerEcho;
     this->numberOfEchoes = (uint)ceil( _steps / (double)this->stepsPerEcho);
@@ -248,9 +191,9 @@ void Model::setTimeFramework(uint _steps)
 }
 
 // param @_time needs to be in miliseconds
-void Model::setTimeFramework(double _time)
+void Model::buildTimeFramework(double _time)
 {
-    (*this).setNumberOfStepsFromTime(_time);
+    (*this).initNumberOfStepsFromTime(_time);
     this->numberOfEchoes = (uint)ceil((double)this->simulationSteps / (double)this->stepsPerEcho);
     this->simulationSteps = this->numberOfEchoes * this->stepsPerEcho;
 }
@@ -276,36 +219,36 @@ void Model::readImage()
 
 }
 
-void Model::setWalkers(void)
+void Model::initWalkers(void)
 {
     if(this->bitBlock.getNumberOfBlocks() > 0) // only set walkers, if image was loaded
     {
         if(this->rwNMR_config.getWalkersPlacement() == "point")
         { 
             // define coords of central point
-            int center_x = (int) (*this).getImageWidth()/2;
-            int center_y = (int) (*this).getImageHeight()/2;
-            int center_z = (int) (*this).getImageDepth()/2;
+            int center_x = (int) (*this).getWidth()/2;
+            int center_y = (int) (*this).getHeight()/2;
+            int center_z = (int) (*this).getDepth()/2;
             Point3D center(center_x, center_y, center_z);
 
             // now set walkers
-            (*this).setWalkers(center, this->rwNMR_config.getWalkers());
+            (*this).initWalkers(center, this->rwNMR_config.getWalkers());
         } else 
         if (this->rwNMR_config.getWalkersPlacement() == "cubic")
         {   
             // define restriction points
-            int center_x = (int) ((*this).getImageWidth() - 1)/2;
-            int center_y = (int) ((*this).getImageHeight() - 1)/2;
-            int center_z = (int) ((*this).getImageDepth() - 1)/2;
+            int center_x = (int) ((*this).getWidth() - 1)/2;
+            int center_y = (int) ((*this).getHeight() - 1)/2;
+            int center_z = (int) ((*this).getDepth() - 1)/2;
             int deviation = (int) this->rwNMR_config.getPlacementDeviation();
             Point3D point1(center_x - deviation, center_y - deviation, center_z - deviation);
             Point3D point2(center_x + deviation, center_y + deviation, center_z + deviation);
 
             // now set walkers 
-            (*this).setWalkers(point1, point2, this->rwNMR_config.getWalkers());
+            (*this).initWalkers(point1, point2, this->rwNMR_config.getWalkers());
         } else
         {
-            (*this).setWalkers(this->rwNMR_config.getWalkers());
+            (*this).initWalkers(this->rwNMR_config.getWalkers());
         }  
         
         // apply voxel division if needed
@@ -317,7 +260,7 @@ void Model::setWalkers(void)
     
 }
 
-void Model::setWalkers(uint _numberOfWalkers, bool _randomInsertion)
+void Model::initWalkers(uint _numberOfWalkers, bool _randomInsertion)
 {    
     (*this).setNumberOfWalkers(_numberOfWalkers);
     (*this).updateWalkerOccupancy();
@@ -326,7 +269,7 @@ void Model::setWalkers(uint _numberOfWalkers, bool _randomInsertion)
     if(_randomInsertion == false)
     {
         (*this).createPoreList();
-        (*this).createWalkersIDList();
+        (*this).createWalkersIdxList();
         (*this).placeWalkersUniformly(); 
         (*this).freePoreList();
     } else
@@ -338,7 +281,7 @@ void Model::setWalkers(uint _numberOfWalkers, bool _randomInsertion)
     (*this).associateMapSimulation(); 
 }
 
-void Model::setWalkers(Point3D _point, uint _numberOfWalkers)
+void Model::initWalkers(Point3D _point, uint _numberOfWalkers)
 {    
     (*this).setNumberOfWalkers(_numberOfWalkers);
     (*this).updateWalkerOccupancy();
@@ -350,7 +293,7 @@ void Model::setWalkers(Point3D _point, uint _numberOfWalkers)
     (*this).associateMapSimulation(); 
 }
 
-void Model::setWalkers(Point3D _point1, Point3D _point2, uint _numberOfWalkers)
+void Model::initWalkers(Point3D _point1, Point3D _point2, uint _numberOfWalkers)
 {    
     (*this).setNumberOfWalkers(_numberOfWalkers);
     (*this).updateWalkerOccupancy();
@@ -368,13 +311,13 @@ void Model::save()
 {
     double time = omp_get_wtime();
     cout << "saving results:" << endl;
-    (*this).saveInfo(this->simulationDirectory);
+    (*this).saveInfo(this->dir);
 
     ProgressBar pBar(3.0);
 
     if(this->rwNMR_config.getSaveImgInfo())
     {   
-        (*this).saveImageInfo(this->simulationDirectory);
+        (*this).saveImageInfo(this->dir);
     } 
 
     pBar.update(1);
@@ -382,7 +325,7 @@ void Model::save()
 
     if(this->rwNMR_config.getSaveBinImg())
     {   
-        (*this).saveBitBlock(this->simulationDirectory);
+        (*this).saveBitBlock(this->dir);
     }
 
     pBar.update(1);
@@ -390,7 +333,7 @@ void Model::save()
 
     if(this->rwNMR_config.getSaveWalkers())
     {   
-        (*this).saveWalkers(this->simulationDirectory);
+        (*this).saveWalkers(this->dir);
     }
 
     pBar.update(1);
@@ -856,19 +799,19 @@ void Model::countInterfacePoreMatrix()
         pBar.print();      
     }
 
-    (*this).updateSVp();
+    (*this).updateSvpRatio();
 
     time = omp_get_wtime() - time;
     cout << " in " << time << " seconds." << endl; 
     cout << this->interfacePoreMatrix << " interface pore-matrix voxel(s) identified. " ;
-    cout << "S/Vp: " << this->SVp << endl;
+    cout << "S/Vp: " << this->svpRatio << endl;
 }
 
-void Model::updateSVp()
+void Model::updateSvpRatio()
 {
     double voxelFacialArea = (*this).getImageVoxelResolution() * (*this).getImageVoxelResolution();
     double voxelVolume = voxelFacialArea * (*this).getImageVoxelResolution();
-    this->SVp = ((double) this->interfacePoreMatrix * voxelFacialArea) / ((double) this->numberOfPores * voxelVolume);
+    this->svpRatio = ((double) this->interfacePoreMatrix * voxelFacialArea) / ((double) this->numberOfPores * voxelVolume);
 }
 
 void Model::updatePorosity()
@@ -1023,28 +966,18 @@ void Model::createPoreList(Point3D _vertex1, Point3D _vertex2)
     cout << " in " << time << " seconds." << endl; 
 }
 
-void Model::setNumberOfWalkers(uint _numberOfWalkers)
-{   
-    this->numberOfWalkers = _numberOfWalkers;
-}
-
-void Model::setWalkerSamples(uint _samples)
-{   
-    this->walkerSamples = _samples;
-}
-
 void Model::updateWalkerOccupancy()
 {   
     this->walkerOccupancy = (this->numberOfWalkers / ((double) this->numberOfPores)); 
 }
 
-void Model::createWalkersIDList()
+void Model::createWalkersIdxList()
 {
     double time = omp_get_wtime();
     cout << "- creating walkers ID list:" << endl;
 
-    if(this->walkersIDList.size() > 0) this->walkersIDList.clear();
-    this->walkersIDList.reserve(this->numberOfWalkers);
+    if(this->walkersIdxList.size() > 0) this->walkersIdxList.clear();
+    this->walkersIdxList.reserve(this->numberOfWalkers);
 
     if(this->pores.size() == 0)
     {
@@ -1067,7 +1000,7 @@ void Model::createWalkersIDList()
         for (uint i = 0; i < packSize; i++)
         {
             idx = pack * packSize + i;
-            this->walkersIDList.push_back(dist(Model::_rng));
+            this->walkersIdxList.push_back(dist(Model::_rng));
         }
 
         // Update progress bar
@@ -1078,7 +1011,7 @@ void Model::createWalkersIDList()
     for (uint i = 0; i < (packSize + lastPackSize); i++)
     {
         idx = (walkerPacks - 1) * packSize + i;
-        this->walkersIDList.push_back(dist(Model::_rng));
+        this->walkersIdxList.push_back(dist(Model::_rng));
     }
 
     // Last update in progress bar
@@ -1244,7 +1177,7 @@ void Model::placeWalkersUniformly()
     ProgressBar pBar((double) num_cpu_threads);
     pBar.print();
 
-    #pragma omp parallel shared(walkers, walkersIDList, pores, pBar) private(loop_start, loop_finish) 
+    #pragma omp parallel shared(walkers, walkersIdxList, pores, pBar) private(loop_start, loop_finish) 
     {
         const int thread_id = omp_get_thread_num();
         OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
@@ -1257,7 +1190,7 @@ void Model::placeWalkersUniformly()
             for (uint idx = loop_start; idx < loop_finish; idx++)
             {
                 // select a pore location from a list randomly generated to place the walker
-                uint randomIndex = this->walkersIDList[idx];
+                uint randomIndex = this->walkersIdxList[idx];
                 this->walkers[idx].placeWalker(this->pores[randomIndex].getX(), 
                                                this->pores[randomIndex].getY(), 
                                                this->pores[randomIndex].getZ());
@@ -1476,7 +1409,7 @@ void Model::updateWalkersRelaxativity(double rho)
 // associate methods
 void Model::associateMapSimulation()
 {
-    if (gpu_use == true)
+    if ((*this).getGpuUsage() == true)
     {
         if (this->numberOfImages == 1)
         {
@@ -1531,13 +1464,15 @@ void Model::assemblyImagePath()
      input.setExtension(this->uCT_config.getExtension());
      input.updateCompletePath();
 
-     (*this).setImage(input, input.getImages());
+     (*this).setImagePath(input);
+     (*this).setNumberOfImages(input.getImages());
+     (*this).setDepth((*this).getNumberOfImages());
 }
 
 string Model::createDirectoryForResults(string _path)
 {
-    BaseFunctions::createDirectory(_path, this->simulationName);
-    return (_path + this->simulationName);
+    BaseFunctions::createDirectory(_path, this->name);
+    return (_path + this->name);
 }
 
 void Model::saveInfo(string filedir)
@@ -1557,14 +1492,14 @@ void Model::saveInfo(string filedir)
 
     // print input details
     fileObject << "------------------------------------------------------" << endl;
-    fileObject << ">>> NMR SIMULATION 3D PARAMETERS: " << this->simulationName << endl;
+    fileObject << ">>> RWNMR SIMULATION PARAMETERS: " << (*this).getName() << endl;
     fileObject << "------------------------------------------------------" << endl;
-    fileObject << "Data path: " << this->DBPath + this->simulationName << endl;
-    fileObject << "Image path: " << this->imagePath.getCompletePath() << endl;
-    fileObject << "Image resolution (um/voxel): " << this->imageVoxelResolution << endl;
-    fileObject << "Diffusion coefficient (um^2/ms): " << this->diffusionCoefficient << endl;
-    fileObject << "Number of images: " << this->numberOfImages << endl;
-    fileObject << "Walkers pore occupancy in simulation: " << this->walkerOccupancy * 100.0 << "%" << endl;
+    fileObject << "Data path: " << (*this).getDbPath() + (*this).getName() << endl;
+    fileObject << "Image path: " << (*this).getImagePath().getCompletePath() << endl;
+    fileObject << "Image resolution (um/voxel): " << (*this).getImageVoxelResolution() << endl;
+    fileObject << "Diffusion coefficient (um^2/ms): " << (*this).getDiffusionCoefficient() << endl;
+    fileObject << "Number of images: " << (*this).getNumberOfImages() << endl;
+    fileObject << "Walkers pore occupancy in simulation: " << (*this).getWalkerOccupancy() * 100.0 << "%" << endl;
     
 
     fileObject << "Initial seed: ";
@@ -1578,7 +1513,7 @@ void Model::saveInfo(string filedir)
     }
 
     fileObject << "GPU usage: ";
-    if (this->gpu_use)
+    if ((*this).getGpuUsage())
     {
         fileObject << "ON" << endl;
     }
@@ -1620,7 +1555,7 @@ void Model::saveImageInfo(string filedir)
     fileObject << "voxel shift: " << this->voxelDivision << endl;
     fileObject << "step length: " << this->imageVoxelResolution << endl;
     fileObject << "porosity: " << this->porosity << endl;
-    fileObject << "SVp: " << this->SVp << endl;
+    fileObject << "SVp: " << this->svpRatio << endl;
 
     // close file
     fileObject.close();
@@ -1731,9 +1666,9 @@ void Model::printDetails()
 { 
     // print input details
     cout << "------------------------------------------------------" << endl;
-    cout << ">>> NMR SIMULATION 3D PARAMETERS: " << this->simulationName << endl;
+    cout << ">>> NMR SIMULATION 3D PARAMETERS: " << this->name << endl;
     cout << "------------------------------------------------------" << endl;
-    cout << "Data path: " << this->DBPath + this->simulationName << endl;
+    cout << "Data path: " << this->dbPath + this->name << endl;
     cout << "Image path: " << this->imagePath.getCompletePath() << endl;
     cout << "Image resolution (um/voxel): " << this->imageVoxelResolution << endl;
     cout << "Diffusion coefficient (um^2/ms): " << this->diffusionCoefficient << endl;
@@ -1752,7 +1687,7 @@ void Model::printDetails()
     }
 
     cout << "GPU usage: ";
-    if (this->gpu_use)
+    if ((*this).getGpuUsage())
     {
         cout << "ON" << endl;
     }
