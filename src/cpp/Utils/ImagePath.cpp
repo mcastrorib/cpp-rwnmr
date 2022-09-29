@@ -27,15 +27,15 @@ ImagePath::ImagePath(string _path,
 void ImagePath::updateCompletePath()
 {
     (*this).updateNumberOfDigits();
-    this->completePath = this->path + 
-                         this->filename + 
-                         (*this).convertFileIDToString(this->fileID, this->digits) + 
-                         this->extension;
+    (*this).setCompletePath(this->path + 
+                            this->filename + 
+                            (*this).convertFileIDToString(this->fileID, this->digits) + 
+                            this->extension);
 }
 
 void ImagePath::updateNumberOfDigits()
 {
-    int finalID = this->fileID + this->images;
+    int finalID = (*this).getFileID() + (*this).getImages();
     int result = finalID / 10;
     int count = 1;
 
@@ -45,5 +45,5 @@ void ImagePath::updateNumberOfDigits()
         result = result / 10;
     }
 
-    this->digits = count;
+    (*this).setDigits(count);
 }

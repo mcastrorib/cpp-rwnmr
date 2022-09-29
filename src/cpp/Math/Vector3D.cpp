@@ -12,14 +12,10 @@ using namespace std;
 // Vector3D methods
 // default constructor
 Vector3D::Vector3D() : x(0.0), y(0.0), z(0.0)
-{
-    (*this).setNorm();
-}
+{}
 
 Vector3D::Vector3D(double _x, double _y, double _z) : x(_x), y(_y), z(_z)
-{
-    (*this).setNorm();
-}
+{}
 
 // copy constructor
 Vector3D::Vector3D(const Vector3D &_otherVec3)
@@ -28,7 +24,6 @@ Vector3D::Vector3D(const Vector3D &_otherVec3)
     (*this).setX(_otherVec3.getX());
     (*this).setY(_otherVec3.getY());
     (*this).setZ(_otherVec3.getZ());
-    (*this).setNorm();
 }
 
 void Vector3D::printInfo()
@@ -57,7 +52,6 @@ void Vector3D::addVector(Vector3D _vec)
     (*this).setX((*this).getX() + _vec.getX());
     (*this).setY((*this).getY() + _vec.getY());
     (*this).setZ((*this).getZ() + _vec.getZ());
-    (*this).setNorm();
 
     return;
 }
@@ -68,7 +62,6 @@ void Vector3D::subtractVector(Vector3D _vec)
     (*this).setX((*this).getX() - _vec.getX());
     (*this).setY((*this).getY() - _vec.getY());
     (*this).setZ((*this).getZ() - _vec.getZ());
-    (*this).setNorm();
     
     return;
 }
@@ -90,7 +83,6 @@ void Vector3D::crossProduct(Vector3D _vec)
     (*this).setX(tempVec.getX());
     (*this).setY(tempVec.getY());
     (*this).setZ(tempVec.getZ());
-
-    (*this).setNorm();
+    
     return;
 }

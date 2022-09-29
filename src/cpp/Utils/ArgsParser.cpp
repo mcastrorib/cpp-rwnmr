@@ -13,10 +13,10 @@ ArgsParser::ArgsParser(int argc, char **argv)
     vector<string> paths();
 
     // initialize essentials
-    this->commands.push_back("rwnmr");
-    this->paths.push_back("default");
-    this->commands.push_back("uct");
-    this->paths.push_back("default");
+    (*this).addCommand("rwnmr");
+    (*this).addPath("default");
+    (*this).addCommand("uct");
+    (*this).addPath("default");
 
     // read args
     if(argc > 1)
@@ -32,7 +32,7 @@ ArgsParser::ArgsParser(int argc, char **argv)
                 if((arg_idx + 1) < argc)
                 {
                     string newPath = argv[arg_idx+1];
-                    this->paths[0] = newPath;
+                    (*this).setPath(newPath, 0);
                 }                
             }
             else if(argument == "-uctconfig")
@@ -40,12 +40,12 @@ ArgsParser::ArgsParser(int argc, char **argv)
                 if((arg_idx + 1) < argc)
                 {
                     string newPath = argv[arg_idx+1];
-                    this->paths[1] = newPath;
+                    (*this).setPath(newPath, 1);
                 }                
             }
             else if(argument == "cpmg")
             {
-                this->commands.push_back("cpmg");
+                (*this).addCommand("cpmg");
 
                 if((arg_idx + 1) < argc)
                 {
@@ -53,19 +53,19 @@ ArgsParser::ArgsParser(int argc, char **argv)
                     if(addFlag == "-config" and (arg_idx + 2) < argc)
                     {
                         string newPath = argv[arg_idx + 2];
-                        this->paths.push_back(newPath);
+                        (*this).addPath(newPath);
                     } else
                     {
-                        this->paths.push_back("default");
+                        (*this).addPath("default");
                     }
                 } else
                 {
-                    this->paths.push_back("default");
+                    (*this).addPath("default");
                 }                
             }
             else if(argument == "pfgse")
             {
-                this->commands.push_back("pfgse");
+                (*this).addCommand("pfgse");
 
                 if((arg_idx + 1) < argc)
                 {
@@ -73,19 +73,19 @@ ArgsParser::ArgsParser(int argc, char **argv)
                     if(addFlag == "-config" and (arg_idx + 2) < argc)
                     {
                         string new_path = argv[arg_idx + 2];
-                        this->paths.push_back(new_path);
+                        (*this).addPath(new_path);
                     } else
                     {
-                        this->paths.push_back("default");
+                        (*this).addPath("default");
                     }  
                 } else
                 {
-                    this->paths.push_back("default");
+                    (*this).addPath("default");
                 }  
             }
             else if(argument == "ga")
             {
-                this->commands.push_back("ga");
+                (*this).addCommand("ga");
 
                 if((arg_idx + 1) < argc)
                 {
@@ -93,20 +93,20 @@ ArgsParser::ArgsParser(int argc, char **argv)
                     if(addFlag == "-config" and (arg_idx + 2) < argc)
                     {
                         string newPath = argv[arg_idx + 2];
-                        this->paths.push_back(newPath);
+                        (*this).addPath(newPath);
                     } else
                     {
-                        this->paths.push_back("default");
+                        (*this).addPath("default");
                     }
                 } else
                 {
-                    this->paths.push_back("default");
+                    (*this).addPath("default");
                 }  
             }
             else if(argument == "multitau")
             {
-                this->commands.push_back("multitau");
-                this->commands.push_back("mtoff");
+                (*this).addCommand("multitau");
+                (*this).addCommand("mtoff");
 
                 if((arg_idx + 1) < argc)
                 {
@@ -116,32 +116,32 @@ ArgsParser::ArgsParser(int argc, char **argv)
 
                         string multitauPath = argv[arg_idx + 2];
                         string cpmgPath = argv[arg_idx + 3];
-                        this->paths.push_back(multitauPath);
-                        this->paths.push_back(cpmgPath);
+                        (*this).addPath(multitauPath);
+                        (*this).addPath(cpmgPath);
 
                     } else if(addFlag == "-mtconfig" and (arg_idx + 2) < argc)
                     {
                         string multitauPath = argv[arg_idx + 2];
                         string cpmgPath = "default";
-                        this->paths.push_back(multitauPath);
-                        this->paths.push_back(cpmgPath);
+                        (*this).addPath(multitauPath);
+                        (*this).addPath(cpmgPath);
 
                     }else if(addFlag == "-cpmgconfig" and (arg_idx + 2) < argc)
                     {
                         string multitauPath = "default";
                         string cpmgPath = argv[arg_idx + 2];
-                        this->paths.push_back(multitauPath);
-                        this->paths.push_back(cpmgPath);
+                        (*this).addPath(multitauPath);
+                        (*this).addPath(cpmgPath);
                         
                     } else
                     {
-                        this->paths.push_back("default");
-                        this->paths.push_back("default");
+                        (*this).addPath("default");
+                        (*this).addPath("default");
                     }
                 } else
                 {
-                    this->paths.push_back("default");
-                    this->paths.push_back("default");
+                    (*this).addPath("default");
+                    (*this).addPath("default");
                 }  
             }
 

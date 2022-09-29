@@ -146,7 +146,6 @@ void pfgse_config::readMaxGradient(string s)
         this->MAX_GRADIENT.setX(buffer[0]);
         this->MAX_GRADIENT.setY(buffer[1]);
         this->MAX_GRADIENT.setZ(buffer[2]);
-        this->MAX_GRADIENT.setNorm();
     }
 }
 

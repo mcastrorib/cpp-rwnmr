@@ -5,56 +5,49 @@
 #include "Model.h"
 #include "Walker.h"
 
-using namespace std;
-
 class NMR_PFGSE
 {
-public:
+private:
 	Model &model;
 	pfgse_config PFGSE_config;
 	string name;
 	string dir;
 	vector<double> gradient;
-	double gradient_max;
+	double gradientMax;
 	double noiseAmp;	
 	double targetSNR;
 	vector<double> rawNoise;
-
-
-	double gradient_X;
-	double gradient_Y;
-	double gradient_Z;
+	double gradientX;
+	double gradientY;
+	double gradientZ;
 	vector<Vector3D> vecGradient;
 	vector<Vector3D> vecK;
-	vector<double> RHS;
-	
+	vector<double> rhs;	
 	int gradientPoints;
 	vector<double> exposureTimes;
 	double exposureTime;
 	double pulseWidth;
 	bool applyBulkRelaxation;
-
-	vector<double> Mkt;
-	vector<double> Mkt_stdev;
-	vector<double> LHS;
-	vector<double> LHS_stdev;
-	
+	vector<double> mkt;
+	vector<double> mktStdev;
+	vector<double> lhs;
+	vector<double> lhsStdev;	
 	int DsatAdjustSamples;
-	double D_sat;
-	double D_sat_error;
-	double D_sat_stdev;
-	double D_msd;
-	double D_msd_stdev;
+	double Dsat;
+	double DsatError;
+	double DsatStdev;
+	double Dmsd;
+	double DmsdStdev;
 	double msd;
-	double msd_stdev;
+	double msdStdev;
 	Vector3D vecMsd;
-	Vector3D vecMsd_stdev;	
+	Vector3D vecMsdStdev;	
 	Vector3D vecDmsd;
-	Vector3D vecDmsd_stdev;
-
+	Vector3D vecDmsdStdev;
 	uint stepsTaken;
 	int currentTime;	
 
+public:
 	NMR_PFGSE(Model &_model, 
 			  pfgse_config _pfgseConfig,
 			  int _mpi_rank = 0, 
@@ -62,26 +55,165 @@ public:
 	
 	virtual ~NMR_PFGSE(){};
 
-	void setNMRTimeFramework();
+	// Get methods
+	Model &getModel(){ return this->model; }
+	pfgse_config getPFGSEConfig(){ return this->PFGSE_config;}
+	string getName(){ return this->name; }
+	string getDir(){ return this->dir; }
+	vector<double> getGradient(){ return this->gradient; }
+	double getGradientMax(){ return this->gradientMax; }
+	double getNoiseAmp(){ return this->noiseAmp; }
+	double getTargetSNR(){ return this->targetSNR; }
+	vector<double> getRawNoise(){ return this->rawNoise; }
+	double getGradientX(){ return this->gradientX; }
+	double getGradientY(){ return this->gradientY; }
+	double getGradientZ(){ return this->gradientZ; }	
+	vector<Vector3D> getVecGradient(){ return this->vecGradient; }
+	vector<Vector3D> getVecK(){ return this->vecK; }
+	vector<double> getRhs() {return this->rhs; }
+	double getRhs(uint idx){ return this->rhs[idx];}
+	int getGradientPoints() { return this->gradientPoints; }
+	vector<double> getExposureTimes() {return this->exposureTimes; }
+	double getExposureTime(uint _idx) {return this->exposureTimes[_idx]; }
+	double getExposureTime() {return this->exposureTime; }
+	double getPulseWidth() {return this->pulseWidth; }
+	bool getApplyBulkRelaxation() { return this->applyBulkRelaxation; }
+	vector<double> getMkt() {return this->mkt; }
+	double getMkt(uint idx) {return this->mkt[idx]; }
+	vector<double> getMktStdev() {return this->mktStdev; }
+	double getMktStdev(uint idx) {return this->mktStdev[idx]; }
+	vector<double> getLhs() {return this->lhs; }
+	double getLhs(uint idx) {return this->lhs[idx]; }
+	vector<double> getLhsStdev() {return this->lhsStdev; }
+	double getLhsStdev(uint idx) {return this->lhsStdev[idx]; }
+	int getDsatAdjustSamples() { return this->DsatAdjustSamples; }
+	double getDsat() { return this->Dsat; }
+	double getDsatError() { return this->DsatError; }
+	double getDsatStdev() { return this->DsatStdev; }
+	double getDmsd() { return this->Dmsd; }
+	double getDmsdStdev() { return this->DmsdStdev; }
+	double getMsd() { return this->msd; }
+	double getMsdStdev() { return this->msdStdev; }
+	Vector3D getVecMsd() { return this->vecMsd; }
+	Vector3D getVecMsdStdev() { return this->vecMsdStdev; }
+	Vector3D getVecDmsd() { return this->vecDmsd; }
+	Vector3D getVecDmsdStdev() { return this->vecDmsdStdev; }
+	int getCurrentTime() { return this->currentTime; }
+
+	// Set methods
+	void setModel(Model &_model){ this->model = _model; }
+	void setPFGSE_config(pfgse_config _config){ this->PFGSE_config = _config;}
+	void setName(string _name){ this->name = _name; }
+	void setDir(string _dir){ this->dir = _dir; }
+	void setGradient(vector<double> _vec){ this->gradient = _vec; }
+	void setGradient(double _val, uint idx){ this->gradient[idx] = _val; }
+	void addGradient(double _val){ this->gradient.push_back(_val); }
+	void clearGradient(){ this->gradient.clear(); }
+	void setGradientMax(double _val){ this->gradientMax = _val; }
+	void setNoiseAmp(double _val){ this->noiseAmp = _val; }
+	void setTargetSNR(double _val){ this->targetSNR = _val; }
+	void setRawNoise(vector<double> _vec){ this->rawNoise = _vec; }
+	void setRawNoise(double _val, uint idx){ this->rawNoise[idx] = _val; }
+	void addRawNoise(double _val){ this->rawNoise.push_back(_val); }
+	void clearRawNoise(){ this->rawNoise.clear(); }
+	void setGradientX(double _v){ this->gradientX = _v; }
+	void setGradientY(double _v){ this->gradientY = _v; }
+	void setGradientZ(double _v){ this->gradientZ = _v; }
+	void setVecGradient(vector<Vector3D> _vec){ this->vecGradient = _vec; }
+	void setVecGradient(Vector3D _vec, uint idx){ this->vecGradient[idx] = _vec; }
+	void addVecGradient(Vector3D _vec){ this->vecGradient.push_back(_vec); }
+	void clearVecGradient(){ this->vecGradient.clear(); }
+	void setVecK(vector<Vector3D> _vec){ this->vecK = _vec; }
+	void setVecK(Vector3D _vec, uint idx){ this->vecK[idx] = _vec; }
+	void addVecK(Vector3D _vec){ this->vecK.push_back(_vec); }
+	void clearVecK(){ this->vecK.clear(); }
+	void setRhs(vector<double> _vec){ this->rhs = _vec; }
+	void setRhs(double _val, uint idx){ this->rhs[idx] = _val; }
+	void addRhs(double _val){ this->rhs.push_back(_val); }
+	void clearRhs(){ this->rhs.clear(); }
+	void setGradientPoints(int _p){ this->gradientPoints = _p; }
+	void setExposureTimes(vector<double> _vec){ this->exposureTimes = _vec; }
+	void setExposureTime(double _val, uint idx){ this->exposureTimes[idx] = _val; }
+	void addExposureTime(double _val){ this->exposureTimes.push_back(_val); }
+	void clearExposureTimes(){ this->exposureTimes.clear(); }
+	void setExposureTime(double _value){ this->exposureTime = _value; }
+	void setPulseWidth(double _value){ this->pulseWidth = _value; }
+	void setApplyBulkRelaxation(bool _bulk) { this->applyBulkRelaxation = _bulk; }
+	void setMkt(vector<double> _vec){ this->mkt = _vec; }
+	void setMkt(double _val, uint idx){ this->mkt[idx] = _val; }
+	void addMkt(double _val){ this->mkt.push_back(_val); }
+	void clearMkt(){ this->mkt.clear(); }
+	void setMktStdev(vector<double> _vec){ this->mktStdev = _vec; }
+	void setMktStdev(double _val, uint idx){ this->mktStdev[idx] = _val; }
+	void addMktStdev(double _val){ this->mktStdev.push_back(_val); }
+	void clearMktStdev(){ this->mktStdev.clear(); }
+	void setLhs(vector<double> _vec){ this->lhs = _vec; }
+	void setLhs(double _val, uint idx){ this->lhs[idx] = _val; }
+	void addLhs(double _val){ this->lhs.push_back(_val); }
+	void clearLhs(){ this->lhs.clear(); }
+	void setLhsStdev(vector<double> _vec){ this->lhsStdev = _vec; }
+	void setLhsStdev(double _val, uint idx){ this->lhsStdev[idx] = _val; }
+	void addLhsStdev(double _val){ this->lhsStdev.push_back(_val); }
+	void clearLhsStdev(){ this->lhsStdev.clear(); }
+	void setDsatAdjustSamples(int _v){ this->DsatAdjustSamples = _v; }
+	void setDsat(double _value) { this->Dsat = _value; }
+	void setDsatError(double _value) { this->DsatError = _value; }
+	void setDsatStdev(double _value) { this->DsatStdev = _value; }
+	void setDmsd(double _value) { this->Dmsd = _value; }
+	void setDmsdStdev(double _value) { this->DmsdStdev = _value; }	
+	void setMsd(double _value) { this->msd = _value; }
+	void setMsdStdev(double _value) { this->msdStdev = _value; }
+	void setVecMsd(Vector3D _vec){ this->vecMsd = _vec; }	
+	void setVecMsd(double msdX, double msdY, double msdZ) 
+	{
+		this->vecMsd.setX(msdX);
+		this->vecMsd.setY(msdY);
+		this->vecMsd.setZ(msdZ);
+	}
+	void setVecMsdStdev(Vector3D _vec){ this->vecMsdStdev = _vec; }
+	void setVecMsdStdev(double msdX_stdev, double msdY_stdev, double msdZ_stdev) 
+	{
+		this->vecMsdStdev.setX(msdX_stdev);
+		this->vecMsdStdev.setY(msdY_stdev);
+		this->vecMsdStdev.setZ(msdZ_stdev);
+	}
+	void setVecDmsd(Vector3D _vec){ this->vecDmsd = _vec; }
+	void setVecDmsd(double DmsdX, double DmsdY, double DmsdZ) 
+	{
+		this->vecDmsd.setX(DmsdX);
+		this->vecDmsd.setY(DmsdY);
+		this->vecDmsd.setZ(DmsdZ);
+	}
+	void setVecDmsdStdev(Vector3D _vec){ this->vecDmsdStdev = _vec; }
+	void setVecDmsdStdev(double DmsdX_stdev, double DmsdY_stdev, double DmsdZ_stdev) 
+	{
+		this->vecDmsdStdev.setX(DmsdX_stdev);
+		this->vecDmsdStdev.setY(DmsdY_stdev);
+		this->vecDmsdStdev.setZ(DmsdZ_stdev);
+	}
+	void setStepsTaken(uint _v){ this->stepsTaken = _v; }
+	void setCurrentTime(int _v){ this->currentTime = _v; }
+
+	void buildModelTimeFramework();
 	void correctExposureTimes();
 	void runInitialMapSimulation();
-	void setGradientVector(double _GF, int _GPoints);
-	void setGradientVector();
+	void buildGradientVector(double _GF, int _GPoints);
+	void buildGradientVector();
 	void createNoiseVector();
 	vector<double> getNewNoiseVector(double _noiseAmp, uint _size = 0);
 	double computeTargetNoiseAmp();
 	double computeCurrentSNR();
-	void setVectorK();
-	void setVectorMkt();
-	void setVectorRHS();
-	void setThresholdFromLHS(double _value, uint _window=5);
-    void setThresholdFromLHSValue(double _value, uint _window=5);
-    void setThresholdFromLHSWindow(double _value, uint _window=5);
-    void setThresholdFromSamples(int _samples);
+	void buildVectorK();
+	void buildVectorMkt();
+	void buildVectorRHS();
+	void buildThresholdFromLHS(double _value, uint _window=5);
+    void buildThresholdFromLHSValue(double _value, uint _window=5);
+    void buildThresholdFromLHSWindow(double _value, uint _window=5);
+    void buildThresholdFromSamples(int _samples);
     void applyThreshold();
 	double computeRHS_legacy(double _Gvalue);
 	double computeRHS(double _kValue);
-	void setVectorLHS();
+	void buildVectorLHS();
 	double computeLHS(double _Mg, double _M0);
 	double computeWaveVectorK(double gradientMagnitude, double pulse_width, double giromagneticRatio);
 	double ** getSamplesMagnitude();
@@ -110,7 +242,7 @@ public:
 	void recoverDmsdWithSampling();	
 	void clear();
 	void resetModel();
-	void updateWalkersXIrate(uint _rwsteps);
+	void updateWalkersXiRate(uint _rwsteps);
 	void reset(double _newBigDelta);
 	void reset();
 	void presave();
@@ -127,73 +259,9 @@ public:
 	void createDirectoryForData();
 	void createResultsFile();
 
-	// Inline methods
-	void setExposureTime(double _value){ this->exposureTime = _value; }
-	void setPulseWidth(double _value){ this->pulseWidth = _value; }
-	void setApplyBulkRelaxation(bool _bulk) { this->applyBulkRelaxation = _bulk; }
-	void setD_sat(double _value) { this->D_sat = _value; }
-	void setD_sat_error(double _value) { this->D_sat_error = _value; }
-	void setD_sat_StdDev(double _value) { this->D_sat_stdev = _value; }
-	void setD_msd(double _value) { this->D_msd = _value; }
-	void setD_msd_StdDev(double _value) { this->D_msd_stdev = _value; }
-	void setNoiseAmp(double _amp) { this->noiseAmp = _amp; }
-	void setTargetSNR(double _snr) { this->targetSNR = _snr; }
 	
-	void setMsd(double _value) { this->msd = _value; }
-	void setMsdStdDev(double _value) { this->msd_stdev = _value; }	
-	void setVecMsd(double msdX, double msdY, double msdZ) 
-	{
-		this->vecMsd.setX(msdX);
-		this->vecMsd.setY(msdY);
-		this->vecMsd.setZ(msdZ);
-		this->vecMsd.setNorm();
-	}
-	void setVecDmsd(double DmsdX, double DmsdY, double DmsdZ) 
-	{
-		this->vecDmsd.setX(DmsdX);
-		this->vecDmsd.setY(DmsdY);
-		this->vecDmsd.setZ(DmsdZ);
-		this->vecDmsd.setNorm();
-	}
-	void setVecMsdStdDev(double msdX_stdev, double msdY_stdev, double msdZ_stdev) 
-	{
-		this->vecMsd_stdev.setX(msdX_stdev);
-		this->vecMsd_stdev.setY(msdY_stdev);
-		this->vecMsd_stdev.setZ(msdZ_stdev);
-		this->vecMsd_stdev.setNorm();
-	}
-	void setVecDmsdStdDev(double DmsdX_stdev, double DmsdY_stdev, double DmsdZ_stdev) 
-	{
-		this->vecDmsd_stdev.setX(DmsdX_stdev);
-		this->vecDmsd_stdev.setY(DmsdY_stdev);
-		this->vecDmsd_stdev.setZ(DmsdZ_stdev);
-		this->vecDmsd_stdev.setNorm();
-	}
-
 	void resetCurrentTime() { this->currentTime = 0; }
 	void incrementCurrentTime() { this->currentTime++; }
-
-	int getGradientPoints() { return this->gradientPoints; }
-	double getExposureTime() {return this->exposureTime; }
-	double getExposureTime(uint _idx) {return this->exposureTimes[_idx]; }
-	double getPulseWidth() {return this->pulseWidth; }
-	double getGiromagneticRatio() {return this->model.getGiromagneticRatio(); }
-	bool getApplyBulkRelaxation() { return this->applyBulkRelaxation; }
-	double getNoiseAmp() { return this->noiseAmp; }
-	double getTargetSNR() { return this->targetSNR; }
-	double getD_sat() { return this->D_sat; }
-	double getD_sat_error() { return this->D_sat_error; }
-	double getD_sat_stdev() { return this->D_sat_stdev; }
-	double getD_msd() { return this->D_msd; }
-	double getD_msd_stdev() { return this->D_msd_stdev; }
-	double getMsd() { return this->msd; }
-	double getMsd_stdev() { return this->msd_stdev; }
-	Vector3D getVecMsd() { return this->vecMsd; }
-	Vector3D getVecMsd_stdev() { return this->vecMsd_stdev; }
-	Vector3D getVecDmsd() { return this->vecDmsd; }
-	Vector3D getVecDmsd_stdev() { return this->vecDmsd_stdev; }
-	int getCurrentTime() { return this->currentTime; }
-	
 
 private:
 	static std::mt19937 _rng;

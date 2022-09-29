@@ -11,7 +11,7 @@ using namespace std;
 
 class ga_config
 {
-public:
+private:
     string config_filepath;
     // -- T2 REFERENCE CURVE
     string T2_PATH;
@@ -50,6 +50,7 @@ public:
     // --- GA SAVE. 
     bool SAVE_GA;  
 
+public:
     // default constructors
     ga_config(){};
     ga_config(const string configFile, const string croot);

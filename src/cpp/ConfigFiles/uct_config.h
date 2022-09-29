@@ -7,7 +7,7 @@ using namespace std;
 
 class uct_config
 {
-public:
+private:
     string config_filepath;
     string DIR_PATH;
     string FILENAME;
@@ -21,7 +21,7 @@ public:
     vector<string> IMG_FILES;
 
 
-
+public:
     // default constructors
     uct_config(){};
     uct_config(const string configFile, const string croot);

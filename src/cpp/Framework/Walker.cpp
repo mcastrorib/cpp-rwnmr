@@ -1,22 +1,22 @@
 #include "Walker.h"
 
 // default constructors
-Walker::Walker() : position_x(0),
-                   position_y(0),
-                   position_z(0),
-                   nextDirection(None),
+Walker::Walker() : nextDirection(None),
                    surfaceRelaxivity(WALKER_DEFAULT_RHO),
                    energy(WALKER_INITIAL_ENERGY),
                    decreaseFactor(1.0),
                    collisions(0),
                    tCollisions(0),
-                   xi_rate(0.0),
+                   xiRate(0.0),
                    initialSeed(0),
                    currentSeed(0)
 {
-    initialPosition.setX(position_x);
-    initialPosition.setY(position_y);
-    initialPosition.setZ(position_z);
+    this->initialPosition.setX(0);
+    this->initialPosition.setY(0);
+    this->initialPosition.setZ(0);
+    this->currentPosition.setX(0);
+    this->currentPosition.setY(0);
+    this->currentPosition.setZ(0);
 
     // Define methods 'map' and 'walk' according to problem's dimension
     associateMap(true);
@@ -24,22 +24,22 @@ Walker::Walker() : position_x(0),
 }
 
 // default constructor with dimensions defined
-Walker::Walker(bool _3rdDim) : position_x(0),
-                               position_y(0),
-                               position_z(0),
-                               nextDirection(None),
+Walker::Walker(bool _3rdDim) : nextDirection(None),
                                surfaceRelaxivity(WALKER_DEFAULT_RHO),
                                energy(WALKER_INITIAL_ENERGY),
                                decreaseFactor(1.0),
                                collisions(0),
                                tCollisions(0),
-                               xi_rate(0.0),
+                               xiRate(0.0),
                                initialSeed(0),
                                currentSeed(0)
 {
-    initialPosition.setX(position_x);
-    initialPosition.setY(position_y);
-    initialPosition.setZ(position_z);
+    this->initialPosition.setX(0);
+    this->initialPosition.setY(0);
+    this->initialPosition.setZ(0);
+    this->currentPosition.setX(0);
+    this->currentPosition.setY(0);
+    this->currentPosition.setZ(0);
 
     // Define methods 'map' and 'walk' according to walker dimensionality
     (*this).associateMap(_3rdDim);
@@ -47,10 +47,7 @@ Walker::Walker(bool _3rdDim) : position_x(0),
 }
 
 // default constructor with positions defined
-Walker::Walker(int _x, int _y, int _z, bool _3rdDim) : position_x(_x),
-                                                       position_y(_y),
-                                                       position_z(_z),
-                                                       nextDirection(None),
+Walker::Walker(int _x, int _y, int _z, bool _3rdDim) : nextDirection(None),
                                                        surfaceRelaxivity(WALKER_DEFAULT_RHO),
                                                        energy(WALKER_INITIAL_ENERGY),
                                                        decreaseFactor(1.0),
@@ -59,9 +56,12 @@ Walker::Walker(int _x, int _y, int _z, bool _3rdDim) : position_x(_x),
                                                        initialSeed(0),
                                                        currentSeed(0)
 {
-    initialPosition.setX(position_x);
-    initialPosition.setY(position_y);
-    initialPosition.setZ(position_z);
+    this->initialPosition.setX(_x);
+    this->initialPosition.setY(_y);
+    this->initialPosition.setZ(_z);
+    this->currentPosition.setX(_x);
+    this->currentPosition.setY(_y);
+    this->currentPosition.setZ(_z);
 
     // Define methods 'map' and 'walk' according to walker's dimensionality
     (*this).associateMap(_3rdDim);
@@ -72,9 +72,7 @@ Walker::Walker(int _x, int _y, int _z, bool _3rdDim) : position_x(_x),
 Walker::Walker(const Walker &_walker)
 {
     this->initialPosition = _walker.initialPosition;
-    this->position_x = _walker.position_x;
-    this->position_y = _walker.position_y;
-    this->position_z = _walker.position_z;
+    this->currentPosition = _walker.currentPosition;
     this->nextDirection = _walker.nextDirection;
 
     this->initialSeed = _walker.initialSeed;
@@ -85,7 +83,7 @@ Walker::Walker(const Walker &_walker)
     this->collisions = _walker.collisions;
     this->tCollisions = _walker.tCollisions;
     this->energy = _walker.energy;
-    this->xi_rate = _walker.xi_rate;
+    this->xiRate = _walker.xiRate;
 
     this->mapPointer = _walker.mapPointer;
     this->walkPointer = _walker.walkPointer;

@@ -45,7 +45,7 @@ void CollisionHistogram::createBlankHistogram(int _size, string _scale)
 	double gap = 1.0 / ((double) _size);
 	(*this).setGap(gap);
 
-	if(this->scale == "log")
+	if((*this).getScale() == "log")
 	{
 		// reserve additional spot for 0 collisions in log scale
 		(*this).setSize(_size + 1); 
@@ -60,7 +60,7 @@ void CollisionHistogram::createBlankHistogram(int _size, string _scale)
 
 void CollisionHistogram::fillHistogram(vector<Walker> &_walkers, uint _numberOfSteps)
 {
-	if(this->scale == "log")
+	if((*this).getScale() == "log")
 	{
 		(*this).createBinsLogVector(_walkers, _numberOfSteps);
 		(*this).createAmpsLogVector(_walkers, _numberOfSteps);
@@ -71,23 +71,23 @@ void CollisionHistogram::fillHistogram(vector<Walker> &_walkers, uint _numberOfS
 	}
 
 	// assign set flag
-	this->isSet = true;
+	(*this).setIsSet(true);
 }
 
 void CollisionHistogram::updateHistogram(vector<Walker> &_walkers, uint _numberOfSteps)
 {
-	if(this->isSet)
+	if((*this).getIsSet())
 	{
 		// clear previous amps 
-		if(this->amps.size() > 0) this->amps.clear();
+		if((*this).getAmps().size() > 0) (*this).clearAmps();
 		
 		// create new amps
-		if(this->scale == "log") 
+		if((*this).getScale() == "log") 
 		{
-			if(this->bins.size() > 0) 
+			if((*this).getBins().size() > 0) 
 			{
-				this->bins.clear();			
-				this->bins.reserve(this->size);
+				(*this).clearBins();			
+				(*this).reserveBins((*this).getSize());
 			}
 			(*this).createBinsLogVector(_walkers, _numberOfSteps);
 			(*this).createAmpsLogVector(_walkers, _numberOfSteps);
@@ -99,11 +99,11 @@ void CollisionHistogram::updateHistogram(vector<Walker> &_walkers, uint _numberO
 void CollisionHistogram::createBinsLinearVector(vector<Walker> &_walkers)
 {	
 	double offset;
-	double meanBin = (0.5) * this->gap;
-	for(int idx = 0; idx < this->size; idx++)
+	double meanBin = (0.5) * (*this).getGap();
+	for(int idx = 0; idx < (*this).getSize(); idx++)
 	{	
-		offset = idx * this->gap;
-		this->bins.push_back(offset + meanBin);
+		offset = idx * (*this).getGap();
+		(*this).addBin(offset + meanBin);
 	}
 }
 
@@ -112,7 +112,7 @@ void CollisionHistogram::createAmpsLinearVector(vector<Walker> &_walkers, uint _
 	// initialize amps vector entries	
 	for(int id = 0; id < this->size; id++)
 	{
-		this->amps.push_back(0.0);
+		(*this).addAmp(0.0);
 	}
 
 
@@ -122,17 +122,17 @@ void CollisionHistogram::createAmpsLinearVector(vector<Walker> &_walkers, uint _
 	double steps = (double) _numberOfSteps;
 	for(uint id = 0; id < _walkers.size(); id++)
 	{
-		xi_rate = _walkers[id].collisions / steps;
+		xi_rate = _walkers[id].getCollisions() / steps;
 		histogramIndex = floor(xi_rate / this->gap);
 		if(histogramIndex >= this->size) histogramIndex--;
-		this->amps[histogramIndex] += 1.0;
+		(*this).setAmp((*this).getAmp(histogramIndex) + 1.0, histogramIndex);
 	}
 
 	// normalize histogram, i.e, histogram values sum 1.0
 	double numberOfWalkers = (double) _walkers.size();
 	for(int id = 0; id < this->size; id++)
 	{
-		this->amps[id] = this->amps[id] / numberOfWalkers;
+		(*this).setAmp((*this).getAmp(id) / numberOfWalkers, id);
 	}	
 }
 
@@ -141,20 +141,20 @@ void CollisionHistogram::createBinsLogVector(vector<Walker> &_walkers, uint _num
 	// find min rate to generate bins accordingly
 	double steps = (double) _numberOfSteps;
 	uint first_idx = 0;
-	while(first_idx < _walkers.size() and _walkers[first_idx].collisions == 0)
+	while(first_idx < _walkers.size() and _walkers[first_idx].getCollisions() == 0)
 	{
 		first_idx++;	
 	}
 
 	if(first_idx < _walkers.size())
 	{
-		double min_rate = _walkers[first_idx].collisions / steps;
+		double min_rate = _walkers[first_idx].getCollisions() / steps;
 		double xi_rate;
 		for(uint id = first_idx; id < _walkers.size(); id++)
 		{
-			if(_walkers[id].collisions != 0)
+			if(_walkers[id].getCollisions() != 0)
 			{
-				xi_rate = _walkers[id].collisions / steps;
+				xi_rate = _walkers[id].getCollisions() / steps;
 				if(xi_rate < min_rate)
 				{
 					min_rate = xi_rate;
@@ -165,23 +165,23 @@ void CollisionHistogram::createBinsLogVector(vector<Walker> &_walkers, uint _num
 
 		// create vector of logspaced values 
 		double logmin_rate = log10(min_rate);
-		vector<double> logbins = (*this).logspace(round(logmin_rate), 0.0, this->size - 1);
+		vector<double> logbins = MathFunctions::logspace(round(logmin_rate), 0.0, (*this).getSize() - 1);
 
 		// first entry used for control no-collision cases
-		this->bins.push_back(round(logmin_rate) - 1.0);
+		(*this).addBin(round(logmin_rate) - 1.0);
 
 		// other entries based on logspaced vector
-		for(uint idx = 1; idx < this->size; idx++)
+		for(uint idx = 1; idx < (*this).getSize(); idx++)
 		{
-			this->bins.push_back(logbins[idx - 1]);
+			(*this).addBin(logbins[idx - 1]);
 		}
 
 	} else
 	{
 		// dealing with free diffusion (no collision at all)
-		for(uint idx = 0; idx < this->size; idx++)
+		for(uint idx = 0; idx < (*this).getSize(); idx++)
 		{
-			this->bins.push_back(0.0);
+			(*this).addBin(0.0);
 		}
 	}
 }
@@ -189,35 +189,36 @@ void CollisionHistogram::createBinsLogVector(vector<Walker> &_walkers, uint _num
 void CollisionHistogram::createAmpsLogVector(vector<Walker> &_walkers, uint _numberOfSteps)
 {	
 	// 1st: initialize entries
-	for(uint idx = 0; idx < this->size; idx++)
+	for(uint idx = 0; idx < (*this).getSize(); idx++)
 	{
-		this->amps.push_back(0.0);
+		(*this).addAmp(0.0);
 	}
 
 	
 	// compute histogram
 	int histogramIndex;
 	double xi_rate;
-	double logGap = log10(this->bins[2]) - log10(this->bins[1]);
-	double min_val = log10(this->bins[1]);
+	double logGap = log10((*this).getBin(2)) - log10((*this).getBin(1));
+	double min_val = log10((*this).getBin(1));
 	double steps = (double) _numberOfSteps;
 	uint leaks = 0;
 
 	for(uint id = 0; id < _walkers.size(); id++)
 	{
-		if(_walkers[id].collisions == 0)
+		if(_walkers[id].getCollisions() == 0)
 		{
-			this->amps[0] += 1.0;
+			(*this).setAmp((*this).getAmp(0) + 1.0, 0);
 		} else
 		{
-			xi_rate = (_walkers[id].collisions / steps);
+			xi_rate = (_walkers[id].getCollisions() / steps);
 			histogramIndex = floor( round( (log10(xi_rate) - min_val) / logGap ) );
 			histogramIndex += 1;
-			if(histogramIndex > 0 /* and histogramIndex < this->size */)
+			if(histogramIndex > 0)
 			{
-				this->amps[histogramIndex] += 1.0;				
+				(*this).setAmp((*this).getAmp(histogramIndex) + 1.0, histogramIndex);
 			} else
 			{
+				(*this).setAmp((*this).getAmp(1) + 1.0, 1);
 				this->amps[1] += 1.0;		
 			}
 		}
@@ -225,38 +226,8 @@ void CollisionHistogram::createAmpsLogVector(vector<Walker> &_walkers, uint _num
 
 	// normalize histogram, i.e, histogram values sum 1.0
 	double numberOfWalkers = (double) _walkers.size();
-	for(int id = 0; id < this->size; id++)
+	for(int id = 0; id < (*this).getSize(); id++)
 	{
-		this->amps[id] = this->amps[id] / numberOfWalkers;
+		(*this).setAmp((*this).getAmp(id) / numberOfWalkers, id);
 	}
-}
-
-// Returns a vector<double> linearly space from @start to @end with @points
-vector<double> CollisionHistogram::linspace(double start, double end, uint points)
-{
-    vector<double> vec(points);
-    double step = (end - start) / ((double) points - 1.0);
-    
-    for(int idx = 0; idx < points; idx++)
-    {
-        double x_i = start + step * idx;
-        vec[idx] = x_i;
-    }
-
-    return vec;
-}
-
-// Returns a vector<double> logarithmly space from 10^@exp_start to 10^@end with @points
-vector<double> CollisionHistogram::logspace(double exp_start, double exp_end, uint points, double base)
-{
-    vector<double> vec(points);
-    double step = (exp_end - exp_start) / ((double) points - 1.0);
-    
-    for(int idx = 0; idx < points; idx++)
-    {
-        double x_i = exp_start + step * idx;
-        vec[idx] = pow(base, x_i);
-    }
-
-    return vec;
 }

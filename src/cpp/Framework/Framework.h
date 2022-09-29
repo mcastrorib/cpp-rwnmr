@@ -5,7 +5,6 @@
 #include "Walker.h" 
 #include "BitBlock.h"
 #include "CollisionHistogram.h"
-#include "ChordLengthHistogram.h"
 #include "InternalField.h"
 #include "Model.h" 
 #include "NMR_cpmg.h"

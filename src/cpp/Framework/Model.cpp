@@ -188,9 +188,9 @@ void Model::applyVoxelDivision(uint _shifts)
                 idx = pack * packSize + i;
 
                 // randomly place walker in voxel sites
-                shiftX = ((int) this->walkers[idx].initialPosition.getX() * shiftFactor) + dist(Model::_rng);
-                shiftY = ((int) this->walkers[idx].initialPosition.getY() * shiftFactor) + dist(Model::_rng);
-                shiftZ = ((int) this->walkers[idx].initialPosition.getZ() * shiftFactor) + dist(Model::_rng);
+                shiftX = ((int) this->walkers[idx].getInitialPositionX() * shiftFactor) + dist(Model::_rng);
+                shiftY = ((int) this->walkers[idx].getInitialPositionY() * shiftFactor) + dist(Model::_rng);
+                shiftZ = ((int) this->walkers[idx].getInitialPositionZ() * shiftFactor) + dist(Model::_rng);
                 this->walkers[idx].placeWalker(shiftX, shiftY, shiftZ);
 
                 // update collision penalty
@@ -207,9 +207,9 @@ void Model::applyVoxelDivision(uint _shifts)
             idx = (walkerPacks - 1) * packSize + i;
 
             // randomly place walker in voxel sites
-            shiftX = ((int) this->walkers[idx].initialPosition.getX() * shiftFactor) + dist(Model::_rng);
-            shiftY = ((int) this->walkers[idx].initialPosition.getY() * shiftFactor) + dist(Model::_rng);
-            shiftZ = ((int) this->walkers[idx].initialPosition.getZ() * shiftFactor) + dist(Model::_rng);
+            shiftX = ((int) this->walkers[idx].getInitialPositionX() * shiftFactor) + dist(Model::_rng);
+            shiftY = ((int) this->walkers[idx].getInitialPositionY() * shiftFactor) + dist(Model::_rng);
+            shiftZ = ((int) this->walkers[idx].getInitialPositionZ() * shiftFactor) + dist(Model::_rng);
             this->walkers[idx].placeWalker(shiftX, shiftY, shiftZ);
 
             // update collision penalty
@@ -257,10 +257,10 @@ void Model::setTimeFramework(double _time)
 
 void Model::readImage()
 {
-    if(this->uCT_config.IMG_FILES.size() == this->uCT_config.SLICES)
+    if(this->uCT_config.getImgFiles().size() == this->uCT_config.getSlices())
     {
-        this->numberOfImages = this->uCT_config.SLICES;
-        this->depth = this->uCT_config.SLICES;
+        this->numberOfImages = this->uCT_config.getSlices();
+        this->depth = this->uCT_config.getSlices();
         (*this).assemblyImagePath();
         (*this).loadRockImageFromList();
     }
@@ -445,16 +445,16 @@ void Model::loadRockImage()
     this->binaryMap.reserve(numberOfImages);
 
     // constant strings
-    string currentDirectory = this->imagePath.path;
-    string currentFileName = this->imagePath.filename;
-    string currentExtension = this->imagePath.extension;
+    string currentDirectory = this->imagePath.getPath();
+    string currentFileName = this->imagePath.getFilename();
+    string currentExtension = this->imagePath.getExtension();
 
     // variable strings
     string currentFileID;
     string currentImagePath;
 
-    uint firstImage = this->imagePath.fileID;
-    uint digits = this->imagePath.digits;
+    uint firstImage = this->imagePath.getFileID();
+    uint digits = this->imagePath.getDigits();
 
     // create progress bar object
     ProgressBar pBar((double) (this->numberOfImages));
@@ -578,9 +578,9 @@ void Model::createBitBlockMap()
     this->bitBlock.createBlockMap(this->binaryMap);
 
     // update image info
-    this->width = this->bitBlock.imageColumns;
-    this->height = this->bitBlock.imageRows;
-    this->depth = this->bitBlock.imageDepth;
+    this->width = this->bitBlock.getImageColumns();
+    this->height = this->bitBlock.getImageRows();
+    this->depth = this->bitBlock.getImageDepth();
     this->binaryMap.clear();
 
     time = omp_get_wtime() - time;
@@ -634,19 +634,19 @@ void Model::countPoresInBitBlock()
 
     // consider 2 or 3 dimensions
     bool dim3 = false; 
-    if(this->bitBlock.imageDepth > 1) 
+    if(this->bitBlock.getImageDepth() > 1) 
         dim3 = true;
 
     // Create progress bar object
-    ProgressBar pBar((double) (this->bitBlock.imageDepth));
+    ProgressBar pBar((double) (this->bitBlock.getImageDepth()));
 
     // first, count all pores in image
     this->numberOfPores = 0;
-    for(uint z = 0; z < this->bitBlock.imageDepth; z++)
+    for(uint z = 0; z < this->bitBlock.getImageDepth(); z++)
     {
-        for(uint y = 0; y < this->bitBlock.imageRows; y++)
+        for(uint y = 0; y < this->bitBlock.getImageRows(); y++)
         {
-            for(uint x = 0; x < this->bitBlock.imageColumns; x++)
+            for(uint x = 0; x < this->bitBlock.getImageColumns(); x++)
             {
                 int block, bit;
                 if(dim3 == true)
@@ -687,7 +687,7 @@ void Model::countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2)
 
     // consider 2 or 3 dimensions
     bool dim3 = false; 
-    if(this->bitBlock.imageDepth > 1) 
+    if(this->bitBlock.getImageDepth() > 1) 
         dim3 = true;
 
     // set cube limits
@@ -725,9 +725,9 @@ void Model::countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2)
     if(x0 < 0) x0 = 0;
     if(y0 < 0) y0 = 0;
     if(z0 < 0) z0 = 0;
-    if(xf > this->bitBlock.imageColumns) xf = this->bitBlock.imageColumns;
-    if(yf > this->bitBlock.imageRows) yf = this->bitBlock.imageRows;
-    if(zf > this->bitBlock.imageDepth) zf = this->bitBlock.imageDepth;
+    if(xf > this->bitBlock.getImageColumns()) xf = this->bitBlock.getImageColumns();
+    if(yf > this->bitBlock.getImageRows()) yf = this->bitBlock.getImageRows();
+    if(zf > this->bitBlock.getImageDepth()) zf = this->bitBlock.getImageDepth();
 
     // Create progress bar object
     ProgressBar pBar((double) (zf - z0));  
@@ -777,28 +777,28 @@ void Model::countInterfacePoreMatrix()
 
     // consider 2 or 3 dimensions
     bool dim3 = false; 
-    if(this->bitBlock.imageDepth > 1) 
+    if(this->bitBlock.getImageDepth() > 1) 
         dim3 = true;
 
     // Create progress bar object
-    ProgressBar pBar((double) (this->bitBlock.imageDepth));
+    ProgressBar pBar((double) (this->bitBlock.getImageDepth()));
 
     // first, count all pores in image
     this->interfacePoreMatrix = 0;
-    for(int z = 0; z < this->bitBlock.imageDepth; z++)
+    for(int z = 0; z < this->bitBlock.getImageDepth(); z++)
     {
         // neighbor Z location
-        int nextZ = (z + 1) % this->bitBlock.imageDepth;
+        int nextZ = (z + 1) % this->bitBlock.getImageDepth();
 
-        for(int y = 0; y < this->bitBlock.imageRows; y++)
+        for(int y = 0; y < this->bitBlock.getImageRows(); y++)
         {
             // neighbor Y location
-            int nextY = (y + 1) % this->bitBlock.imageRows;
+            int nextY = (y + 1) % this->bitBlock.getImageRows();
 
-            for(int x = 0; x < this->bitBlock.imageColumns; x++)
+            for(int x = 0; x < this->bitBlock.getImageColumns(); x++)
             {
                 // neighbor X location
-                int nextX = (x + 1) % this->bitBlock.imageColumns;
+                int nextX = (x + 1) % this->bitBlock.getImageColumns();
 
                 int currentBlock, currentBit;
                 int xBlock, xBit;
@@ -874,12 +874,12 @@ void Model::updateSVp()
 void Model::updatePorosity()
 {
     this->porosity = (double) this->numberOfPores / 
-                     (double) (this->bitBlock.imageColumns * this->bitBlock.imageRows * this->bitBlock.imageDepth);
+                     (double) (this->bitBlock.getImageColumns() * this->bitBlock.getImageRows() * this->bitBlock.getImageDepth());
 }
 
 void Model::updateNumberOfPores()
 {
-    this->numberOfPores = (uint) (this->porosity * (double) (this->bitBlock.imageColumns * this->bitBlock.imageRows * this->bitBlock.imageDepth));
+    this->numberOfPores = (uint) (this->porosity * (double) (this->bitBlock.getImageColumns() * this->bitBlock.getImageRows() * this->bitBlock.getImageDepth()));
 }
 
 void Model::createPoreList()
@@ -889,7 +889,7 @@ void Model::createPoreList()
 
     // consider 2 or 3 dimensions
     bool dim3 = false; 
-    if(this->bitBlock.imageDepth > 1) 
+    if(this->bitBlock.getImageDepth() > 1) 
         dim3 = true;
 
     // second, create pore list
@@ -898,13 +898,13 @@ void Model::createPoreList()
     this->pores.reserve(this->numberOfPores);
 
     // Create progress bar object
-    ProgressBar pBar((double) (this->bitBlock.imageDepth));   
+    ProgressBar pBar((double) (this->bitBlock.getImageDepth()));   
 
-    for(int z = 0; z < this->bitBlock.imageDepth; z++)
+    for(int z = 0; z < this->bitBlock.getImageDepth(); z++)
     {
-        for(int y = 0; y < this->bitBlock.imageRows; y++)
+        for(int y = 0; y < this->bitBlock.getImageRows(); y++)
         {
-            for(int x = 0; x < this->bitBlock.imageColumns; x++)
+            for(int x = 0; x < this->bitBlock.getImageColumns(); x++)
             {
                 int block, bit;
                 if(dim3 == true)
@@ -941,7 +941,7 @@ void Model::createPoreList(Point3D _vertex1, Point3D _vertex2)
 
     // consider 2 or 3 dimensions
     bool dim3 = false; 
-    if(this->bitBlock.imageDepth > 1) 
+    if(this->bitBlock.getImageDepth() > 1) 
         dim3 = true;
 
     // set cube limits
@@ -979,9 +979,9 @@ void Model::createPoreList(Point3D _vertex1, Point3D _vertex2)
     if(x0 < 0) x0 = 0;
     if(y0 < 0) y0 = 0;
     if(z0 < 0) z0 = 0;
-    if(xf > this->bitBlock.imageColumns) xf = this->bitBlock.imageColumns;
-    if(yf > this->bitBlock.imageRows) yf = this->bitBlock.imageRows;
-    if(zf > this->bitBlock.imageDepth) zf = this->bitBlock.imageDepth;
+    if(xf > this->bitBlock.getImageColumns()) xf = this->bitBlock.getImageColumns();
+    if(yf > this->bitBlock.getImageRows()) yf = this->bitBlock.getImageRows();
+    if(zf > this->bitBlock.getImageDepth()) zf = this->bitBlock.getImageDepth();
 
     // second, create pore list
     if(this->pores.size() > 0) this->pores.clear();
@@ -1098,7 +1098,7 @@ void Model::createWalkers()
 
     // define the dimensionality that walkers will be trated
     bool dim3 = false;
-    if (this->bitBlock.imageDepth > 1)
+    if (this->bitBlock.getImageDepth() > 1)
     {
         dim3 = true;
     }
@@ -1174,7 +1174,7 @@ void Model::placeWalkersByChance()
 
     // define the dimensionality that walkers will be trated
     bool dim3 = false;
-    if (this->bitBlock.imageDepth > 1)
+    if (this->bitBlock.getImageDepth() > 1)
     {
         dim3 = true;
     }    
@@ -1186,9 +1186,9 @@ void Model::placeWalkersByChance()
     Point3D point; 
     bool validPoint = false;   
 
-    std::uniform_int_distribution<std::mt19937::result_type> columnDist(0, this->bitBlock.imageColumns);
-    std::uniform_int_distribution<std::mt19937::result_type> rowDist(0, this->bitBlock.imageRows);
-    std::uniform_int_distribution<std::mt19937::result_type> depthDist(0, this->bitBlock.imageDepth);
+    std::uniform_int_distribution<std::mt19937::result_type> columnDist(0, this->bitBlock.getImageColumns());
+    std::uniform_int_distribution<std::mt19937::result_type> rowDist(0, this->bitBlock.getImageRows());
+    std::uniform_int_distribution<std::mt19937::result_type> depthDist(0, this->bitBlock.getImageDepth());
         
     while(walkersInserted < this->numberOfWalkers && errorCount < erroLimit)
     {
@@ -1302,9 +1302,9 @@ void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
     }
 
     // check image limits
-    if(_x > this->bitBlock.imageRows || 
-       _y > this->bitBlock.imageColumns || 
-       _z > this->bitBlock.imageDepth)
+    if(_x > this->bitBlock.getImageRows() || 
+       _y > this->bitBlock.getImageColumns() || 
+       _z > this->bitBlock.getImageDepth())
     {
         cout << endl;
         cout << "could not place walkers: point is outside image limits." << endl;
@@ -1313,7 +1313,7 @@ void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
 
     // set dimensionality that walkers will be trated
     bool dim3 = false;
-    if (this->bitBlock.imageDepth > 1)
+    if (this->bitBlock.getImageDepth() > 1)
     {
         dim3 = true;
     }
@@ -1424,19 +1424,19 @@ void Model::initHistogramList()
     for(int idx = 0; idx < numberOfHistograms; idx++)
     {
         CollisionHistogram newHistogram;
-        newHistogram.firstEcho = idx * echosPerHistogram;
-        newHistogram.lastEcho = newHistogram.firstEcho + echosPerHistogram;
+        newHistogram.setFirstEcho(idx * echosPerHistogram);
+        newHistogram.setLastEcho(newHistogram.getFirstEcho() + echosPerHistogram);
         this->histogramList.push_back(newHistogram);
     }
 
     // charge rebalance 
-    this->histogramList.back().lastEcho += echosInLastHistogram;
+    this->histogramList.back().setLastEcho(this->histogramList.back().getLastEcho() + echosInLastHistogram);
 }
 
 void Model::createHistogram()
 {
     this->histogram.createBlankHistogram(this->rwNMR_config.getHistogramSize(), this->rwNMR_config.getHistogramScale());
-    int steps = this->histogramList.back().lastEcho * this->stepsPerEcho;
+    int steps = this->histogramList.back().getLastEcho() * this->stepsPerEcho;
     this->histogram.fillHistogram(this->walkers, steps);       
 }
 
@@ -1456,7 +1456,7 @@ void Model::updateWalkersRelaxativity(vector<double> &sigmoid)
 {
     for (uint id = 0; id < this->walkers.size(); id++)
     {
-        this->walkers[id].updateXIrate(this->simulationSteps);
+        this->walkers[id].updateXiRate(this->simulationSteps);
         this->walkers[id].setSurfaceRelaxivity(sigmoid);
         this->walkers[id].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
     }
@@ -1466,7 +1466,7 @@ void Model::updateWalkersRelaxativity(double rho)
 {
     for (uint id = 0; id < this->walkers.size(); id++)
     {
-        this->walkers[id].updateXIrate(this->simulationSteps);
+        this->walkers[id].updateXiRate(this->simulationSteps);
         this->walkers[id].setSurfaceRelaxivity(rho);
         this->walkers[id].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
     }
@@ -1523,15 +1523,15 @@ void Model::assemblyImagePath()
 {
     // User Input
      ImagePath input;
-     input.images = this->uCT_config.getSlices();
-     input.path = this->uCT_config.getDirPath();
-     input.filename = this->uCT_config.getFilename();
-     input.fileID = this->uCT_config.getFirstIdx();
-     input.digits = this->uCT_config.getDigits();
-     input.extension = this->uCT_config.getExtension();
+     input.setImages(this->uCT_config.getSlices());
+     input.setPath(this->uCT_config.getDirPath());
+     input.setFilename(this->uCT_config.getFilename());
+     input.setFileID(this->uCT_config.getFirstIdx());
+     input.setDigits(this->uCT_config.getDigits());
+     input.setExtension(this->uCT_config.getExtension());
      input.updateCompletePath();
 
-     (*this).setImage(input, input.images);
+     (*this).setImage(input, input.getImages());
 }
 
 string Model::createDirectoryForResults(string _path)
@@ -1560,7 +1560,7 @@ void Model::saveInfo(string filedir)
     fileObject << ">>> NMR SIMULATION 3D PARAMETERS: " << this->simulationName << endl;
     fileObject << "------------------------------------------------------" << endl;
     fileObject << "Data path: " << this->DBPath + this->simulationName << endl;
-    fileObject << "Image path: " << this->imagePath.completePath << endl;
+    fileObject << "Image path: " << this->imagePath.getCompletePath() << endl;
     fileObject << "Image resolution (um/voxel): " << this->imageVoxelResolution << endl;
     fileObject << "Diffusion coefficient (um^2/ms): " << this->diffusionCoefficient << endl;
     fileObject << "Number of images: " << this->numberOfImages << endl;
@@ -1612,10 +1612,10 @@ void Model::saveImageInfo(string filedir)
     }
 
     // write info 
-    fileObject << "image path: " << this->imagePath.completePath << endl;
-    fileObject << "width(x): " << this->bitBlock.imageColumns << endl;
-    fileObject << "height(y): " << this->bitBlock.imageRows << endl;
-    fileObject << "depth(z): " << this->bitBlock.imageDepth << endl;
+    fileObject << "image path: " << this->imagePath.getCompletePath() << endl;
+    fileObject << "width(x): " << this->bitBlock.getImageColumns() << endl;
+    fileObject << "height(y): " << this->bitBlock.getImageRows() << endl;
+    fileObject << "depth(z): " << this->bitBlock.getImageDepth() << endl;
     fileObject << "resolution: " << this->imageResolution << endl;
     fileObject << "voxel shift: " << this->voxelDivision << endl;
     fileObject << "step length: " << this->imageVoxelResolution << endl;
@@ -1654,11 +1654,11 @@ void Model::saveWalkers(string filedir)
         file << setprecision(precision) << this->walkers[index].getInitialPositionX()
         << "," << this->walkers[index].getInitialPositionY()
         << "," << this->walkers[index].getInitialPositionZ()
-        << "," << this->walkers[index].getPositionX() 
-        << "," << this->walkers[index].getPositionY() 
-        << "," << this->walkers[index].getPositionZ() 
+        << "," << this->walkers[index].getCurrentPositionX() 
+        << "," << this->walkers[index].getCurrentPositionY() 
+        << "," << this->walkers[index].getCurrentPositionZ() 
         << "," << this->walkers[index].getCollisions() 
-        << "," << this->walkers[index].getXIrate() 
+        << "," << this->walkers[index].getXiRate() 
         << "," << this->walkers[index].getEnergy() 
         << "," << this->walkers[index].getInitialSeed() << endl;
     }
@@ -1678,12 +1678,12 @@ void Model::saveHistogram(string filePath)
     string filename = filePath + "/NMR_histogram.txt";
     ofstream in(filename, std::ios::out);
  
-    const size_t num_points = this->histogram.bins.size();
+    const size_t num_points = this->histogram.getBins().size();
     if (in)
     {
         for (int i = 0; i < num_points; i++)
         {
-            in << this->histogram.bins[i] << "\t" << this->histogram.amps[i] << endl;
+            in << this->histogram.getBin(i) << "\t" << this->histogram.getAmp(i) << endl;
         }
         return;
     }
@@ -1704,13 +1704,13 @@ void Model::saveHistogramList(string filePath)
             else in.open(filename, std::ios::app);
 
             in << "histogram [" << hst_ID << "]" << endl;
-            const size_t num_points = this->histogramList[hst_ID].bins.size();
+            const size_t num_points = this->histogramList[hst_ID].getBins().size();
             if (in)
             {
                 // in << x_label << "\t" << y_label << endl;
                 for (int i = 0; i < num_points; i++)
                 {
-                    in << this->histogramList[hst_ID].bins[i] << "\t" << this->histogramList[hst_ID].amps[i] << endl;
+                    in << this->histogramList[hst_ID].getBin(i) << "\t" << this->histogramList[hst_ID].getAmp(i) << endl;
                 }
                 in << endl;
                 return;
@@ -1734,7 +1734,7 @@ void Model::printDetails()
     cout << ">>> NMR SIMULATION 3D PARAMETERS: " << this->simulationName << endl;
     cout << "------------------------------------------------------" << endl;
     cout << "Data path: " << this->DBPath + this->simulationName << endl;
-    cout << "Image path: " << this->imagePath.completePath << endl;
+    cout << "Image path: " << this->imagePath.getCompletePath() << endl;
     cout << "Image resolution (um/voxel): " << this->imageVoxelResolution << endl;
     cout << "Diffusion coefficient (um^2/ms): " << this->diffusionCoefficient << endl;
     cout << "Number of images: " << this->numberOfImages << endl;
@@ -1789,8 +1789,8 @@ void Model::mapSimulation_OMP(bool reset)
     // loop throughout list
     for(int hst_ID = 0; hst_ID < this->histogramList.size(); hst_ID++)
     {
-        int eBegin = this->histogramList[hst_ID].firstEcho;
-        int eEnd = this->histogramList[hst_ID].lastEcho;
+        int eBegin = this->histogramList[hst_ID].getFirstEcho();
+        int eEnd = this->histogramList[hst_ID].getLastEcho();
         for (uint id = 0; id < this->numberOfWalkers; id++)
         {
             for(uint echo = eBegin; echo < eEnd; echo++)
@@ -1807,7 +1807,7 @@ void Model::mapSimulation_OMP(bool reset)
 
         for (uint id = 0; id < this->numberOfWalkers; id++)
         {
-            this->walkers[id].tCollisions += this->walkers[id].collisions;
+            this->walkers[id].setTCollisions(this->walkers[id].getTCollisions() + this->walkers[id].getCollisions());
             this->walkers[id].resetCollisions();
         }
     }
@@ -1815,7 +1815,7 @@ void Model::mapSimulation_OMP(bool reset)
     // recover walkers collisions from total sum and create a global histogram
     for (uint id = 0; id < this->numberOfWalkers; id++)
     {
-        this->walkers[id].collisions = this->walkers[id].tCollisions;   
+        this->walkers[id].setCollisions(this->walkers[id].getTCollisions());   
     }
     (*this).createHistogram();
 
