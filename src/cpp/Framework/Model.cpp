@@ -51,7 +51,7 @@ Model::Model(rwnmr_config _rwNMR_config,
     // assign attributes from uct config files
     (*this).setImageResolution(this->uCT_config.getResolution());
 
-    (*this).setVoxelDivision(0);
+    (*this).initVoxelDivision(0);
     (*this).initImageVoxelResolution();
     if(this->uCT_config.getVoxelDivision() > 0) this->voxelDivisionApplied = true; 
 
