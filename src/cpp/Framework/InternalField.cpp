@@ -97,16 +97,10 @@ void InternalField::fillDataArray(BitBlock &_bitblock, double _resolution, doubl
 					newValue = currentValue;
 								
 				currentIndex = (*this).getIndex(x, y, z);
-				(*this).fillData(currentIndex, newValue);
+				(*this).setData(newValue, currentIndex);
 			}
 		}
 	}
-}
-
-
-void InternalField::fillData(long _index, double _value)
-{
-	this->data[_index] = _value;
 }
 
 void InternalField::show()

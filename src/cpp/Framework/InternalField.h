@@ -28,6 +28,8 @@ public:
 	}
 
 	void setData(double *_data){ this->data = _data; };
+	void setData(double _v, long _idx){ this->data[_idx] = _v; }
+	void setData(double _v, uint _x, uint _y, uint _z){ this->data[getIndex(_x,_y,_z)] = _v; }
 	void setDimX(int _x){if(_x > 0)	this->dimX = _x;};
 	void setDimY(int _y){if(_y > 0)	this->dimY = _y;};
 	void setDimZ(int _z){if(_z > 0)	this->dimZ = _z;};
@@ -48,7 +50,6 @@ public:
 	
 	void allocDataArray();
 	void fillDataArray(BitBlock &_bitblock, double _resolution, double _gValue, int _gDirection);
-	void fillData(long _index, double _data);
 	void readDataFromFile(string _file);
 	void show();	
 };
