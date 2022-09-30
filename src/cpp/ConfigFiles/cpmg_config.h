@@ -63,13 +63,10 @@ public:
     void readTimeVerbose(string s);
     void readObservationTime(string s);
     void readMethod(string s);
-
     void readResidualField(string s);
     void readGradientValue(string s);
     void readGradientDirection(string s);
     void readPathToField(string s);
-
-
     void readMinT2(string s);
     void readMaxT2(string s);
     void readUseT2Logspace(string s);
@@ -78,9 +75,7 @@ public:
     void readMaxLambda(string s);
     void readNumLambdas(string s);
     void readPruneNum(string s);
-    void readNoiseAmp(string s);
-    
-
+    void readNoiseAmp(string s); 
     void readSaveMode(string s);
     void readSaveWalkers(string s);
     void readSaveDecay(string s);
@@ -88,7 +83,34 @@ public:
     void readSaveHistogramList(string s);   
     void readSaveT2(string s);   
 
-    // -- Get methods
+    // set methods
+    void setD0(double _v){ this->D0 = _v; }
+    void setApplyBulk(bool _v){ this->APPLY_BULK = _v; }
+    void setTimeVerbos(bool _v){ this->TIME_VERBOSE = _v; }
+    void setObservationTime(double _v){ this->OBS_TIME = _v; }
+    void setMethod(string _m){ this->METHOD = _m; }
+    void setResidualField(string _s){ this->RESIDUAL_FIELD = _s; }
+    void setGradientValue(double _v){ this->GRADIENT_VALUE = _v; }
+    void setGradientDirection(int _v){ this->GRADIENT_DIRECTION = _v; }
+    void setPathToField(string _s){ this->PATH_TO_FIELD = _s; }
+    void setMinT2(double _v){ this->MIN_T2 = _v; }
+    void setMaxT2(double _v){ this->MIN_T2 = _v; }
+    void setUseT2Logspace(bool _v){ this->USE_T2_LOGSPACE = _v; }
+    void setNumT2Bins(int _v){ this->NUM_T2_BINS = _v;}
+    void setMinLambda(double _v){ this->MIN_LAMBDA = _v;}
+    void setMaxLambda(double _v){ this->MAX_LAMBDA = _v;}
+    void setNumLambdas(int _v){ this->NUM_LAMBDAS = _v;}
+    void setPruneNum(int _v){ this->PRUNE_NUM = _v;}
+    void setNoiseAmp(double _v){ this->NOISE_AMP = _v;}
+    void setSaveMode(bool _v){ this->SAVE_MODE = _v;}
+    void setSaveDecay(bool _v){ this->SAVE_DECAY = _v;}
+    void setSaveT2(bool _v){ this->SAVE_T2 = _v;}
+    void setSaveWalkers(bool _v){ this->SAVE_WALKERS = _v;}
+    void setSaveHistogram(bool _v){ this->SAVE_HISTOGRAM = _v;}
+    void setSaveHistogramList(bool _v){ this->SAVE_HISTOGRAM_LIST = _v;} 
+    
+
+    // get methods
     string getConfigFilepath() {return this->config_filepath; }
     double getD0(){return this->D0; }
     bool getApplyBulk(){ return this->APPLY_BULK; }

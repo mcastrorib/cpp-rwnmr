@@ -26,7 +26,7 @@ void rwnmrApp::buildEssentials()
     else uct_config_path = UCT_CONFIG_DEFAULT;
 
     rwnmr_config rwNMR_Config((*this).getConfigRoot() + rwnmr_config_path, (*this).getConfigRoot());     
-    uct_config uCT_Config((*this).getConfigRoot() + uct_config_path, (*this).getConfigRoot()); 
+    uct_config uCT_Config(uct_config_path, (*this).getProjectRoot()); 
     // // -----
 
     // -- Create NMR_Simulation object
@@ -43,7 +43,7 @@ void rwnmrApp::buildEssentials()
     // Save image info
     cout << endl << "-- Saving uCT-image info" << endl;
     (*this).getModel().save();
-    cout << endl; (*this).getModel().info();
+    cout << endl; //(*this).getModel().info();
     // -----    
 }
 

@@ -85,6 +85,31 @@ public:
     void readSaveHistogram(string s);
     void readSaveHistogramList(string s);  
 
+    // -- Read methods
+    void setApplyBulk(bool s){this->APPLY_BULK = s;}
+    void setPulseWidth(double s){this->PULSE_WIDTH = s;}
+    void setMaxGradient(Vector3D s){this->MAX_GRADIENT = s;}
+    void setGradientSamples(uint s){this->GRADIENT_SAMPLES = s;}
+    void setTimeSequence(string s){this->TIME_SEQ = s;}
+    void setTimeSamples(uint s){this->TIME_SAMPLES = s;}
+    void setTimeValues(vector<double> s){this->TIME_VALUES = s;}
+    void setTimeMin(double s){this->TIME_MIN = s;}
+    void setTimeMax(double s){this->TIME_MAX = s;}
+    void setApplyScaleFactor(bool s){this->APPLY_SCALE_FACTOR = s;}
+    void setInspectionLength(double s){this->INSPECTION_LENGTH = s;}
+    void setNoiseAmp(double s){this->NOISE_AMP = s;}
+    void setTargetSNR(double s){this->TARGET_SNR = s;}
+    void setThresholdType(string s){this->THRESHOLD_TYPE = s;}
+    void setThresholdValue(double s){this->THRESHOLD_VALUE = s;}
+    void setThresholdWindow(uint s){this->THRESHOLD_WINDOW = s;}
+    void setAllowWalkerSampling(bool s){this->ALLOW_WALKER_SAMPLING = s;}
+    void setApplyAbsorption(bool s){this->APPLY_ABSORPTION = s;}
+    void setSaveMode(bool _v){ this->SAVE_MODE = _v;}
+    void setSavePFGSE(bool _v){ this->SAVE_PFGSE = _v;}
+    void setSaveWalkers(bool _v){ this->SAVE_WALKERS = _v;}
+    void setSaveHistogram(bool _v){ this->SAVE_HISTOGRAM = _v;}
+    void setSaveHistogramList(bool _v){ this->SAVE_HISTOGRAM_LIST = _v;} 
+
     // -- Get methods
     string getConfigFilepath() {return this->config_filepath; } 
     bool getApplyBulk(){ return this->APPLY_BULK; }

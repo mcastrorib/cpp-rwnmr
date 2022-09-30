@@ -48,6 +48,19 @@ public:
     void readSaveWalkers(string s);
     void readSaveHistogram(string s);
     void readSaveHistogramList(string s);   
+
+    // -- Set methods
+    void setTauMin(double s){ this->TAU_MIN = s; }
+    void setTauMax(double s){ this->TAU_MAX = s; }
+    void setTauPoints(int s){ this->TAU_POINTS = s;}
+    void setTauValues(vector<double> s){ this->TAU_VALUES = s;}
+    void setTauScale(string s){ this->TAU_SCALE = s; }
+    void setCompleteDecay(bool s){ this->COMPLETE_DECAY = s;}
+    void setSaveMode(bool _v){ this->SAVE_MODE = _v;}
+    void setSaveDecay(bool _v){ this->SAVE_DECAY = _v;}
+    void setSaveWalkers(bool _v){ this->SAVE_WALKERS = _v;}
+    void setSaveHistogram(bool _v){ this->SAVE_HISTOGRAM = _v;}
+    void setSaveHistogramList(bool _v){ this->SAVE_HISTOGRAM_LIST = _v;} 
     
     // -- Get methods
     double getTauMin(){ return this->TAU_MIN; }

@@ -2,13 +2,13 @@
 #define UCT_CONFIG_H_
 
 #include "configFiles_defs.h"
+#include "template_config.h"
 
 using namespace std;
 
-class uct_config
+class uct_config : private template_config
 {
 private:
-    string config_filepath;
     string DIR_PATH;
     string FILENAME;
     uint FIRST_IDX;
@@ -23,7 +23,8 @@ private:
 
 public:
     // default constructors
-    uct_config(){};
+    uct_config(){}
+    uct_config(const string croot) : template_config(croot){};
     uct_config(const string configFile, const string croot);
 
     //copy constructors
@@ -31,9 +32,7 @@ public:
 
     // default destructor
     virtual ~uct_config()
-    {
-        // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
-    } 
+    {} 
 
     void readConfigFile(const string configFile);
     
@@ -50,7 +49,19 @@ public:
     void readImgFiles();
 
     // -- Read methods
-    string getConfigFilepath() {return this->config_filepath; }
+    void setDirPath(string s){ this->DIR_PATH = s;}
+    void setFilename(string s){ this->FILENAME = s;}
+    void setFirstIdx(uint s){ this->FIRST_IDX = s; }
+    void setDigits(uint s){ this->DIGITS = s; }
+    void setExtension(string s){ this->EXTENSION = s; }
+    void setSlices(uint s){ this->SLICES = s; }
+    void setResolution(double s){ this->RESOLUTION = s; }
+    void setVoxelDivision(uint s){ this->VOXEL_DIVISION = s; }
+    void setImgFilesList(string s){ this->IMG_FILES_LIST = s; }
+    void setImgFiles(vector<string> s){ this->IMG_FILES = s; }
+
+
+    // -- Read methods
     string getDirPath(){ return this->DIR_PATH;}
     string getFilename(){ return this->FILENAME;}
     uint getFirstIdx(){ return this->FIRST_IDX;}
@@ -69,11 +80,7 @@ public:
         stringstream result;
         result << std::setfill('0') << std::setw(digits) << id;
         return result.str();
-    }
-
-    string configRoot;
-    void setConfigRoot(string _croot){ this->configRoot = _croot;}
-    string getConfigRoot(){return this->configRoot;}
+    }    
 };
 
 #endif
