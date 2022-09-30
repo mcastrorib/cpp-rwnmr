@@ -9,6 +9,7 @@ Model::Model(rwnmr_config _rwNMR_config,
                                                          simulationSteps(0),
                                                          numberOfEchoes(0),
                                                          numberOfImages(0),
+                                                         bitBlock(NULL),
                                                          width(0),
                                                          height(0),
                                                          depth(0),
@@ -221,7 +222,7 @@ void Model::readImage()
 
 void Model::initWalkers(void)
 {
-    if(this->bitBlock.getNumberOfBlocks() > 0) // only set walkers, if image was loaded
+    if(this->bitBlock->getNumberOfBlocks() > 0) // only set walkers, if image was loaded
     {
         if(this->rwNMR_config.getWalkersPlacement() == "point")
         { 
@@ -518,12 +519,14 @@ void Model::createBitBlockMap()
 {
     double time = omp_get_wtime();
     cout << "- creating (bit)block map:" << endl;
-    this->bitBlock.createBlockMap(this->binaryMap);
+    if(this->bitBlock == NULL)
+        this->bitBlock = new BitBlock();
+    this->bitBlock->createBlockMap(this->binaryMap);
 
     // update image info
-    this->width = this->bitBlock.getImageColumns();
-    this->height = this->bitBlock.getImageRows();
-    this->depth = this->bitBlock.getImageDepth();
+    this->width = this->bitBlock->getImageColumns();
+    this->height = this->bitBlock->getImageRows();
+    this->depth = this->bitBlock->getImageDepth();
     this->binaryMap.clear();
 
     time = omp_get_wtime() - time;
@@ -577,33 +580,33 @@ void Model::countPoresInBitBlock()
 
     // consider 2 or 3 dimensions
     bool dim3 = false; 
-    if(this->bitBlock.getImageDepth() > 1) 
+    if(this->bitBlock->getImageDepth() > 1) 
         dim3 = true;
 
     // Create progress bar object
-    ProgressBar pBar((double) (this->bitBlock.getImageDepth()));
+    ProgressBar pBar((double) (this->bitBlock->getImageDepth()));
 
     // first, count all pores in image
     this->numberOfPores = 0;
-    for(uint z = 0; z < this->bitBlock.getImageDepth(); z++)
+    for(uint z = 0; z < this->bitBlock->getImageDepth(); z++)
     {
-        for(uint y = 0; y < this->bitBlock.getImageRows(); y++)
+        for(uint y = 0; y < this->bitBlock->getImageRows(); y++)
         {
-            for(uint x = 0; x < this->bitBlock.getImageColumns(); x++)
+            for(uint x = 0; x < this->bitBlock->getImageColumns(); x++)
             {
                 int block, bit;
                 if(dim3 == true)
                 {
-                    block = this->bitBlock.findBlock(x, y, z);
-                    bit = this->bitBlock.findBitInBlock(x, y, z);
+                    block = this->bitBlock->findBlock(x, y, z);
+                    bit = this->bitBlock->findBitInBlock(x, y, z);
                 } else
                 {
-                    block = this->bitBlock.findBlock(x, y);
-                    bit = this->bitBlock.findBitInBlock(x, y);                    
+                    block = this->bitBlock->findBlock(x, y);
+                    bit = this->bitBlock->findBitInBlock(x, y);                    
                 }
 
                 // now check if bit is pore or wall
-                if (!this->bitBlock.checkIfBitIsWall(block, bit))
+                if (!this->bitBlock->checkIfBitIsWall(block, bit))
                 {
                     this->numberOfPores++;
                 }
@@ -630,7 +633,7 @@ void Model::countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2)
 
     // consider 2 or 3 dimensions
     bool dim3 = false; 
-    if(this->bitBlock.getImageDepth() > 1) 
+    if(this->bitBlock->getImageDepth() > 1) 
         dim3 = true;
 
     // set cube limits
@@ -668,9 +671,9 @@ void Model::countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2)
     if(x0 < 0) x0 = 0;
     if(y0 < 0) y0 = 0;
     if(z0 < 0) z0 = 0;
-    if(xf > this->bitBlock.getImageColumns()) xf = this->bitBlock.getImageColumns();
-    if(yf > this->bitBlock.getImageRows()) yf = this->bitBlock.getImageRows();
-    if(zf > this->bitBlock.getImageDepth()) zf = this->bitBlock.getImageDepth();
+    if(xf > this->bitBlock->getImageColumns()) xf = this->bitBlock->getImageColumns();
+    if(yf > this->bitBlock->getImageRows()) yf = this->bitBlock->getImageRows();
+    if(zf > this->bitBlock->getImageDepth()) zf = this->bitBlock->getImageDepth();
 
     // Create progress bar object
     ProgressBar pBar((double) (zf - z0));  
@@ -686,16 +689,16 @@ void Model::countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2)
                 int block, bit;
                 if(dim3 == true)
                 {
-                    block = this->bitBlock.findBlock(x, y, z);
-                    bit = this->bitBlock.findBitInBlock(x, y, z);
+                    block = this->bitBlock->findBlock(x, y, z);
+                    bit = this->bitBlock->findBitInBlock(x, y, z);
                 } else
                 {
-                    block = this->bitBlock.findBlock(x, y);
-                    bit = this->bitBlock.findBitInBlock(x, y);                    
+                    block = this->bitBlock->findBlock(x, y);
+                    bit = this->bitBlock->findBitInBlock(x, y);                    
                 }
 
                 // now check if bit is pore or wall
-                if (!this->bitBlock.checkIfBitIsWall(block, bit))
+                if (!this->bitBlock->checkIfBitIsWall(block, bit))
                 {
                     this->numberOfPores++;
                 }
@@ -720,28 +723,28 @@ void Model::countInterfacePoreMatrix()
 
     // consider 2 or 3 dimensions
     bool dim3 = false; 
-    if(this->bitBlock.getImageDepth() > 1) 
+    if(this->bitBlock->getImageDepth() > 1) 
         dim3 = true;
 
     // Create progress bar object
-    ProgressBar pBar((double) (this->bitBlock.getImageDepth()));
+    ProgressBar pBar((double) (this->bitBlock->getImageDepth()));
 
     // first, count all pores in image
     this->interfacePoreMatrix = 0;
-    for(int z = 0; z < this->bitBlock.getImageDepth(); z++)
+    for(int z = 0; z < this->bitBlock->getImageDepth(); z++)
     {
         // neighbor Z location
-        int nextZ = (z + 1) % this->bitBlock.getImageDepth();
+        int nextZ = (z + 1) % this->bitBlock->getImageDepth();
 
-        for(int y = 0; y < this->bitBlock.getImageRows(); y++)
+        for(int y = 0; y < this->bitBlock->getImageRows(); y++)
         {
             // neighbor Y location
-            int nextY = (y + 1) % this->bitBlock.getImageRows();
+            int nextY = (y + 1) % this->bitBlock->getImageRows();
 
-            for(int x = 0; x < this->bitBlock.getImageColumns(); x++)
+            for(int x = 0; x < this->bitBlock->getImageColumns(); x++)
             {
                 // neighbor X location
-                int nextX = (x + 1) % this->bitBlock.getImageColumns();
+                int nextX = (x + 1) % this->bitBlock->getImageColumns();
 
                 int currentBlock, currentBit;
                 int xBlock, xBit;
@@ -750,44 +753,44 @@ void Model::countInterfacePoreMatrix()
 
                 if(dim3 == true)
                 {
-                    currentBlock = this->bitBlock.findBlock(x, y, z);
-                    currentBit = this->bitBlock.findBitInBlock(x, y, z);
+                    currentBlock = this->bitBlock->findBlock(x, y, z);
+                    currentBit = this->bitBlock->findBitInBlock(x, y, z);
 
-                    xBlock = this->bitBlock.findBlock(nextX, y, z);
-                    xBit = this->bitBlock.findBitInBlock(nextX, y, z);
+                    xBlock = this->bitBlock->findBlock(nextX, y, z);
+                    xBit = this->bitBlock->findBitInBlock(nextX, y, z);
                     
-                    yBlock = this->bitBlock.findBlock(x, nextY, z);
-                    yBit = this->bitBlock.findBitInBlock(x, nextY, z);
+                    yBlock = this->bitBlock->findBlock(x, nextY, z);
+                    yBit = this->bitBlock->findBitInBlock(x, nextY, z);
                     
-                    zBlock = this->bitBlock.findBlock(x, y, nextZ);
-                    zBit = this->bitBlock.findBitInBlock(x, y, nextZ);
+                    zBlock = this->bitBlock->findBlock(x, y, nextZ);
+                    zBit = this->bitBlock->findBitInBlock(x, y, nextZ);
 
 
                 } else
                 {
-                    currentBlock = this->bitBlock.findBlock(x, y);
-                    currentBit = this->bitBlock.findBitInBlock(x, y);
+                    currentBlock = this->bitBlock->findBlock(x, y);
+                    currentBit = this->bitBlock->findBitInBlock(x, y);
 
-                    xBlock = this->bitBlock.findBlock(nextX, y);
-                    xBit = this->bitBlock.findBitInBlock(nextX, y);
+                    xBlock = this->bitBlock->findBlock(nextX, y);
+                    xBit = this->bitBlock->findBitInBlock(nextX, y);
                     
-                    yBlock = this->bitBlock.findBlock(x, nextY);
-                    yBit = this->bitBlock.findBitInBlock(x, nextY);
+                    yBlock = this->bitBlock->findBlock(x, nextY);
+                    yBit = this->bitBlock->findBitInBlock(x, nextY);
                                                             
                 }
 
                 // Check if neighbor bit values are different
-                if (this->bitBlock.checkIfBitIsWall(currentBlock, currentBit) != this->bitBlock.checkIfBitIsWall(xBlock, xBit))
+                if (this->bitBlock->checkIfBitIsWall(currentBlock, currentBit) != this->bitBlock->checkIfBitIsWall(xBlock, xBit))
                 {
                     this->interfacePoreMatrix++;
                 }
 
-                if (this->bitBlock.checkIfBitIsWall(currentBlock, currentBit) != this->bitBlock.checkIfBitIsWall(yBlock, yBit))
+                if (this->bitBlock->checkIfBitIsWall(currentBlock, currentBit) != this->bitBlock->checkIfBitIsWall(yBlock, yBit))
                 {
                     this->interfacePoreMatrix++;
                 }
 
-                if (dim3 == true and this->bitBlock.checkIfBitIsWall(currentBlock, currentBit) != this->bitBlock.checkIfBitIsWall(zBlock, zBit))
+                if (dim3 == true and this->bitBlock->checkIfBitIsWall(currentBlock, currentBit) != this->bitBlock->checkIfBitIsWall(zBlock, zBit))
                 {
                     this->interfacePoreMatrix++;
                 }
@@ -817,12 +820,12 @@ void Model::updateSvpRatio()
 void Model::updatePorosity()
 {
     this->porosity = (double) this->numberOfPores / 
-                     (double) (this->bitBlock.getImageColumns() * this->bitBlock.getImageRows() * this->bitBlock.getImageDepth());
+                     (double) (this->bitBlock->getImageColumns() * this->bitBlock->getImageRows() * this->bitBlock->getImageDepth());
 }
 
 void Model::updateNumberOfPores()
 {
-    this->numberOfPores = (uint) (this->porosity * (double) (this->bitBlock.getImageColumns() * this->bitBlock.getImageRows() * this->bitBlock.getImageDepth()));
+    this->numberOfPores = (uint) (this->porosity * (double) (this->bitBlock->getImageColumns() * this->bitBlock->getImageRows() * this->bitBlock->getImageDepth()));
 }
 
 void Model::createPoreList()
@@ -832,7 +835,7 @@ void Model::createPoreList()
 
     // consider 2 or 3 dimensions
     bool dim3 = false; 
-    if(this->bitBlock.getImageDepth() > 1) 
+    if(this->bitBlock->getImageDepth() > 1) 
         dim3 = true;
 
     // second, create pore list
@@ -841,26 +844,26 @@ void Model::createPoreList()
     this->pores.reserve(this->numberOfPores);
 
     // Create progress bar object
-    ProgressBar pBar((double) (this->bitBlock.getImageDepth()));   
+    ProgressBar pBar((double) (this->bitBlock->getImageDepth()));   
 
-    for(int z = 0; z < this->bitBlock.getImageDepth(); z++)
+    for(int z = 0; z < this->bitBlock->getImageDepth(); z++)
     {
-        for(int y = 0; y < this->bitBlock.getImageRows(); y++)
+        for(int y = 0; y < this->bitBlock->getImageRows(); y++)
         {
-            for(int x = 0; x < this->bitBlock.getImageColumns(); x++)
+            for(int x = 0; x < this->bitBlock->getImageColumns(); x++)
             {
                 int block, bit;
                 if(dim3 == true)
                 {
-                    block = this->bitBlock.findBlock(x, y, z);
-                    bit = this->bitBlock.findBitInBlock(x, y, z);
+                    block = this->bitBlock->findBlock(x, y, z);
+                    bit = this->bitBlock->findBitInBlock(x, y, z);
                 } else
                 {
-                    block = this->bitBlock.findBlock(x, y);
-                    bit = this->bitBlock.findBitInBlock(x, y);                    
+                    block = this->bitBlock->findBlock(x, y);
+                    bit = this->bitBlock->findBitInBlock(x, y);                    
                 }
 
-                if (!this->bitBlock.checkIfBitIsWall(block, bit))
+                if (!this->bitBlock->checkIfBitIsWall(block, bit))
                 {
                     Point3D detectedPore = {x, y, z};
                     this->pores.push_back(detectedPore);
@@ -884,7 +887,7 @@ void Model::createPoreList(Point3D _vertex1, Point3D _vertex2)
 
     // consider 2 or 3 dimensions
     bool dim3 = false; 
-    if(this->bitBlock.getImageDepth() > 1) 
+    if(this->bitBlock->getImageDepth() > 1) 
         dim3 = true;
 
     // set cube limits
@@ -922,9 +925,9 @@ void Model::createPoreList(Point3D _vertex1, Point3D _vertex2)
     if(x0 < 0) x0 = 0;
     if(y0 < 0) y0 = 0;
     if(z0 < 0) z0 = 0;
-    if(xf > this->bitBlock.getImageColumns()) xf = this->bitBlock.getImageColumns();
-    if(yf > this->bitBlock.getImageRows()) yf = this->bitBlock.getImageRows();
-    if(zf > this->bitBlock.getImageDepth()) zf = this->bitBlock.getImageDepth();
+    if(xf > this->bitBlock->getImageColumns()) xf = this->bitBlock->getImageColumns();
+    if(yf > this->bitBlock->getImageRows()) yf = this->bitBlock->getImageRows();
+    if(zf > this->bitBlock->getImageDepth()) zf = this->bitBlock->getImageDepth();
 
     // second, create pore list
     if(this->pores.size() > 0) this->pores.clear();
@@ -941,15 +944,15 @@ void Model::createPoreList(Point3D _vertex1, Point3D _vertex2)
                 int block, bit;
                 if(dim3 == true)
                 {
-                    block = this->bitBlock.findBlock(x, y, z);
-                    bit = this->bitBlock.findBitInBlock(x, y, z);
+                    block = this->bitBlock->findBlock(x, y, z);
+                    bit = this->bitBlock->findBitInBlock(x, y, z);
                 } else
                 {
-                    block = this->bitBlock.findBlock(x, y);
-                    bit = this->bitBlock.findBitInBlock(x, y);                    
+                    block = this->bitBlock->findBlock(x, y);
+                    bit = this->bitBlock->findBitInBlock(x, y);                    
                 }
 
-                if (!this->bitBlock.checkIfBitIsWall(block, bit))
+                if (!this->bitBlock->checkIfBitIsWall(block, bit))
                 {
                     Point3D detectedPore = {x, y, z};
                     this->pores.push_back(detectedPore);
@@ -1031,7 +1034,7 @@ void Model::createWalkers()
 
     // define the dimensionality that walkers will be trated
     bool dim3 = false;
-    if (this->bitBlock.getImageDepth() > 1)
+    if (this->bitBlock->getImageDepth() > 1)
     {
         dim3 = true;
     }
@@ -1107,7 +1110,7 @@ void Model::placeWalkersByChance()
 
     // define the dimensionality that walkers will be trated
     bool dim3 = false;
-    if (this->bitBlock.getImageDepth() > 1)
+    if (this->bitBlock->getImageDepth() > 1)
     {
         dim3 = true;
     }    
@@ -1119,9 +1122,9 @@ void Model::placeWalkersByChance()
     Point3D point; 
     bool validPoint = false;   
 
-    std::uniform_int_distribution<std::mt19937::result_type> columnDist(0, this->bitBlock.getImageColumns());
-    std::uniform_int_distribution<std::mt19937::result_type> rowDist(0, this->bitBlock.getImageRows());
-    std::uniform_int_distribution<std::mt19937::result_type> depthDist(0, this->bitBlock.getImageDepth());
+    std::uniform_int_distribution<std::mt19937::result_type> columnDist(0, this->bitBlock->getImageColumns());
+    std::uniform_int_distribution<std::mt19937::result_type> rowDist(0, this->bitBlock->getImageRows());
+    std::uniform_int_distribution<std::mt19937::result_type> depthDist(0, this->bitBlock->getImageDepth());
         
     while(walkersInserted < this->numberOfWalkers && errorCount < erroLimit)
     {
@@ -1131,10 +1134,10 @@ void Model::placeWalkersByChance()
         point.setZ(depthDist(Model::_rng));
         if(dim3)
         {
-            validPoint = walkers[idx].checkNextPosition_3D(point, this->bitBlock);        
+            validPoint = walkers[idx].checkNextPosition_3D(point, (*this).getBitBlock());        
         } else
         {
-            validPoint = walkers[idx].checkNextPosition_2D(point, this->bitBlock);
+            validPoint = walkers[idx].checkNextPosition_2D(point, (*this).getBitBlock());
         }
 
         if(validPoint)
@@ -1235,9 +1238,9 @@ void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
     }
 
     // check image limits
-    if(_x > this->bitBlock.getImageRows() || 
-       _y > this->bitBlock.getImageColumns() || 
-       _z > this->bitBlock.getImageDepth())
+    if(_x > this->bitBlock->getImageRows() || 
+       _y > this->bitBlock->getImageColumns() || 
+       _z > this->bitBlock->getImageDepth())
     {
         cout << endl;
         cout << "could not place walkers: point is outside image limits." << endl;
@@ -1246,7 +1249,7 @@ void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
 
     // set dimensionality that walkers will be trated
     bool dim3 = false;
-    if (this->bitBlock.getImageDepth() > 1)
+    if (this->bitBlock->getImageDepth() > 1)
     {
         dim3 = true;
     }
@@ -1256,10 +1259,10 @@ void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
     bool validPoint;    
     if(dim3)
     {
-        validPoint = walkers[0].checkNextPosition_3D(point, this->bitBlock);        
+        validPoint = walkers[0].checkNextPosition_3D(point, (*this).getBitBlock());        
     } else
     {
-        validPoint = walkers[0].checkNextPosition_2D(point, this->bitBlock);
+        validPoint = walkers[0].checkNextPosition_2D(point, (*this).getBitBlock());
     }
 
     if(validPoint == false)
@@ -1548,9 +1551,9 @@ void Model::saveImageInfo(string filedir)
 
     // write info 
     fileObject << "image path: " << this->imagePath.getCompletePath() << endl;
-    fileObject << "width(x): " << this->bitBlock.getImageColumns() << endl;
-    fileObject << "height(y): " << this->bitBlock.getImageRows() << endl;
-    fileObject << "depth(z): " << this->bitBlock.getImageDepth() << endl;
+    fileObject << "width(x): " << this->bitBlock->getImageColumns() << endl;
+    fileObject << "height(y): " << this->bitBlock->getImageRows() << endl;
+    fileObject << "depth(z): " << this->bitBlock->getImageDepth() << endl;
     fileObject << "resolution: " << this->imageResolution << endl;
     fileObject << "voxel shift: " << this->voxelDivision << endl;
     fileObject << "step length: " << this->imageVoxelResolution << endl;
@@ -1605,7 +1608,7 @@ void Model::saveBitBlock(string filePath)
 {
 
     string fileName = filePath + "/NMR_binImage.txt";
-    this->bitBlock.saveBitBlockArray(fileName);
+    this->bitBlock->saveBitBlockArray(fileName);
 }
 
 void Model::saveHistogram(string filePath)
@@ -1732,7 +1735,7 @@ void Model::mapSimulation_OMP(bool reset)
             {
                 for (uint step = 0; step < this->stepsPerEcho; step++)
                 {
-                    this->walkers[id].map(bitBlock);
+                    this->walkers[id].map((*this).getBitBlock());
                 }
             }
         }

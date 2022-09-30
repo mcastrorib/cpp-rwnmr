@@ -15,8 +15,8 @@ private:
 	uint depthScale;
 
 public:	
-	InternalField(BitBlock &_bitblock, string _file);
-	InternalField(BitBlock &_bitblock, double _resolution, double _gradient, int _direction);
+	InternalField(BitBlock *_bitblock, string _file);
+	InternalField(BitBlock *_bitblock, double _resolution, double _gradient, int _direction);
 	InternalField(const InternalField &_other);
 	virtual ~InternalField()
 	{
@@ -49,7 +49,7 @@ public:
 	long getIndex(int x, int y, int z) { return ( x + (y * (*this).getRowScale()) + (z * (*this).getDepthScale()) ); }
 	
 	void allocDataArray();
-	void fillDataArray(BitBlock &_bitblock, double _resolution, double _gValue, int _gDirection);
+	void fillDataArray(BitBlock *_bitblock, double _resolution, double _gValue, int _gDirection);
 	void readDataFromFile(string _file);
 	void show();	
 };

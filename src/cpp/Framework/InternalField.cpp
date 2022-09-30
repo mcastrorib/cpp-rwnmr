@@ -1,26 +1,26 @@
 #include "InternalField.h"
 
-InternalField::InternalField(BitBlock &_bitblock, double _resolution, double _gradient, int _direction) : dimX(0), 
+InternalField::InternalField(BitBlock *_bitblock, double _resolution, double _gradient, int _direction) : dimX(0), 
 																											 dimY(0), 
 																											 dimZ(0), 
 																											 rowScale(0), 
 																											 depthScale(0), 
 																											 data(NULL)
 {
-	(*this).setDims(_bitblock.getImageColumns(), _bitblock.getImageRows(), _bitblock.getImageDepth());
+	(*this).setDims(_bitblock->getImageColumns(), _bitblock->getImageRows(), _bitblock->getImageDepth());
 	(*this).allocDataArray();
 	(*this).fillDataArray(_bitblock, _resolution, _gradient, _direction);
 	// (*this).show();
 }
 
-InternalField::InternalField(BitBlock &_bitblock, string _file) : dimX(0), 
+InternalField::InternalField(BitBlock *_bitblock, string _file) : dimX(0), 
 																  dimY(0), 
 																  dimZ(0), 
 																  rowScale(0), 
 																  depthScale(0), 
 																  data(NULL)
 {
-	(*this).setDims(_bitblock.getImageColumns(), _bitblock.getImageRows(), _bitblock.getImageDepth());
+	(*this).setDims(_bitblock->getImageColumns(), _bitblock->getImageRows(), _bitblock->getImageDepth());
 	(*this).allocDataArray();
 	(*this).readDataFromFile(_file);
 	// (*this).show();
@@ -59,7 +59,7 @@ void InternalField::allocDataArray()
 	this->data = new double[size];
 }
 
-void InternalField::fillDataArray(BitBlock &_bitblock, double _resolution, double _gValue, int _gDirection)
+void InternalField::fillDataArray(BitBlock *_bitblock, double _resolution, double _gValue, int _gDirection)
 {
 	double dGx = 0;
 	double dGy = 0;
@@ -89,9 +89,9 @@ void InternalField::fillDataArray(BitBlock &_bitblock, double _resolution, doubl
 				if(_gDirection == 0) 
 					currentValue = x*dGx;
 		
-				int block = _bitblock.findBlock(x, y, z);
-				int bit = _bitblock.findBitInBlock(x, y, z);
-				if(_bitblock.checkIfBitIsWall(block, bit))
+				int block = _bitblock->findBlock(x, y, z);
+				int bit = _bitblock->findBitInBlock(x, y, z);
+				if(_bitblock->checkIfBitIsWall(block, bit))
 					newValue = 0.0;
 				else
 					newValue = currentValue;

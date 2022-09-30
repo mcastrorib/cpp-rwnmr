@@ -27,14 +27,14 @@ void NMR_cpmg::buildInternalField(string _mode)
 {
     if(_mode == "uniform")
     {
-        this->internalField = new InternalField(this->model.bitBlock, 
+        this->internalField = new InternalField(this->model.getBitBlock(), 
                                                 this->model.getImageResolution(), 
                                                 this->CPMG_config.getGradientValue(), 
                                                 this->CPMG_config.getGradientDirection());
     } 
     else if(_mode == "import")
     {
-        this->internalField = new InternalField(this->model.bitBlock, 
+        this->internalField = new InternalField(this->model.getBitBlock(), 
                                                 this->CPMG_config.getPathToField());
     } 
 
@@ -189,7 +189,7 @@ void NMR_cpmg::image_simulation_omp()
         {
             for (step = 0; step < this->model.getStepsPerEcho(); step++)
             {
-                this->model.walkers[id].walk(this->model.bitBlock);
+                this->model.walkers[id].walk(this->model.getBitBlock());
             }
         }
 

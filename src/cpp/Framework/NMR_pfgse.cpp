@@ -1682,7 +1682,7 @@ void NMR_PFGSE::simulation_omp()
 				// make walkers walk througout image
 				for (uint step = 0; step < this->model.getSimulationSteps(); step++)
 				{
-					this->model.walkers[id].walk(this->model.bitBlock);     
+					this->model.walkers[id].walk(this->model.getBitBlock());     
 				}
 
 				// get final individual signal
@@ -1730,7 +1730,7 @@ void NMR_PFGSE::simulation_omp()
 			// make walkers walk througout image
 			for (uint step = 0; step < this->model.getSimulationSteps(); step++)
 			{
-				this->model.walkers[id].walk(this->model.bitBlock);     
+				this->model.walkers[id].walk(this->model.getBitBlock());
 			}
 
 			// get final individual signal

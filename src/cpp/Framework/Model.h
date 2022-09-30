@@ -13,9 +13,8 @@ public:
     // RNG State
     static std::mt19937 _rng;
     vector<Walker> walkers;
-    BitBlock bitBlock;
-
-private:
+    
+private:    
     // Class attributes:
     // Config attributes
     rwnmr_config rwNMR_config;
@@ -58,6 +57,7 @@ private:
     uint width;
     uint depth;
     vector<Mat> binaryMap;
+    BitBlock *bitBlock;
     string boundaryCondition;
     int voxelDivision;
     bool voxelDivisionApplied;
@@ -127,6 +127,11 @@ public:
     virtual ~Model()
     {
         (*this).clear();
+        if(this->bitBlock != NULL)
+        {
+            delete this->bitBlock;
+            this->bitBlock = NULL;
+        }
         cout << "Simulation model object destroyed." << endl;
     }
 
@@ -176,7 +181,7 @@ public:
     void setBinaryMap(Mat _bm, uint _idx){ this->binaryMap[_idx] = _bm; }
     void addBinaryMap(Mat _bm){ this->binaryMap.push_back(_bm); }
     void clearBinaryMap(){ this->binaryMap.clear(); }
-    void setBitBlock(BitBlock _bb){ this->bitBlock = _bb; }
+    void setBitBlock(BitBlock *_bb){ this->bitBlock = _bb; }
     void setBoundaryCondition(string _bc){ this->boundaryCondition = _bc; }
     void setVoxelDivision(int _v){ this->voxelDivision = _v; }
     void setVoxelDivisionApplied(bool _b){ this->voxelDivisionApplied = _b; }
@@ -225,7 +230,7 @@ public:
     uint getDepth(){ return this->depth; }
     vector<Mat> getBinaryMap(){ return this->binaryMap; }
     Mat getBinaryMap(uint idx){ return this->binaryMap[idx]; }
-    BitBlock getBitBlock(){ return this->bitBlock; }
+    BitBlock *getBitBlock(){ return this->bitBlock; }
     string getBoundaryCondition(){ return this->boundaryCondition; }
     int getVoxelDivision(){ return this->voxelDivision; }
     bool getVoxelDivisionApplied(){ return this->voxelDivisionApplied; }
@@ -353,7 +358,7 @@ public:
 
         // image attributes
         this->binaryMap.clear();
-        this->bitBlock.clear();
+        this->bitBlock->clear();
 
         // histogram used in fast simulations
         this->histogram.clear();

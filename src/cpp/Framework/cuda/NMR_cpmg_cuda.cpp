@@ -961,12 +961,12 @@ void NMR_cpmg::image_simulation_cuda()
 
     // integer values for sizing issues
     uint numberOfWalkers = this->model.getNumberOfWalkers();
-    uint bitBlockColumns = this->model.bitBlock.getBlockColumns();
-    uint bitBlockRows = this->model.bitBlock.getBlockRows();
-    uint numberOfBitBlocks = this->model.bitBlock.getNumberOfBlocks();
-    int map_columns = this->model.bitBlock.getImageColumns();
-    int map_rows = this->model.bitBlock.getImageRows();
-    int map_depth = this->model.bitBlock.getImageDepth();
+    uint bitBlockColumns = this->model.getBitBlock()->getBlockColumns();
+    uint bitBlockRows = this->model.getBitBlock()->getBlockRows();
+    uint numberOfBitBlocks = this->model.getBitBlock()->getNumberOfBlocks();
+    int map_columns = this->model.getBitBlock()->getImageColumns();
+    int map_rows = this->model.getBitBlock()->getImageRows();
+    int map_depth = this->model.getBitBlock()->getImageDepth();
     uint shiftConverter = log2(this->model.getVoxelDivision());
 
     uint numberOfEchoes = this->model.getNumberOfEchoes();
@@ -1013,7 +1013,7 @@ void NMR_cpmg::image_simulation_cuda()
     // Copy bitBlock3D data from host to device (only once)
     // assign pointer to bitBlock datastructure
     uint64_t *bitBlock;
-    bitBlock = this->model.bitBlock.getBlocks();
+    bitBlock = this->model.getBitBlock()->getBlocks();
     uint64_t *d_bitBlock;
     cudaMalloc((void **)&d_bitBlock, numberOfBitBlocks * sizeof(uint64_t));
     cudaMemcpy(d_bitBlock, bitBlock, numberOfBitBlocks * sizeof(uint64_t), cudaMemcpyHostToDevice);

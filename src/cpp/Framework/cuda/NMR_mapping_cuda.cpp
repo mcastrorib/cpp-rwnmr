@@ -96,10 +96,10 @@ void Model::mapSimulation_CUDA_2D_histograms(bool reset)
 
     // integer values
     uint numberOfWalkers = this->numberOfWalkers;
-    int bitBlockColumns = this->bitBlock.getBlockColumns();
-    int numberOfBitBlocks = this->bitBlock.getNumberOfBlocks();
-    int map_columns = this->bitBlock.getImageColumns();
-    int map_rows = this->bitBlock.getImageRows();
+    int bitBlockColumns = this->bitBlock->getBlockColumns();
+    int numberOfBitBlocks = this->bitBlock->getNumberOfBlocks();
+    int map_columns = this->bitBlock->getImageColumns();
+    int map_rows = this->bitBlock->getImageRows();
     uint shiftConverter = log2(this->voxelDivision);
 
     // Launch kernel for GPU computation
@@ -110,7 +110,7 @@ void Model::mapSimulation_CUDA_2D_histograms(bool reset)
     // Copy bitBlock2D data from host to device (only once)
     // assign pointer to bitBlock datastructure
     uint64_t *bitBlock;
-    bitBlock = this->bitBlock.getBlocks();
+    bitBlock = this->bitBlock->getBlocks();
 
     uint64_t *d_bitBlock;
     cudaMalloc((void **)&d_bitBlock, numberOfBitBlocks * sizeof(uint64_t));
@@ -747,13 +747,13 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
     cudaEventRecord(start, 0);
 
     // integer values
-    uint bitBlockColumns = this->bitBlock.getBlockColumns();
-    uint bitBlockRows = this->bitBlock.getBlockRows();
-    uint numberOfBitBlocks = this->bitBlock.getNumberOfBlocks();
+    uint bitBlockColumns = this->bitBlock->getBlockColumns();
+    uint bitBlockRows = this->bitBlock->getBlockRows();
+    uint numberOfBitBlocks = this->bitBlock->getNumberOfBlocks();
     uint numberOfWalkers = this->numberOfWalkers;
-    int map_columns = this->bitBlock.getImageColumns();
-    int map_rows = this->bitBlock.getImageRows();
-    int map_depth = this->bitBlock.getImageDepth();
+    int map_columns = this->bitBlock->getImageColumns();
+    int map_rows = this->bitBlock->getImageRows();
+    int map_depth = this->bitBlock->getImageDepth();
     uint shiftConverter = log2(this->voxelDivision);
 
     // define parameters for CUDA kernel launch: blockDim, gridDim etc
@@ -771,7 +771,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
     // bitBlock3D host to device copy
     // assign pointer to bitBlock datastructure
     uint64_t *bitBlock;
-    bitBlock = this->bitBlock.getBlocks();
+    bitBlock = this->bitBlock->getBlocks();
 
     // copy host bitblock data to temporary host arrays
     uint64_t *d_bitBlock;
