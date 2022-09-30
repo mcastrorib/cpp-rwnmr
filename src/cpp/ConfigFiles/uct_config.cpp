@@ -3,23 +3,23 @@
 using namespace std;
 
 // default constructors
-uct_config::uct_config(const string configFile, const string proot) : template_config(proot)
+uct_config::uct_config(const string configFile, const string croot) : config_filepath(configFile), configRoot(croot)
 {
 	this->IMG_FILES_LIST = "Empty";
 	vector<string> IMG_FILES();
-	string default_filename = proot + CONFIG_ROOT + UCT_CONFIG_DEFAULT;
-	(*this).setConfigFilepath((*this).findConfigFile(configFile, default_filename));
-	(*this).readConfigFile((*this).getConfigFilepath());
+
+	string default_dirpath = croot;
+	string default_filename = UCT_CONFIG_DEFAULT;
+	(*this).readConfigFile(default_dirpath + default_filename);
+	if(configFile != (default_dirpath + default_filename)) (*this).readConfigFile(configFile);
 	if((*this).getImgFilesList() == "Empty") (*this).createImgFileList();	
 	(*this).readImgFiles();
 }
 
 //copy constructors
-uct_config::uct_config(const uct_config &otherConfig) 
+uct_config::uct_config(const uct_config &otherConfig)
 {
-	this->projectRoot = otherConfig.projectRoot;
-    this->configFilepath = otherConfig.configFilepath;
-    this->fileObject = otherConfig.fileObject;
+	this->config_filepath = otherConfig.config_filepath;
     this->DIR_PATH = otherConfig.DIR_PATH;
     this->FILENAME = otherConfig.FILENAME;
     this->FIRST_IDX = otherConfig.FIRST_IDX;
@@ -30,18 +30,25 @@ uct_config::uct_config(const uct_config &otherConfig)
     this->VOXEL_DIVISION = otherConfig.VOXEL_DIVISION;
 	this->IMG_FILES_LIST = otherConfig.IMG_FILES_LIST;
 	this->IMG_FILES = otherConfig.IMG_FILES;
+	this->configRoot = otherConfig.configRoot;
 }
 
 // read config file
 void uct_config::readConfigFile(const string configFile)
 {
-    template_config::readConfigFile(configFile);
-	ifstream *fo = (*this).getFileObject();
-    string line;
-
-    while((*fo))
+    ifstream fileObject;
+    fileObject.open(configFile, ios::in);
+    if (fileObject.fail())
     {
-    	getline((*fo), line);
+        cout << "Could not open uct config file from disc." << endl;
+        exit(1);
+    }
+
+    string line;
+    while(fileObject)
+    {
+    	getline(fileObject, line);
+    	// cout << line << endl;
 
     	string s = line;
     	string delimiter = ": ";
@@ -66,8 +73,7 @@ void uct_config::readConfigFile(const string configFile)
 		}
     } 
 
-	(*this).closeFileObject();
-	fo = NULL;
+    fileObject.close();
 }
 
 void uct_config::readDirPath(string s)
@@ -146,7 +152,7 @@ void uct_config::readImgFiles()
 
 void uct_config::createImgFileList()
 {
-    string dirpath = (*this).getProjectRoot() + CONFIG_ROOT;
+    string dirpath = (*this).getConfigRoot();
 	string filepath = dirpath + ".ImagesList.txt";
 
     ofstream fileObject;
