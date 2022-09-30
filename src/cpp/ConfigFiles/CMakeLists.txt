@@ -12,6 +12,7 @@ target_compile_options(ConfigFiles PUBLIC -O3)
 install(TARGETS ConfigFiles DESTINATION lib)
 install(FILES ConfigFiles.h
 			  configFiles_defs.h
+			  template_config.h
 			  rwnmr_config.h 
 			  uct_config.h 
 			  cpmg_config.h 

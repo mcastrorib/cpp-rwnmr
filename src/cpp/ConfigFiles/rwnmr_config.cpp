@@ -6,7 +6,7 @@ using namespace std;
 rwnmr_config::rwnmr_config(const string configFile, const string croot) : config_filepath(configFile), WALKER_SAMPLES(1)
 {
 	vector<double> RHO();
-	
+	cout << configFile << endl;
 	string default_dirpath = croot;
 	string default_filename = RWNMR_CONFIG_DEFAULT;
 	(*this).readConfigFile(default_dirpath + default_filename);
