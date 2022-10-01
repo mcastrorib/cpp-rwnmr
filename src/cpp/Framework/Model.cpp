@@ -10,6 +10,7 @@ Model::Model(rwnmr_config _rwNMR_config,
                                                          numberOfEchoes(0),
                                                          numberOfImages(0),
                                                          bitBlock(NULL),
+                                                         walkers(NULL),
                                                          width(0),
                                                          height(0),
                                                          depth(0),
@@ -26,7 +27,7 @@ Model::Model(rwnmr_config _rwNMR_config,
     vector<Mat> binaryMap();
     vector<Point3D> pores();
     vector<uint> walkersIdxList();
-    vector<Walker> walkers();
+    this->walkers = new vector<Walker>;
     vector<CollisionHistogram> histogramList();
 
     // set simulation name and directory to save results
@@ -112,7 +113,7 @@ void Model::applyVoxelDivision(uint _shifts)
     (*this).buildTimeFramework(steps);
 
     // if walkers exists, fill intra-voxel sites //
-    if(this->walkers.size() > 0)
+    if(this->walkers->size() > 0)
     {
         double shiftFactor = (*this).getVoxelDivision() / (double) previousDivision;
         uint indexExpansion = (uint) shiftFactor - 1;
@@ -137,13 +138,13 @@ void Model::applyVoxelDivision(uint _shifts)
                 idx = pack * packSize + i;
 
                 // randomly place walker in voxel sites
-                shiftX = ((int) this->walkers[idx].getInitialPositionX() * shiftFactor) + dist(Model::_rng);
-                shiftY = ((int) this->walkers[idx].getInitialPositionY() * shiftFactor) + dist(Model::_rng);
-                shiftZ = ((int) this->walkers[idx].getInitialPositionZ() * shiftFactor) + dist(Model::_rng);
-                this->walkers[idx].placeWalker(shiftX, shiftY, shiftZ);
+                shiftX = ((int) (*this->walkers)[idx].getInitialPositionX() * shiftFactor) + dist(Model::_rng);
+                shiftY = ((int) (*this->walkers)[idx].getInitialPositionY() * shiftFactor) + dist(Model::_rng);
+                shiftZ = ((int) (*this->walkers)[idx].getInitialPositionZ() * shiftFactor) + dist(Model::_rng);
+                (*this->walkers)[idx].placeWalker(shiftX, shiftY, shiftZ);
 
                 // update collision penalty
-                this->walkers[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+                (*this->walkers)[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
             }
 
             // Update progress bar
@@ -156,13 +157,13 @@ void Model::applyVoxelDivision(uint _shifts)
             idx = (walkerPacks - 1) * packSize + i;
 
             // randomly place walker in voxel sites
-            shiftX = ((int) this->walkers[idx].getInitialPositionX() * shiftFactor) + dist(Model::_rng);
-            shiftY = ((int) this->walkers[idx].getInitialPositionY() * shiftFactor) + dist(Model::_rng);
-            shiftZ = ((int) this->walkers[idx].getInitialPositionZ() * shiftFactor) + dist(Model::_rng);
-            this->walkers[idx].placeWalker(shiftX, shiftY, shiftZ);
+            shiftX = ((int) (*this->walkers)[idx].getInitialPositionX() * shiftFactor) + dist(Model::_rng);
+            shiftY = ((int) (*this->walkers)[idx].getInitialPositionY() * shiftFactor) + dist(Model::_rng);
+            shiftZ = ((int) (*this->walkers)[idx].getInitialPositionZ() * shiftFactor) + dist(Model::_rng);
+            (*this->walkers)[idx].placeWalker(shiftX, shiftY, shiftZ);
 
             // update collision penalty
-            this->walkers[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+            (*this->walkers)[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
         }
 
         // Last update in progress bar
@@ -1040,8 +1041,8 @@ void Model::createWalkers()
     }
 
     // alloc memory space for vector of walkers with size = numberOfWalkers
-    if(this->walkers.size() > 0) this->walkers.clear();
-    this->walkers.reserve(this->numberOfWalkers);
+    if(this->walkers->size() > 0) this->walkers->clear();
+    this->walkers->reserve(this->numberOfWalkers);
     uint64_t tempSeed = this->initialSeed + 1;
 
     // create walkers
@@ -1063,11 +1064,11 @@ void Model::createWalkers()
         {
             idx = pack * packSize + i;
             Walker temporaryWalker(dim3);
-            this->walkers.push_back(temporaryWalker);
-            if(this->rwNMR_config.getRhoType() == "uniform") this->walkers[idx].setSurfaceRelaxivity(rho[0]);
-            else if(this->rwNMR_config.getRhoType() == "sigmoid") this->walkers[idx].setSurfaceRelaxivity(rho);
-            this->walkers[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
-            this->walkers[idx].setRandomSeed(uint64_dist(Model::_rng));
+            this->walkers->push_back(temporaryWalker);
+            if(this->rwNMR_config.getRhoType() == "uniform") (*this->walkers)[idx].setSurfaceRelaxivity(rho[0]);
+            else if(this->rwNMR_config.getRhoType() == "sigmoid") (*this->walkers)[idx].setSurfaceRelaxivity(rho);
+            (*this->walkers)[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+            (*this->walkers)[idx].setRandomSeed(uint64_dist(Model::_rng));
         }
 
         // Update progress bar
@@ -1079,11 +1080,11 @@ void Model::createWalkers()
     {
         idx = (walkerPacks - 1) * packSize + i;
         Walker temporaryWalker(dim3);
-        this->walkers.push_back(temporaryWalker);
-        if(this->rwNMR_config.getRhoType() == "uniform") this->walkers[idx].setSurfaceRelaxivity(rho[0]);
-        else if(this->rwNMR_config.getRhoType() == "sigmoid") this->walkers[idx].setSurfaceRelaxivity(rho);
-        this->walkers[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
-        this->walkers[idx].setRandomSeed(uint64_dist(Model::_rng)); 
+        this->walkers->push_back(temporaryWalker);
+        if(this->rwNMR_config.getRhoType() == "uniform") (*this->walkers)[idx].setSurfaceRelaxivity(rho[0]);
+        else if(this->rwNMR_config.getRhoType() == "sigmoid") (*this->walkers)[idx].setSurfaceRelaxivity(rho);
+        (*this->walkers)[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+        (*this->walkers)[idx].setRandomSeed(uint64_dist(Model::_rng)); 
     }
 
     // Update progress bar
@@ -1134,15 +1135,15 @@ void Model::placeWalkersByChance()
         point.setZ(depthDist(Model::_rng));
         if(dim3)
         {
-            validPoint = walkers[idx].checkNextPosition_3D(point, (*this).getBitBlock());        
+            validPoint = (*this->walkers)[idx].checkNextPosition_3D(point, (*this).getBitBlock());        
         } else
         {
-            validPoint = walkers[idx].checkNextPosition_2D(point, (*this).getBitBlock());
+            validPoint = (*this->walkers)[idx].checkNextPosition_2D(point, (*this).getBitBlock());
         }
 
         if(validPoint)
         {
-            this->walkers[idx].placeWalker(point.getX(), point.getY(), point.getZ());
+            (*this->walkers)[idx].placeWalker(point.getX(), point.getY(), point.getZ());
             idx++;
             walkersInserted++;
             errorCount = 0;
@@ -1194,7 +1195,7 @@ void Model::placeWalkersUniformly()
             {
                 // select a pore location from a list randomly generated to place the walker
                 uint randomIndex = this->walkersIdxList[idx];
-                this->walkers[idx].placeWalker(this->pores[randomIndex].getX(), 
+                (*this->walkers)[idx].placeWalker(this->pores[randomIndex].getX(), 
                                                this->pores[randomIndex].getY(), 
                                                this->pores[randomIndex].getZ());
             }
@@ -1204,7 +1205,7 @@ void Model::placeWalkersUniformly()
             // If occupancy is 100%, just loop over pore list
             for (uint idx = loop_start; idx < loop_finish; idx++)
             {
-                this->walkers[idx].placeWalker(this->pores[idx].getX(), 
+                (*this->walkers)[idx].placeWalker(this->pores[idx].getX(), 
                                                this->pores[idx].getY(), 
                                                this->pores[idx].getZ());
             }
@@ -1230,7 +1231,7 @@ void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
     cout << "(" << _x << ", " << _y << ", " << _z << ")..."; 
 
     // check walkers array
-    if(this->walkers.size() == 0)
+    if(this->walkers->size() == 0)
     {
         cout << endl;
         cout << "no walkers to place" << endl;
@@ -1259,10 +1260,10 @@ void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
     bool validPoint;    
     if(dim3)
     {
-        validPoint = walkers[0].checkNextPosition_3D(point, (*this).getBitBlock());        
+        validPoint = (*this->walkers)[0].checkNextPosition_3D(point, (*this).getBitBlock());        
     } else
     {
-        validPoint = walkers[0].checkNextPosition_2D(point, (*this).getBitBlock());
+        validPoint = (*this->walkers)[0].checkNextPosition_2D(point, (*this).getBitBlock());
     }
 
     if(validPoint == false)
@@ -1273,9 +1274,9 @@ void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
     } else
     {
 
-        for(uint id = 0; id < this->walkers.size(); id++)
+        for(uint id = 0; id < this->walkers->size(); id++)
         {
-            this->walkers[id].placeWalker(_x, _y, _z);
+            (*this->walkers)[id].placeWalker(_x, _y, _z);
         }
     
         time = omp_get_wtime() - time;
@@ -1292,7 +1293,7 @@ void Model::placeWalkersInCubicSpace(Point3D _vertex1, Point3D _vertex2)
 
 
     // check walkers array
-    if(this->walkers.size() == 0)
+    if(this->walkers->size() == 0)
     {
         cout << endl;
         cout << "no walkers to place" << endl;
@@ -1331,7 +1332,7 @@ void Model::placeWalkersInCubicSpace(Point3D _vertex1, Point3D _vertex2)
         {   
     
             uint poreID = selectedPores[dist(Model::_rng)];
-            this->walkers[id].placeWalker(this->pores[poreID].getX(), 
+            (*this->walkers)[id].placeWalker(this->pores[poreID].getX(), 
                                           this->pores[poreID].getY(), 
                                           this->pores[poreID].getZ());
             
@@ -1373,38 +1374,38 @@ void Model::createHistogram()
 {
     this->histogram.createBlankHistogram(this->rwNMR_config.getHistogramSize(), this->rwNMR_config.getHistogramScale());
     int steps = this->histogramList.back().getLastEcho() * this->stepsPerEcho;
-    this->histogram.fillHistogram(this->walkers, steps);       
+    this->histogram.fillHistogram((*this->walkers), steps);       
 }
 
 void Model::createHistogram(uint histID, uint _steps)
 {
     this->histogramList[histID].createBlankHistogram(this->rwNMR_config.getHistogramSize(), this->rwNMR_config.getHistogramScale());
-    this->histogramList[histID].fillHistogram(this->walkers, _steps);       
+    this->histogramList[histID].fillHistogram((*this->walkers), _steps);       
 }
 
 void Model::updateHistogram()
 {
-    this->histogram.updateHistogram(this->walkers, this->simulationSteps);
+    this->histogram.updateHistogram((*this->walkers), this->simulationSteps);
 }
 
 // cost function methods
 void Model::updateWalkersRelaxativity(vector<double> &sigmoid)
 {
-    for (uint id = 0; id < this->walkers.size(); id++)
+    for (uint id = 0; id < this->walkers->size(); id++)
     {
-        this->walkers[id].updateXiRate(this->simulationSteps);
-        this->walkers[id].setSurfaceRelaxivity(sigmoid);
-        this->walkers[id].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+        (*this->walkers)[id].updateXiRate(this->simulationSteps);
+        (*this->walkers)[id].setSurfaceRelaxivity(sigmoid);
+        (*this->walkers)[id].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
     }
 }
 
 void Model::updateWalkersRelaxativity(double rho)
 {
-    for (uint id = 0; id < this->walkers.size(); id++)
+    for (uint id = 0; id < this->walkers->size(); id++)
     {
-        this->walkers[id].updateXiRate(this->simulationSteps);
-        this->walkers[id].setSurfaceRelaxivity(rho);
-        this->walkers[id].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+        (*this->walkers)[id].updateXiRate(this->simulationSteps);
+        (*this->walkers)[id].setSurfaceRelaxivity(rho);
+        (*this->walkers)[id].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
     }
 }
 
@@ -1587,18 +1588,18 @@ void Model::saveWalkers(string filedir)
     file << ",RNGSeed" << endl;
 
     const int precision = 6;
-    for (uint index = 0; index < this->walkers.size(); index++)
+    for (uint index = 0; index < this->walkers->size(); index++)
     {
-        file << setprecision(precision) << this->walkers[index].getInitialPositionX()
-        << "," << this->walkers[index].getInitialPositionY()
-        << "," << this->walkers[index].getInitialPositionZ()
-        << "," << this->walkers[index].getCurrentPositionX() 
-        << "," << this->walkers[index].getCurrentPositionY() 
-        << "," << this->walkers[index].getCurrentPositionZ() 
-        << "," << this->walkers[index].getCollisions() 
-        << "," << this->walkers[index].getXiRate() 
-        << "," << this->walkers[index].getEnergy() 
-        << "," << this->walkers[index].getInitialSeed() << endl;
+        file << setprecision(precision) << (*this->walkers)[index].getInitialPositionX()
+        << "," << (*this->walkers)[index].getInitialPositionY()
+        << "," << (*this->walkers)[index].getInitialPositionZ()
+        << "," << (*this->walkers)[index].getCurrentPositionX() 
+        << "," << (*this->walkers)[index].getCurrentPositionY() 
+        << "," << (*this->walkers)[index].getCurrentPositionZ() 
+        << "," << (*this->walkers)[index].getCollisions() 
+        << "," << (*this->walkers)[index].getXiRate() 
+        << "," << (*this->walkers)[index].getEnergy() 
+        << "," << (*this->walkers)[index].getInitialSeed() << endl;
     }
 
     file.close();
@@ -1712,12 +1713,12 @@ void Model::mapSimulation_OMP(bool reset)
     cout << "initializing mapping simulation... ";
     if(reset)
     {
-        for (uint id = 0; id < this->walkers.size(); id++)
+        for (uint id = 0; id < this->walkers->size(); id++)
         {
-            this->walkers[id].resetPosition();
-            this->walkers[id].resetSeed();
-            this->walkers[id].resetCollisions();
-            this->walkers[id].resetTCollisions();
+            (*this->walkers)[id].resetPosition();
+            (*this->walkers)[id].resetSeed();
+            (*this->walkers)[id].resetCollisions();
+            (*this->walkers)[id].resetTCollisions();
         }
     }
 
@@ -1735,7 +1736,7 @@ void Model::mapSimulation_OMP(bool reset)
             {
                 for (uint step = 0; step < this->stepsPerEcho; step++)
                 {
-                    this->walkers[id].map((*this).getBitBlock());
+                    (*this->walkers)[id].map((*this).getBitBlock());
                 }
             }
         }
@@ -1745,15 +1746,15 @@ void Model::mapSimulation_OMP(bool reset)
 
         for (uint id = 0; id < this->numberOfWalkers; id++)
         {
-            this->walkers[id].setTCollisions(this->walkers[id].getTCollisions() + this->walkers[id].getCollisions());
-            this->walkers[id].resetCollisions();
+            (*this->walkers)[id].setTCollisions((*this->walkers)[id].getTCollisions() + (*this->walkers)[id].getCollisions());
+            (*this->walkers)[id].resetCollisions();
         }
     }
 
     // recover walkers collisions from total sum and create a global histogram
     for (uint id = 0; id < this->numberOfWalkers; id++)
     {
-        this->walkers[id].setCollisions(this->walkers[id].getTCollisions());   
+        (*this->walkers)[id].setCollisions((*this->walkers)[id].getTCollisions());   
     }
     (*this).createHistogram();
 

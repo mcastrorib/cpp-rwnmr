@@ -697,34 +697,34 @@ void NMR_PFGSE::simulation_cuda()
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    h_walker_x0[id] = this->model.walkers[id + packOffset].getInitialPositionX();
-                    h_walker_y0[id] = this->model.walkers[id + packOffset].getInitialPositionY();
-                    h_walker_z0[id] = this->model.walkers[id + packOffset].getInitialPositionZ();
-                    h_walker_px[id] = this->model.walkers[id + packOffset].getCurrentPositionX();
-                    h_walker_py[id] = this->model.walkers[id + packOffset].getCurrentPositionY();
-                    h_walker_pz[id] = this->model.walkers[id + packOffset].getCurrentPositionZ();
+                    h_walker_x0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionX();
+                    h_walker_y0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionY();
+                    h_walker_z0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionZ();
+                    h_walker_px[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionX();
+                    h_walker_py[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionY();
+                    h_walker_pz[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionZ();
                     h_collisions[id] = 0; 
-                    h_penalty[id] = this->model.walkers[id + packOffset].getDecreaseFactor();
-                    h_seed[id] = this->model.walkers[id + packOffset].getCurrentSeed();
-                    h_energy[id] = this->model.walkers[id + packOffset].getEnergy();
-                    h_phase[id] = this->model.walkers[id + packOffset].getEnergy();
+                    h_penalty[id] = (*this->model.getWalkers())[id + packOffset].getDecreaseFactor();
+                    h_seed[id] = (*this->model.getWalkers())[id + packOffset].getCurrentSeed();
+                    h_energy[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
+                    h_phase[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
                 }
             }
         } else
         {
             for (uint id = 0; id < walkersPerKernel; id++)
             {
-                h_walker_x0[id] = this->model.walkers[id + packOffset].getInitialPositionX();
-                h_walker_y0[id] = this->model.walkers[id + packOffset].getInitialPositionY();
-                h_walker_z0[id] = this->model.walkers[id + packOffset].getInitialPositionZ();
-                h_walker_px[id] = this->model.walkers[id + packOffset].getCurrentPositionX();
-                h_walker_py[id] = this->model.walkers[id + packOffset].getCurrentPositionY();
-                h_walker_pz[id] = this->model.walkers[id + packOffset].getCurrentPositionZ();
+                h_walker_x0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionX();
+                h_walker_y0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionY();
+                h_walker_z0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionZ();
+                h_walker_px[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionX();
+                h_walker_py[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionY();
+                h_walker_pz[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionZ();
                 h_collisions[id] = 0; 
-                h_penalty[id] = this->model.walkers[id + packOffset].getDecreaseFactor();
-                h_seed[id] = this->model.walkers[id + packOffset].getCurrentSeed();
-                h_energy[id] = this->model.walkers[id + packOffset].getEnergy();
-                h_phase[id] = this->model.walkers[id + packOffset].getEnergy();
+                h_penalty[id] = (*this->model.getWalkers())[id + packOffset].getDecreaseFactor();
+                h_seed[id] = (*this->model.getWalkers())[id + packOffset].getCurrentSeed();
+                h_energy[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
+                h_phase[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
             }
         }
         buffer_time += omp_get_wtime() - tick;
@@ -838,24 +838,24 @@ void NMR_PFGSE::simulation_cuda()
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    this->model.walkers[id + packOffset].setCurrentPositionX(h_walker_px[id]);
-                    this->model.walkers[id + packOffset].setCurrentPositionY(h_walker_py[id]);
-                    this->model.walkers[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
-                    this->model.walkers[id + packOffset].setCollisions(this->model.walkers[id + packOffset].getCollisions() + h_collisions[id]);
-                    this->model.walkers[id + packOffset].setEnergy(h_energy[id]);
-                    this->model.walkers[id + packOffset].setCurrentSeed(h_seed[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionX(h_walker_px[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionY(h_walker_py[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCollisions((*this->model.getWalkers())[id + packOffset].getCollisions() + h_collisions[id]);
+                    (*this->model.getWalkers())[id + packOffset].setEnergy(h_energy[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentSeed(h_seed[id]);
                 }
             }
         } else
         {
             for (uint id = 0; id < walkersPerKernel; id++)
             {
-                this->model.walkers[id + packOffset].setCurrentPositionX(h_walker_px[id]);
-                this->model.walkers[id + packOffset].setCurrentPositionY(h_walker_py[id]);
-                this->model.walkers[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
-                this->model.walkers[id + packOffset].setCollisions(this->model.walkers[id + packOffset].getCollisions() + h_collisions[id]);
-                this->model.walkers[id + packOffset].setEnergy(h_energy[id]);
-                this->model.walkers[id + packOffset].setCurrentSeed(h_seed[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionX(h_walker_px[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionY(h_walker_py[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
+                (*this->model.getWalkers())[id + packOffset].setCollisions((*this->model.getWalkers())[id + packOffset].getCollisions() + h_collisions[id]);
+                (*this->model.getWalkers())[id + packOffset].setEnergy(h_energy[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentSeed(h_seed[id]);
             }
         }
         buffer_time += omp_get_wtime() - tick;
@@ -973,34 +973,34 @@ void NMR_PFGSE::simulation_cuda()
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    h_walker_x0[id] = this->model.walkers[id + packOffset].getInitialPositionX();
-                    h_walker_y0[id] = this->model.walkers[id + packOffset].getInitialPositionY();
-                    h_walker_z0[id] = this->model.walkers[id + packOffset].getInitialPositionZ();
-                    h_walker_px[id] = this->model.walkers[id + packOffset].getCurrentPositionX();
-                    h_walker_py[id] = this->model.walkers[id + packOffset].getCurrentPositionY();
-                    h_walker_pz[id] = this->model.walkers[id + packOffset].getCurrentPositionZ();
+                    h_walker_x0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionX();
+                    h_walker_y0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionY();
+                    h_walker_z0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionZ();
+                    h_walker_px[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionX();
+                    h_walker_py[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionY();
+                    h_walker_pz[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionZ();
                     h_collisions[id] = 0; 
-                    h_penalty[id] = this->model.walkers[id + packOffset].getDecreaseFactor();
-                    h_seed[id] = this->model.walkers[id + packOffset].getCurrentSeed();
-                    h_energy[id] = this->model.walkers[id + packOffset].getEnergy();
-                    h_phase[id] = this->model.walkers[id + packOffset].getEnergy();
+                    h_penalty[id] = (*this->model.getWalkers())[id + packOffset].getDecreaseFactor();
+                    h_seed[id] = (*this->model.getWalkers())[id + packOffset].getCurrentSeed();
+                    h_energy[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
+                    h_phase[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
                 }
             }
         } else
         {
             for (uint id = 0; id < lastWalkerPackSize; id++)
             {
-                h_walker_x0[id] = this->model.walkers[id + packOffset].getInitialPositionX();
-                h_walker_y0[id] = this->model.walkers[id + packOffset].getInitialPositionY();
-                h_walker_z0[id] = this->model.walkers[id + packOffset].getInitialPositionZ();
-                h_walker_px[id] = this->model.walkers[id + packOffset].getCurrentPositionX();
-                h_walker_py[id] = this->model.walkers[id + packOffset].getCurrentPositionY();
-                h_walker_pz[id] = this->model.walkers[id + packOffset].getCurrentPositionZ();
+                h_walker_x0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionX();
+                h_walker_y0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionY();
+                h_walker_z0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionZ();
+                h_walker_px[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionX();
+                h_walker_py[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionY();
+                h_walker_pz[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionZ();
                 h_collisions[id] = 0; 
-                h_penalty[id] = this->model.walkers[id + packOffset].getDecreaseFactor();
-                h_seed[id] = this->model.walkers[id + packOffset].getCurrentSeed();
-                h_energy[id] = this->model.walkers[id + packOffset].getEnergy();
-                h_phase[id] = this->model.walkers[id + packOffset].getEnergy();
+                h_penalty[id] = (*this->model.getWalkers())[id + packOffset].getDecreaseFactor();
+                h_seed[id] = (*this->model.getWalkers())[id + packOffset].getCurrentSeed();
+                h_energy[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
+                h_phase[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
             }
         }
 
@@ -1126,24 +1126,24 @@ void NMR_PFGSE::simulation_cuda()
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    this->model.walkers[id + packOffset].setCurrentPositionX(h_walker_px[id]);
-                    this->model.walkers[id + packOffset].setCurrentPositionY(h_walker_py[id]);
-                    this->model.walkers[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
-                    this->model.walkers[id + packOffset].setCollisions(this->model.walkers[id + packOffset].getCollisions() + h_collisions[id]);
-                    this->model.walkers[id + packOffset].setEnergy(h_energy[id]);
-                    this->model.walkers[id + packOffset].setCurrentSeed(h_seed[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionX(h_walker_px[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionY(h_walker_py[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCollisions((*this->model.getWalkers())[id + packOffset].getCollisions() + h_collisions[id]);
+                    (*this->model.getWalkers())[id + packOffset].setEnergy(h_energy[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentSeed(h_seed[id]);
                 }
             }
         } else
         {
             for (uint id = 0; id < lastWalkerPackSize; id++)
             {
-                this->model.walkers[id + packOffset].setCurrentPositionX(h_walker_px[id]);
-                this->model.walkers[id + packOffset].setCurrentPositionY(h_walker_py[id]);
-                this->model.walkers[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
-                this->model.walkers[id + packOffset].setCollisions(this->model.walkers[id + packOffset].getCollisions() + h_collisions[id]);
-                this->model.walkers[id + packOffset].setEnergy(h_energy[id]);
-                this->model.walkers[id + packOffset].setCurrentSeed(h_seed[id]);      
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionX(h_walker_px[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionY(h_walker_py[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
+                (*this->model.getWalkers())[id + packOffset].setCollisions((*this->model.getWalkers())[id + packOffset].getCollisions() + h_collisions[id]);
+                (*this->model.getWalkers())[id + packOffset].setEnergy(h_energy[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentSeed(h_seed[id]);      
             }
         }
         buffer_time += omp_get_wtime() - tick;
@@ -1508,13 +1508,13 @@ void NMR_PFGSE::computeMktSmallPopulation(double **Mkt_samples, bool time_verbos
         uint bufferOffset = sample * (trueWalkersPerSample + fakeWalkersPerSample);
         for(int idx = 0; idx < trueWalkersPerSample; idx++)
         {
-            h_walker_x0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionX();
-            h_walker_y0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionY();
-            h_walker_z0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionZ();
-            h_walker_xF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionX();
-            h_walker_yF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionY();
-            h_walker_zF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionZ();
-            h_energy[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getEnergy();
+            h_walker_x0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionX();
+            h_walker_y0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionY();
+            h_walker_z0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionZ();
+            h_walker_xF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionX();
+            h_walker_yF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionY();
+            h_walker_zF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionZ();
+            h_energy[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getEnergy();
         }
     }
     buffer_time += omp_get_wtime() - tick;
@@ -1798,13 +1798,13 @@ void NMR_PFGSE::computeMktSmallPopulation2(double **Mkt_samples, bool time_verbo
         uint bufferOffset = sample * (trueWalkersPerSample + fakeWalkersPerSample);
         for(int idx = 0; idx < trueWalkersPerSample; idx++)
         {
-            h_walker_x0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionX();
-            h_walker_y0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionY();
-            h_walker_z0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionZ();
-            h_walker_xF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionX();
-            h_walker_yF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionY();
-            h_walker_zF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionZ();
-            h_energy[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getEnergy();
+            h_walker_x0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionX();
+            h_walker_y0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionY();
+            h_walker_z0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionZ();
+            h_walker_xF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionX();
+            h_walker_yF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionY();
+            h_walker_zF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionZ();
+            h_energy[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getEnergy();
         }
     }
     buffer_time += omp_get_wtime() - tick;
@@ -2135,13 +2135,13 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < trueWalkersPerSample; idx++)
             {
                 int finalWalkerIndex = kernelWalkerOffset + nativeOffset + idx;
-                h_walker_x0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionX();
-                h_walker_y0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionY();
-                h_walker_z0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionZ();
-                h_walker_xF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionX();
-                h_walker_yF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionY();
-                h_walker_zF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionZ();
-                h_energy[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getEnergy();                
+                h_walker_x0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionX();
+                h_walker_y0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionY();
+                h_walker_z0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionZ();
+                h_walker_xF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionX();
+                h_walker_yF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionY();
+                h_walker_zF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionZ();
+                h_energy[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getEnergy();                
             }
         }
         buffer_time += omp_get_wtime() - tick;
@@ -2270,13 +2270,13 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < trueWalkersPerSample; idx++)
             {
                 int finalWalkerIndex = kernelWalkerOffset + nativeOffset + idx;
-                h_walker_x0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionX();
-                h_walker_y0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionY();
-                h_walker_z0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionZ();
-                h_walker_xF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionX();
-                h_walker_yF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionY();
-                h_walker_zF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionZ();
-                h_energy[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getEnergy();                
+                h_walker_x0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionX();
+                h_walker_y0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionY();
+                h_walker_z0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionZ();
+                h_walker_xF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionX();
+                h_walker_yF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionY();
+                h_walker_zF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionZ();
+                h_energy[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getEnergy();                
             }
         }
         buffer_time += omp_get_wtime() - tick;
@@ -2591,13 +2591,13 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < walkersPerKernel; idx++)
             {
                 int finalWalkerIndex = sampleWalkerOffset + kernelWalkerOffset + idx;
-                h_walker_x0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionX();
-                h_walker_y0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionY();
-                h_walker_z0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionZ();
-                h_walker_xF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionX();
-                h_walker_yF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionY();
-                h_walker_zF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionZ();
-                h_energy[idx] = this->model.walkers[finalWalkerIndex].getEnergy();           
+                h_walker_x0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionX();
+                h_walker_y0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionY();
+                h_walker_z0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionZ();
+                h_walker_xF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionX();
+                h_walker_yF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionY();
+                h_walker_zF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionZ();
+                h_energy[idx] = (*this->model.getWalkers())[finalWalkerIndex].getEnergy();           
             }
             buffer_time += omp_get_wtime() - tick;
 
@@ -2716,13 +2716,13 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < trueWalkersInLastKernel; idx++)
             {
                 int finalWalkerIndex = sampleWalkerOffset + kernelWalkerOffset + idx;
-                h_walker_x0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionX();
-                h_walker_y0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionY();
-                h_walker_z0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionZ();
-                h_walker_xF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionX();
-                h_walker_yF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionY();
-                h_walker_zF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionZ();
-                h_energy[idx] = this->model.walkers[finalWalkerIndex].getEnergy();   
+                h_walker_x0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionX();
+                h_walker_y0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionY();
+                h_walker_z0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionZ();
+                h_walker_xF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionX();
+                h_walker_yF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionY();
+                h_walker_zF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionZ();
+                h_energy[idx] = (*this->model.getWalkers())[finalWalkerIndex].getEnergy();   
             }
             buffer_time += omp_get_wtime() - tick;
 

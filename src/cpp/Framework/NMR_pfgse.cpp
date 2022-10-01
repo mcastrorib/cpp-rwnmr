@@ -126,7 +126,7 @@ void NMR_PFGSE::resetModel()
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
-        const int loop_size = this->model.walkers.size();
+        const int loop_size = this->model.getWalkers()->size();
         int loop_start, loop_finish;
 
         #pragma omp parallel private(loop_start, loop_finish) 
@@ -138,20 +138,20 @@ void NMR_PFGSE::resetModel()
 
             for (uint id = loop_start; id < loop_finish; id++)
             {
-                this->model.walkers[id].resetPosition();
-                this->model.walkers[id].resetSeed();
-                this->model.walkers[id].resetEnergy();
-                this->model.walkers[id].resetCollisions();
+                (*this->model.getWalkers())[id].resetPosition();
+                (*this->model.getWalkers())[id].resetSeed();
+                (*this->model.getWalkers())[id].resetEnergy();
+                (*this->model.getWalkers())[id].resetCollisions();
             }
         }
     } else
     {
-        for (uint id = 0; id < this->model.walkers.size(); id++)
+        for (uint id = 0; id < this->model.getWalkers()->size(); id++)
         {
-            this->model.walkers[id].resetPosition();
-            this->model.walkers[id].resetSeed();
-            this->model.walkers[id].resetEnergy();
-            this->model.walkers[id].resetCollisions();
+            (*this->model.getWalkers())[id].resetPosition();
+            (*this->model.getWalkers())[id].resetSeed();
+            (*this->model.getWalkers())[id].resetEnergy();
+            (*this->model.getWalkers())[id].resetCollisions();
         }
     }   
 }
@@ -164,7 +164,7 @@ void NMR_PFGSE::updateWalkersXiRate(uint _rwsteps)
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
-        const int loop_size = this->model.walkers.size();
+        const int loop_size = this->model.getWalkers()->size();
         int loop_start, loop_finish;
 
         #pragma omp parallel private(loop_start, loop_finish) 
@@ -176,14 +176,14 @@ void NMR_PFGSE::updateWalkersXiRate(uint _rwsteps)
 
             for (uint id = loop_start; id < loop_finish; id++)
             {
-                this->model.walkers[id].updateXiRate(_rwsteps);
+                (*this->model.getWalkers())[id].updateXiRate(_rwsteps);
             }
         }
     } else
     {
-        for (uint id = 0; id < this->model.walkers.size(); id++)
+        for (uint id = 0; id < this->model.getWalkers()->size(); id++)
         {
-            this->model.walkers[id].updateXiRate(_rwsteps);
+            (*this->model.getWalkers())[id].updateXiRate(_rwsteps);
         }
     }   
 }
@@ -736,15 +736,15 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 			for(uint idx = 0; idx < walkersPerSample; idx++)
 	        {
 	            // Get walker displacement
-				dX = ((double) this->model.walkers[offset + idx].getInitialPositionX() - (double) this->model.walkers[offset + idx].getCurrentPositionX());
-				dY = ((double) this->model.walkers[offset + idx].getInitialPositionY() - (double) this->model.walkers[offset + idx].getCurrentPositionY());
-				dZ = ((double) this->model.walkers[offset + idx].getInitialPositionZ() - (double) this->model.walkers[offset + idx].getCurrentPositionZ());
+				dX = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionX() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionX());
+				dY = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionY() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionY());
+				dZ = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionZ() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionZ());
 				Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
 					
 				for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 				{
 					phase = this->vecK[kIdx].dotProduct(dR);	
-					Mkt_samples[kIdx][sampleId] += cos(phase) * this->model.walkers[idx].getEnergy();	
+					Mkt_samples[kIdx][sampleId] += cos(phase) * (*this->model.getWalkers())[idx].getEnergy();	
 				}
 	        }
 
@@ -789,15 +789,15 @@ double ** NMR_PFGSE::computeSamplesMagnitude()
 		for(uint idx = 0; idx < walkersPerSample; idx++)
 		{
 			// Get walker displacement
-			dX = ((double) this->model.walkers[offset + idx].getInitialPositionX() - (double) this->model.walkers[offset + idx].getCurrentPositionX());
-			dY = ((double) this->model.walkers[offset + idx].getInitialPositionY() - (double) this->model.walkers[offset + idx].getCurrentPositionY());
-			dZ = ((double) this->model.walkers[offset + idx].getInitialPositionZ() - (double) this->model.walkers[offset + idx].getCurrentPositionZ());
+			dX = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionX() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionX());
+			dY = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionY() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionY());
+			dZ = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionZ() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionZ());
 			Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
 			
 			for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 			{
 				phase = this->vecK[kIdx].dotProduct(dR);
-				Mkt_samples[kIdx][sample] += cos(phase) * this->model.walkers[idx].getEnergy();;	
+				Mkt_samples[kIdx][sample] += cos(phase) * (*this->model.getWalkers())[idx].getEnergy();;	
 			}
 		}		 
 	}
@@ -1095,7 +1095,7 @@ void NMR_PFGSE::recoverDmsdWithoutSampling()
 	// int imgX, imgY, imgZ;
 	for(uint idx = 0; idx < this->model.getNumberOfWalkers(); idx++)
 	{
-		Walker particle(this->model.walkers[idx]);
+		Walker particle((*this->model.getWalkers())[idx]);
 
 		// Get walker displacement
 		// X:
@@ -1187,7 +1187,7 @@ void NMR_PFGSE::recoverDmsdWithSampling()
 		for(uint idx = 0; idx < walkersPerSample; idx++)
 		{
 			int offset = sample * walkersPerSample;
-			Walker particle(this->model.walkers[idx + offset]);
+			Walker particle((*this->model.getWalkers())[idx + offset]);
 
 			// Get walker displacement
 			// X:
@@ -1492,18 +1492,18 @@ void NMR_PFGSE::writeWalkers()
     file << ",RNGSeed" << endl;
 
     const int precision = 6;
-    for (uint index = 0; index < this->model.walkers.size(); index++)
+    for (uint index = 0; index < this->model.getWalkers()->size(); index++)
     {
-        file << setprecision(precision) << this->model.walkers[index].getInitialPositionX()
-        << "," << this->model.walkers[index].getInitialPositionY()
-        << "," << this->model.walkers[index].getInitialPositionZ()
-        << "," << this->model.walkers[index].getCurrentPositionX() 
-        << "," << this->model.walkers[index].getCurrentPositionY() 
-        << "," << this->model.walkers[index].getCurrentPositionZ() 
-        << "," << this->model.walkers[index].getCollisions() 
-        << "," << this->model.walkers[index].getXiRate() 
-        << "," << this->model.walkers[index].getEnergy() 
-        << "," << this->model.walkers[index].getInitialSeed() << endl;
+        file << setprecision(precision) << (*this->model.getWalkers())[index].getInitialPositionX()
+        << "," << (*this->model.getWalkers())[index].getInitialPositionY()
+        << "," << (*this->model.getWalkers())[index].getInitialPositionZ()
+        << "," << (*this->model.getWalkers())[index].getCurrentPositionX() 
+        << "," << (*this->model.getWalkers())[index].getCurrentPositionY() 
+        << "," << (*this->model.getWalkers())[index].getCurrentPositionZ() 
+        << "," << (*this->model.getWalkers())[index].getCollisions() 
+        << "," << (*this->model.getWalkers())[index].getXiRate() 
+        << "," << (*this->model.getWalkers())[index].getEnergy() 
+        << "," << (*this->model.getWalkers())[index].getInitialSeed() << endl;
     }
 
     file.close();
@@ -1638,11 +1638,11 @@ void NMR_PFGSE::simulation_omp()
 
     // reset walker's initial state with omp parallel for
 // #pragma if(NMR_OPENMP) omp parallel for private(id) shared(walkers)
-    for (uint id = 0; id < this->model.walkers.size(); id++)
+    for (uint id = 0; id < this->model.getWalkers()->size(); id++)
     {
-        this->model.walkers[id].resetPosition();
-        this->model.walkers[id].resetSeed();
-        this->model.walkers[id].resetEnergy();
+        (*this->model.getWalkers())[id].resetPosition();
+        (*this->model.getWalkers())[id].resetSeed();
+        (*this->model.getWalkers())[id].resetEnergy();
     }
 
     // set derivables
@@ -1659,7 +1659,7 @@ void NMR_PFGSE::simulation_omp()
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
-        const int loop_size = this->model.walkers.size();
+        const int loop_size = this->model.getWalkers()->size();
         int loop_start, loop_finish; 
 
 		#pragma omp parallel shared(gamma, globalPhase, globalEnergy, resolution) private(loop_start, loop_finish) 
@@ -1675,27 +1675,27 @@ void NMR_PFGSE::simulation_omp()
             for(uint id = loop_start; id < loop_finish; id++)
             {
 				// reset energy
-				this->model.walkers[id].resetPosition();
-				this->model.walkers[id].resetSeed();
-				this->model.walkers[id].resetEnergy();
+				(*this->model.getWalkers())[id].resetPosition();
+				(*this->model.getWalkers())[id].resetSeed();
+				(*this->model.getWalkers())[id].resetEnergy();
 				
 				// make walkers walk througout image
 				for (uint step = 0; step < this->model.getSimulationSteps(); step++)
 				{
-					this->model.walkers[id].walk(this->model.getBitBlock());     
+					(*this->model.getWalkers())[id].walk(this->model.getBitBlock());     
 				}
 
 				// get final individual signal
-				walkerEnergy = this->model.walkers[id].getEnergy();
+				walkerEnergy = (*this->model.getWalkers())[id].getEnergy();
 				#pragma omp critical
 				{
 					globalEnergy += walkerEnergy;
 				}
 
 				// get final individual phase
-				double dX = ((double) this->model.walkers[id].getCurrentPositionX()) - ((double) this->model.walkers[id].getInitialPositionX());
-				double dY = ((double) this->model.walkers[id].getCurrentPositionY()) - ((double) this->model.walkers[id].getInitialPositionY());
-				double dZ = ((double) this->model.walkers[id].getCurrentPositionZ()) - ((double) this->model.walkers[id].getInitialPositionZ());
+				double dX = ((double) (*this->model.getWalkers())[id].getCurrentPositionX()) - ((double) (*this->model.getWalkers())[id].getInitialPositionX());
+				double dY = ((double) (*this->model.getWalkers())[id].getCurrentPositionY()) - ((double) (*this->model.getWalkers())[id].getInitialPositionY());
+				double dZ = ((double) (*this->model.getWalkers())[id].getCurrentPositionZ()) - ((double) (*this->model.getWalkers())[id].getInitialPositionZ());
 
 				Vector3D dR(dX,dY,dZ);
 				Vector3D wavevector_k;
@@ -1720,28 +1720,28 @@ void NMR_PFGSE::simulation_omp()
 		double walkerPhase;
 		double walkerEnergy;
 
-		for(uint id = 0; id < this->model.walkers.size(); id++)
+		for(uint id = 0; id < this->model.getWalkers()->size(); id++)
 		{
 			// reset energy
-			this->model.walkers[id].resetPosition();
-			this->model.walkers[id].resetSeed();
-			this->model.walkers[id].resetEnergy();
+			(*this->model.getWalkers())[id].resetPosition();
+			(*this->model.getWalkers())[id].resetSeed();
+			(*this->model.getWalkers())[id].resetEnergy();
 			
 			// make walkers walk througout image
 			for (uint step = 0; step < this->model.getSimulationSteps(); step++)
 			{
-				this->model.walkers[id].walk(this->model.getBitBlock());
+				(*this->model.getWalkers())[id].walk(this->model.getBitBlock());
 			}
 
 			// get final individual signal
-			walkerEnergy = this->model.walkers[id].getEnergy();
+			walkerEnergy = (*this->model.getWalkers())[id].getEnergy();
 			globalEnergy += walkerEnergy;
 			
 
 			// get final individual phase
-			double dX = ((double) this->model.walkers[id].getCurrentPositionX()) - ((double) this->model.walkers[id].getInitialPositionX());
-			double dY = ((double) this->model.walkers[id].getCurrentPositionY()) - ((double) this->model.walkers[id].getInitialPositionY());
-			double dZ = ((double) this->model.walkers[id].getCurrentPositionZ()) - ((double) this->model.walkers[id].getInitialPositionZ());
+			double dX = ((double) (*this->model.getWalkers())[id].getCurrentPositionX()) - ((double) (*this->model.getWalkers())[id].getInitialPositionX());
+			double dY = ((double) (*this->model.getWalkers())[id].getCurrentPositionY()) - ((double) (*this->model.getWalkers())[id].getInitialPositionY());
+			double dZ = ((double) (*this->model.getWalkers())[id].getCurrentPositionZ()) - ((double) (*this->model.getWalkers())[id].getInitialPositionZ());
 
 			Vector3D dR(dX,dY,dZ);
 			Vector3D wavevector_k;

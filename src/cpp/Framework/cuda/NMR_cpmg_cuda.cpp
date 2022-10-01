@@ -914,7 +914,7 @@ void NMR_cpmg::image_simulation_cuda()
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
-        const int loop_size = this->model.walkers.size();
+        const int loop_size = this->model.getWalkers()->size();
         int loop_start, loop_finish;
 
         #pragma omp parallel private(loop_start, loop_finish) 
@@ -926,19 +926,19 @@ void NMR_cpmg::image_simulation_cuda()
 
             for (uint id = loop_start; id < loop_finish; id++)
             {
-                this->model.walkers[id].resetPosition();
-                this->model.walkers[id].resetSeed();
-                this->model.walkers[id].resetEnergy();
+                (*this->model.getWalkers())[id].resetPosition();
+                (*this->model.getWalkers())[id].resetSeed();
+                (*this->model.getWalkers())[id].resetEnergy();
             }
         }
     } else
     {
         // reset walker's initial state 
-        for (uint id = 0; id < this->model.walkers.size(); id++)
+        for (uint id = 0; id < this->model.getWalkers()->size(); id++)
         {
-            this->model.walkers[id].resetPosition();
-            this->model.walkers[id].resetSeed();
-            this->model.walkers[id].resetEnergy();
+            (*this->model.getWalkers())[id].resetPosition();
+            (*this->model.getWalkers())[id].resetSeed();
+            (*this->model.getWalkers())[id].resetEnergy();
         }
     }
 
@@ -947,7 +947,7 @@ void NMR_cpmg::image_simulation_cuda()
     this->signalAmps.reserve(this->model.getNumberOfEchoes() + 1); // '+1' to accomodate time 0.0
 
     // get initial energy global state
-    double energySum = ((double) this->model.walkers.size()) * this->model.walkers[0].getEnergy();
+    double energySum = ((double) this->model.getWalkers()->size()) * (*this->model.getWalkers())[0].getEnergy();
     this->signalAmps.push_back(energySum);
 
     reset_time += omp_get_wtime() - tick;
@@ -1102,28 +1102,28 @@ void NMR_cpmg::image_simulation_cuda()
 
                 for (uint i = loop_start; i < loop_finish; i++)
                 {
-                    walker_px[i] = this->model.walkers[i + packOffset].getInitialPositionX();
-                    walker_py[i] = this->model.walkers[i + packOffset].getInitialPositionY();
-                    walker_pz[i] = this->model.walkers[i + packOffset].getInitialPositionZ();
-                    penalty[i] = this->model.walkers[i + packOffset].getDecreaseFactor();
+                    walker_px[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionX();
+                    walker_py[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionY();
+                    walker_pz[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionZ();
+                    penalty[i] = (*this->model.getWalkers())[i + packOffset].getDecreaseFactor();
                     pAlive[i] = 1.0;
                     phase[i] = 0.0;
-                    energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->model.walkers[i + packOffset].getEnergy();
-                    seed[i] = this->model.walkers[i + packOffset].getInitialSeed();
+                    energy[i + ((echoesPerKernel - 1) * energyArraySize)] = (*this->model.getWalkers())[i + packOffset].getEnergy();
+                    seed[i] = (*this->model.getWalkers())[i + packOffset].getInitialSeed();
                 }
             }
         } else
         {            
             for (uint i = 0; i < walkersPerKernel; i++)
             {
-                walker_px[i] = this->model.walkers[i + packOffset].getInitialPositionX();
-                walker_py[i] = this->model.walkers[i + packOffset].getInitialPositionY();
-                walker_pz[i] = this->model.walkers[i + packOffset].getInitialPositionZ();
-                penalty[i] = this->model.walkers[i + packOffset].getDecreaseFactor();
+                walker_px[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionX();
+                walker_py[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionY();
+                walker_pz[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionZ();
+                penalty[i] = (*this->model.getWalkers())[i + packOffset].getDecreaseFactor();
                 pAlive[i] = 1.0;    
                 phase[i] = 0.0;
-                energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->model.walkers[i + packOffset].getEnergy();
-                seed[i] = this->model.walkers[i + packOffset].getInitialSeed();
+                energy[i + ((echoesPerKernel - 1) * energyArraySize)] = (*this->model.getWalkers())[i + packOffset].getEnergy();
+                seed[i] = (*this->model.getWalkers())[i + packOffset].getInitialSeed();
             }
         }  
         buffer_time += omp_get_wtime() - tick;      
@@ -1350,18 +1350,18 @@ void NMR_cpmg::image_simulation_cuda()
 
                     for (uint id = loop_start; id < loop_finish; id++)
                     {
-                        this->model.walkers[id + packOffset].setCurrentPositionX(walker_px[id]);
-                        this->model.walkers[id + packOffset].setCurrentPositionY(walker_py[id]);
-                        this->model.walkers[id + packOffset].setCurrentPositionZ(walker_pz[id]);
+                        (*this->model.getWalkers())[id + packOffset].setCurrentPositionX(walker_px[id]);
+                        (*this->model.getWalkers())[id + packOffset].setCurrentPositionY(walker_py[id]);
+                        (*this->model.getWalkers())[id + packOffset].setCurrentPositionZ(walker_pz[id]);
                     }
                 }
             } else
             {
                 for (uint i = 0; i < walkersPerKernel; i++)
                 {
-                    this->model.walkers[i + packOffset].setCurrentPositionX(walker_px[i]);
-                    this->model.walkers[i + packOffset].setCurrentPositionY(walker_py[i]);
-                    this->model.walkers[i + packOffset].setCurrentPositionZ(walker_pz[i]); 
+                    (*this->model.getWalkers())[i + packOffset].setCurrentPositionX(walker_px[i]);
+                    (*this->model.getWalkers())[i + packOffset].setCurrentPositionY(walker_py[i]);
+                    (*this->model.getWalkers())[i + packOffset].setCurrentPositionZ(walker_pz[i]); 
                 }
             }
             buffer_time += omp_get_wtime() - tick;  
@@ -1393,28 +1393,28 @@ void NMR_cpmg::image_simulation_cuda()
 
                 for (uint i = loop_start; i < loop_finish; i++)
                 {
-                    walker_px[i] = this->model.walkers[i + packOffset].getInitialPositionX();
-                    walker_py[i] = this->model.walkers[i + packOffset].getInitialPositionY();
-                    walker_pz[i] = this->model.walkers[i + packOffset].getInitialPositionZ();
-                    penalty[i] = this->model.walkers[i + packOffset].getDecreaseFactor();
+                    walker_px[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionX();
+                    walker_py[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionY();
+                    walker_pz[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionZ();
+                    penalty[i] = (*this->model.getWalkers())[i + packOffset].getDecreaseFactor();
                     pAlive[i] = 1.0;
                     phase[i] = 0.0;
-                    energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->model.walkers[i + packOffset].getEnergy();
-                    seed[i] = this->model.walkers[i + packOffset].getInitialSeed();
+                    energy[i + ((echoesPerKernel - 1) * energyArraySize)] = (*this->model.getWalkers())[i + packOffset].getEnergy();
+                    seed[i] = (*this->model.getWalkers())[i + packOffset].getInitialSeed();
                 }
             }
         } else
         {            
             for (uint i = 0; i < lastWalkerPackSize; i++)
             {
-                walker_px[i] = this->model.walkers[i + packOffset].getInitialPositionX();
-                walker_py[i] = this->model.walkers[i + packOffset].getInitialPositionY();
-                walker_pz[i] = this->model.walkers[i + packOffset].getInitialPositionZ();
-                penalty[i] = this->model.walkers[i + packOffset].getDecreaseFactor();
+                walker_px[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionX();
+                walker_py[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionY();
+                walker_pz[i] = (*this->model.getWalkers())[i + packOffset].getInitialPositionZ();
+                penalty[i] = (*this->model.getWalkers())[i + packOffset].getDecreaseFactor();
                 pAlive[i] = 1.0;
                 phase[i] = 0.0;
-                energy[i + ((echoesPerKernel - 1) * energyArraySize)] = this->model.walkers[i + packOffset].getEnergy();
-                seed[i] = this->model.walkers[i + packOffset].getInitialSeed();
+                energy[i + ((echoesPerKernel - 1) * energyArraySize)] = (*this->model.getWalkers())[i + packOffset].getEnergy();
+                seed[i] = (*this->model.getWalkers())[i + packOffset].getInitialSeed();
             }
         }   
 
@@ -1654,18 +1654,18 @@ void NMR_cpmg::image_simulation_cuda()
 
                     for (uint id = loop_start; id < loop_finish; id++)
                     {
-                        this->model.walkers[id + packOffset].setCurrentPositionX(walker_px[id]);
-                        this->model.walkers[id + packOffset].setCurrentPositionY(walker_py[id]);
-                        this->model.walkers[id + packOffset].setCurrentPositionZ(walker_pz[id]);
+                        (*this->model.getWalkers())[id + packOffset].setCurrentPositionX(walker_px[id]);
+                        (*this->model.getWalkers())[id + packOffset].setCurrentPositionY(walker_py[id]);
+                        (*this->model.getWalkers())[id + packOffset].setCurrentPositionZ(walker_pz[id]);
                     }
                 }
             } else
             {
                 for (uint i = 0; i < lastWalkerPackSize; i++)
                 {
-                    this->model.walkers[i + packOffset].setCurrentPositionX(walker_px[i]);
-                    this->model.walkers[i + packOffset].setCurrentPositionY(walker_py[i]);
-                    this->model.walkers[i + packOffset].setCurrentPositionZ(walker_pz[i]);            
+                    (*this->model.getWalkers())[i + packOffset].setCurrentPositionX(walker_px[i]);
+                    (*this->model.getWalkers())[i + packOffset].setCurrentPositionY(walker_py[i]);
+                    (*this->model.getWalkers())[i + packOffset].setCurrentPositionZ(walker_pz[i]);            
                 }
             }
             buffer_time += omp_get_wtime() - tick;  

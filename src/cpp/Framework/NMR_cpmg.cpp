@@ -158,11 +158,11 @@ void NMR_cpmg::image_simulation_omp()
 
     cout << "initializing CPMG-NMR simulation... ";
 
-    for (uint id = 0; id < this->model.walkers.size(); id++)
+    for (uint id = 0; id < this->model.getWalkers()->size(); id++)
     {
-        this->model.walkers[id].resetPosition();
-        this->model.walkers[id].resetSeed();
-        this->model.walkers[id].resetEnergy();
+        (*this->model.getWalkers())[id].resetPosition();
+        (*this->model.getWalkers())[id].resetSeed();
+        (*this->model.getWalkers())[id].resetEnergy();
     }
 
     // reset vector to store energy decay
@@ -171,9 +171,9 @@ void NMR_cpmg::image_simulation_omp()
 
     // get initial energy state
     double energySum = 0.0;
-    for (uint id = 0; id < this->model.walkers.size(); id++)
+    for (uint id = 0; id < this->model.getWalkers()->size(); id++)
     {
-        energySum += this->model.walkers[id].getEnergy();
+        energySum += (*this->model.getWalkers())[id].getEnergy();
     }
     this->signalAmps.push_back(energySum);
 
@@ -189,7 +189,7 @@ void NMR_cpmg::image_simulation_omp()
         {
             for (step = 0; step < this->model.getStepsPerEcho(); step++)
             {
-                this->model.walkers[id].walk(this->model.getBitBlock());
+                (*this->model.getWalkers())[id].walk(this->model.getBitBlock());
             }
         }
 
@@ -198,7 +198,7 @@ void NMR_cpmg::image_simulation_omp()
         // #pragma omp parallel for if(NMR_OPENMP) reduction(+:energySum) private(id) shared(walkers)
         for (id = 0; id < this->model.getNumberOfWalkers(); id++)
         {
-            energySum += this->model.walkers[id].getEnergy();
+            energySum += (*this->model.getWalkers())[id].getEnergy();
         }
 
         //energySum = energySum / (double)numberOfWalkers;
@@ -539,18 +539,18 @@ void NMR_cpmg::writeWalkers()
     file << ",RNGSeed" << endl;
 
     const int precision = 6;
-    for (uint index = 0; index < this->model.walkers.size(); index++)
+    for (uint index = 0; index < this->model.getWalkers()->size(); index++)
     {
-        file << setprecision(precision) << this->model.walkers[index].getInitialPositionX()
-        << "," << this->model.walkers[index].getInitialPositionY()
-        << "," << this->model.walkers[index].getInitialPositionZ()
-        << "," << this->model.walkers[index].getCurrentPositionX() 
-        << "," << this->model.walkers[index].getCurrentPositionY() 
-        << "," << this->model.walkers[index].getCurrentPositionZ() 
-        << "," << this->model.walkers[index].getCollisions() 
-        << "," << this->model.walkers[index].getXiRate() 
-        << "," << this->model.walkers[index].getEnergy() 
-        << "," << this->model.walkers[index].getInitialSeed() << endl;
+        file << setprecision(precision) << (*this->model.getWalkers())[index].getInitialPositionX()
+        << "," << (*this->model.getWalkers())[index].getInitialPositionY()
+        << "," << (*this->model.getWalkers())[index].getInitialPositionZ()
+        << "," << (*this->model.getWalkers())[index].getCurrentPositionX() 
+        << "," << (*this->model.getWalkers())[index].getCurrentPositionY() 
+        << "," << (*this->model.getWalkers())[index].getCurrentPositionZ() 
+        << "," << (*this->model.getWalkers())[index].getCollisions() 
+        << "," << (*this->model.getWalkers())[index].getXiRate() 
+        << "," << (*this->model.getWalkers())[index].getEnergy() 
+        << "," << (*this->model.getWalkers())[index].getInitialSeed() << endl;
     }
 
     file.close();

@@ -79,12 +79,12 @@ void Model::mapSimulation_CUDA_2D_histograms(bool reset)
     // reset walkers
     if(reset)
     {
-        for (uint id = 0; id < this->walkers.size(); id++)
+        for (uint id = 0; id < this->getWalkers()->size(); id++)
         {
-            this->walkers[id].resetPosition();
-            this->walkers[id].resetSeed();
-            this->walkers[id].resetCollisions();
-            this->walkers[id].resetTCollisions();
+            (*this->getWalkers())[id].resetPosition();
+            (*this->getWalkers())[id].resetSeed();
+            (*this->getWalkers())[id].resetCollisions();
+            (*this->getWalkers())[id].resetTCollisions();
         }
     }
 
@@ -151,10 +151,10 @@ void Model::mapSimulation_CUDA_2D_histograms(bool reset)
         // copy original walkers' data to temporary host arrays
         for (uint id = 0; id < numberOfWalkers; id++)
         {
-            walker_px[id] = this->walkers[id].getCurrentPositionX();
-            walker_py[id] = this->walkers[id].getCurrentPositionY();
+            walker_px[id] = (*this->getWalkers())[id].getCurrentPositionX();
+            walker_py[id] = (*this->getWalkers())[id].getCurrentPositionY();
             collisions[id] = 0;
-            seed[id] = this->walkers[id].getCurrentSeed();
+            seed[id] = (*this->getWalkers())[id].getCurrentSeed();
         }
 
         // Device data copy
@@ -189,10 +189,10 @@ void Model::mapSimulation_CUDA_2D_histograms(bool reset)
         // copy collisions host data to class members
         for (uint id = 0; id < numberOfWalkers; id++)
         {
-            this->walkers[id].setCollisions(collisions[id]);
-            this->walkers[id].setCurrentPositionX(walker_px[id]);
-            this->walkers[id].setCurrentPositionY(walker_py[id]);
-            this->walkers[id].setCurrentSeed(seed[id]);
+            (*this->getWalkers())[id].setCollisions(collisions[id]);
+            (*this->getWalkers())[id].setCurrentPositionX(walker_px[id]);
+            (*this->getWalkers())[id].setCurrentPositionY(walker_py[id]);
+            (*this->getWalkers())[id].setCurrentSeed(seed[id]);
         }
 
         // create histogram
@@ -201,8 +201,8 @@ void Model::mapSimulation_CUDA_2D_histograms(bool reset)
         // reset collision count, but keep summation in alternative count
         for (uint id = 0; id < numberOfWalkers; id++)
         {
-            this->walkers[id].setTCollisions(this->walkers[id].getTCollisions() + this->walkers[id].getCollisions());
-            this->walkers[id].resetCollisions();
+            (*this->getWalkers())[id].setTCollisions((*this->getWalkers())[id].getTCollisions() + (*this->getWalkers())[id].getCollisions());
+            (*this->getWalkers())[id].resetCollisions();
         }
     }
     // histogram loop is finished
@@ -210,7 +210,7 @@ void Model::mapSimulation_CUDA_2D_histograms(bool reset)
     // recover walkers collisions from total sum and create a global histogram
     for (uint id = 0; id < this->numberOfWalkers; id++)
     {
-        this->walkers[id].setCollisions(this->walkers[id].getTCollisions());   
+        (*this->getWalkers())[id].setCollisions((*this->getWalkers())[id].getTCollisions());   
     }
 
     // create collision histogram
@@ -710,7 +710,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
-            const int loop_size = this->walkers.size();
+            const int loop_size = this->getWalkers()->size();
             int loop_start, loop_finish;
 
             #pragma omp parallel shared(walkers) private(loop_start, loop_finish) 
@@ -722,20 +722,20 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    this->walkers[id].resetPosition();
-                    this->walkers[id].resetSeed();
-                    this->walkers[id].resetCollisions();
-                    this->walkers[id].resetTCollisions();
+                    (*this->getWalkers())[id].resetPosition();
+                    (*this->getWalkers())[id].resetSeed();
+                    (*this->getWalkers())[id].resetCollisions();
+                    (*this->getWalkers())[id].resetTCollisions();
                 }
             }
         } else
         {
-            for (uint id = 0; id < this->walkers.size(); id++)
+            for (uint id = 0; id < this->getWalkers()->size(); id++)
             {
-                this->walkers[id].resetPosition();
-                this->walkers[id].resetSeed();
-                this->walkers[id].resetCollisions();
-                this->walkers[id].resetTCollisions();
+                (*this->getWalkers())[id].resetPosition();
+                (*this->getWalkers())[id].resetSeed();
+                (*this->getWalkers())[id].resetCollisions();
+                (*this->getWalkers())[id].resetTCollisions();
             }
         }
     }
@@ -851,22 +851,22 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
 
                     for (uint id = loop_start; id < loop_finish; id++)
                     {
-                        walker_px[id] = this->walkers[id + packOffset].getCurrentPositionX();
-                        walker_py[id] = this->walkers[id + packOffset].getCurrentPositionY();
-                        walker_pz[id] = this->walkers[id + packOffset].getCurrentPositionZ();
+                        walker_px[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionX();
+                        walker_py[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionY();
+                        walker_pz[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionZ();
                         collisions[id] = 0;
-                        seed[id] = this->walkers[id + packOffset].getCurrentSeed();
+                        seed[id] = (*this->getWalkers())[id + packOffset].getCurrentSeed();
                     }
                 }
             } else
             {
                 for (uint id = 0; id < walkersPerKernel; id++)
                 {
-                    walker_px[id] = this->walkers[id + packOffset].getCurrentPositionX();
-                    walker_py[id] = this->walkers[id + packOffset].getCurrentPositionY();
-                    walker_pz[id] = this->walkers[id + packOffset].getCurrentPositionZ();
+                    walker_px[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionX();
+                    walker_py[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionY();
+                    walker_pz[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionZ();
                     collisions[id] = 0;
-                    seed[id] = this->walkers[id + packOffset].getCurrentSeed();
+                    seed[id] = (*this->getWalkers())[id + packOffset].getCurrentSeed();
                 }
             }
     
@@ -963,11 +963,11 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
 
                     for (uint id = loop_start; id < loop_finish; id++)
                     {
-                        this->walkers[id + packOffset].setCollisions(collisions[id]);
-                        this->walkers[id + packOffset].setCurrentPositionX(walker_px[id]);
-                        this->walkers[id + packOffset].setCurrentPositionY(walker_py[id]);
-                        this->walkers[id + packOffset].setCurrentPositionZ(walker_pz[id]); 
-                        this->walkers[id + packOffset].setCurrentSeed(seed[id]);
+                        (*this->getWalkers())[id + packOffset].setCollisions(collisions[id]);
+                        (*this->getWalkers())[id + packOffset].setCurrentPositionX(walker_px[id]);
+                        (*this->getWalkers())[id + packOffset].setCurrentPositionY(walker_py[id]);
+                        (*this->getWalkers())[id + packOffset].setCurrentPositionZ(walker_pz[id]); 
+                        (*this->getWalkers())[id + packOffset].setCurrentSeed(seed[id]);
                     }
                 }
             } else
@@ -975,11 +975,11 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                 
                 for (uint id = 0; id < walkersPerKernel; id++)
                 {
-                    this->walkers[id + packOffset].setCollisions(collisions[id]);
-                    this->walkers[id + packOffset].setCurrentPositionX(walker_px[id]);
-                    this->walkers[id + packOffset].setCurrentPositionY(walker_py[id]);
-                    this->walkers[id + packOffset].setCurrentPositionZ(walker_pz[id]); 
-                    this->walkers[id + packOffset].setCurrentSeed(seed[id]);
+                    (*this->getWalkers())[id + packOffset].setCollisions(collisions[id]);
+                    (*this->getWalkers())[id + packOffset].setCurrentPositionX(walker_px[id]);
+                    (*this->getWalkers())[id + packOffset].setCurrentPositionY(walker_py[id]);
+                    (*this->getWalkers())[id + packOffset].setCurrentPositionZ(walker_pz[id]); 
+                    (*this->getWalkers())[id + packOffset].setCurrentSeed(seed[id]);
                 }
             }
     
@@ -1010,22 +1010,22 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
 
                     for (uint id = loop_start; id < loop_finish; id++)
                     {
-                        walker_px[id] = this->walkers[id + packOffset].getCurrentPositionX();
-                        walker_py[id] = this->walkers[id + packOffset].getCurrentPositionY();
-                        walker_pz[id] = this->walkers[id + packOffset].getCurrentPositionZ();
+                        walker_px[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionX();
+                        walker_py[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionY();
+                        walker_pz[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionZ();
                         collisions[id] = 0;
-                        seed[id] = this->walkers[id + packOffset].getCurrentSeed();
+                        seed[id] = (*this->getWalkers())[id + packOffset].getCurrentSeed();
                     }
                 }
             } else
             {
                 for (uint id = 0; id < lastWalkerPackSize; id++)
                 {
-                    walker_px[id] = this->walkers[id + packOffset].getCurrentPositionX();
-                    walker_py[id] = this->walkers[id + packOffset].getCurrentPositionY();
-                    walker_pz[id] = this->walkers[id + packOffset].getCurrentPositionZ();
+                    walker_px[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionX();
+                    walker_py[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionY();
+                    walker_pz[id] = (*this->getWalkers())[id + packOffset].getCurrentPositionZ();
                     collisions[id] = 0;
-                    seed[id] = this->walkers[id + packOffset].getCurrentSeed();
+                    seed[id] = (*this->getWalkers())[id + packOffset].getCurrentSeed();
                 }
             }
     
@@ -1122,11 +1122,11 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
 
                     for (uint id = loop_start; id < loop_finish; id++)
                     {
-                        this->walkers[id + packOffset].setCollisions(collisions[id]);
-                        this->walkers[id + packOffset].setCurrentPositionX(walker_px[id]);
-                        this->walkers[id + packOffset].setCurrentPositionY(walker_py[id]);
-                        this->walkers[id + packOffset].setCurrentPositionZ(walker_pz[id]); 
-                        this->walkers[id + packOffset].setCurrentSeed(seed[id]);
+                        (*this->getWalkers())[id + packOffset].setCollisions(collisions[id]);
+                        (*this->getWalkers())[id + packOffset].setCurrentPositionX(walker_px[id]);
+                        (*this->getWalkers())[id + packOffset].setCurrentPositionY(walker_py[id]);
+                        (*this->getWalkers())[id + packOffset].setCurrentPositionZ(walker_pz[id]); 
+                        (*this->getWalkers())[id + packOffset].setCurrentSeed(seed[id]);
                     }
                 }
             } else
@@ -1134,11 +1134,11 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                 
                 for (uint id = 0; id < lastWalkerPackSize; id++)
                 {
-                    this->walkers[id + packOffset].setCollisions(collisions[id]);
-                    this->walkers[id + packOffset].setCurrentPositionX(walker_px[id]);
-                    this->walkers[id + packOffset].setCurrentPositionY(walker_py[id]);
-                    this->walkers[id + packOffset].setCurrentPositionZ(walker_pz[id]);
-                    this->walkers[id + packOffset].setCurrentSeed(seed[id]);
+                    (*this->getWalkers())[id + packOffset].setCollisions(collisions[id]);
+                    (*this->getWalkers())[id + packOffset].setCurrentPositionX(walker_px[id]);
+                    (*this->getWalkers())[id + packOffset].setCurrentPositionY(walker_py[id]);
+                    (*this->getWalkers())[id + packOffset].setCurrentPositionZ(walker_pz[id]);
+                    (*this->getWalkers())[id + packOffset].setCurrentSeed(seed[id]);
                 }
             }
         }
@@ -1163,16 +1163,16 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    this->walkers[id].setTCollisions(this->walkers[id].getTCollisions() + this->walkers[id].getCollisions());
-                    this->walkers[id].resetCollisions();
+                    (*this->getWalkers())[id].setTCollisions((*this->getWalkers())[id].getTCollisions() + (*this->getWalkers())[id].getCollisions());
+                    (*this->getWalkers())[id].resetCollisions();
                 }
             }
         } else
         {
             for (uint id = 0; id < this->numberOfWalkers; id++)
             {
-                this->walkers[id].setTCollisions(this->walkers[id].getTCollisions() + this->walkers[id].getCollisions());
-                this->walkers[id].resetCollisions();
+                (*this->getWalkers())[id].setTCollisions((*this->getWalkers())[id].getTCollisions() + (*this->getWalkers())[id].getCollisions());
+                (*this->getWalkers())[id].resetCollisions();
             }
         }
     }
@@ -1195,7 +1195,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
 
             for (uint id = loop_start; id < loop_finish; id++)
             {
-                this->walkers[id].setCollisions(this->walkers[id].getTCollisions());
+                (*this->getWalkers())[id].setCollisions((*this->getWalkers())[id].getTCollisions());
             }
         }
 
@@ -1203,7 +1203,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
     {
         for (uint id = 0; id < this->numberOfWalkers; id++)
         {
-            this->walkers[id].setCollisions(this->walkers[id].getTCollisions());   
+            (*this->getWalkers())[id].setCollisions((*this->getWalkers())[id].getTCollisions());   
         }
     }
 

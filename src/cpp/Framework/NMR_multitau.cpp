@@ -251,18 +251,18 @@ void NMR_multitau::writeWalkers()
     file << ",RNGSeed" << endl;
 
     const int precision = 6;
-    for (uint index = 0; index < (*this).getModel().walkers.size(); index++)
+    for (uint index = 0; index < (*this).getModel().getWalkers()->size(); index++)
     {
-        file << setprecision(precision) << (*this).getModel().walkers[index].getInitialPositionX()
-        << "," << (*this).getModel().walkers[index].getInitialPositionY()
-        << "," << (*this).getModel().walkers[index].getInitialPositionZ()
-        << "," << (*this).getModel().walkers[index].getCurrentPositionX() 
-        << "," << (*this).getModel().walkers[index].getCurrentPositionY() 
-        << "," << (*this).getModel().walkers[index].getCurrentPositionZ() 
-        << "," << (*this).getModel().walkers[index].getCollisions() 
-        << "," << (*this).getModel().walkers[index].getXiRate() 
-        << "," << (*this).getModel().walkers[index].getEnergy() 
-        << "," << (*this).getModel().walkers[index].getInitialSeed() << endl;
+        file << setprecision(precision) << (*(*this).getModel().getWalkers())[index].getInitialPositionX()
+        << "," << (*(*this).getModel().getWalkers())[index].getInitialPositionY()
+        << "," << (*(*this).getModel().getWalkers())[index].getInitialPositionZ()
+        << "," << (*(*this).getModel().getWalkers())[index].getCurrentPositionX() 
+        << "," << (*(*this).getModel().getWalkers())[index].getCurrentPositionY() 
+        << "," << (*(*this).getModel().getWalkers())[index].getCurrentPositionZ() 
+        << "," << (*(*this).getModel().getWalkers())[index].getCollisions() 
+        << "," << (*(*this).getModel().getWalkers())[index].getXiRate() 
+        << "," << (*(*this).getModel().getWalkers())[index].getEnergy() 
+        << "," << (*(*this).getModel().getWalkers())[index].getInitialSeed() << endl;
     }
 
     file.close();

@@ -12,8 +12,7 @@ class Model
 public:
     // RNG State
     static std::mt19937 _rng;
-    vector<Walker> walkers;
-    
+
 private:    
     // Class attributes:
     // Config attributes
@@ -41,6 +40,7 @@ private:
 
     vector<Point3D> pores;
     vector<uint> walkersIdxList;
+    vector<Walker> *walkers;
 
     // physical properties
     double timeInterval; // time interval between each walker step
@@ -132,6 +132,12 @@ public:
             delete this->bitBlock;
             this->bitBlock = NULL;
         }
+
+        if(this->walkers != NULL)
+        {
+            delete this->walkers;
+            this->walkers = NULL;
+        }
         cout << "Simulation model object destroyed." << endl;
     }
 
@@ -162,10 +168,10 @@ public:
     void setWalkersIdxList(uint _wid, uint _idx){ this->walkersIdxList[_idx] = _wid; }
     void addWalkerIdxList(uint _wid){ this->walkersIdxList.push_back(_wid); }
     void clearWalkerIdxList(){ this->walkersIdxList.clear(); }    
-    void setWalkers(vector<Walker> _w){ this->walkers = _w; }
-    void setWalkers(Walker _w, uint _idx){ this->walkers[_idx] = _w; }
-    void addWalkers(Walker _w){ this->walkers.push_back(_w); }
-    void clearWalkers(){ this->walkers.clear(); }
+    void setWalkers(vector<Walker> *_w){ this->walkers = _w; }
+    void setWalkers(Walker _w, uint _idx){ (*this->walkers)[_idx] = _w; }
+    void addWalkers(Walker _w){ this->walkers->push_back(_w); }
+    void clearWalkers(){ this->walkers->clear(); }
     void setTimeInterval(double _t){ this->timeInterval = _t; }
     void setDiffusionCoefficient(double _d){ this->diffusionCoefficient = _d; }
     void setGiromagneticRatio(double _g){ this->giromagneticRatio = _g; }
@@ -215,8 +221,8 @@ public:
     Point3D getPores(uint idx){ return this->pores[idx]; }
     vector<uint> getWalkersIdxList(){ return this->walkersIdxList; }
     uint getWalkersIdxList(uint idx){ return this->walkersIdxList[idx]; }
-    vector<Walker> getWalkers(){ return this->walkers; }
-    Walker getWalkers(uint idx){ return this->walkers[idx]; }
+    vector<Walker> *getWalkers(){ return this->walkers; }
+    Walker getWalkers(uint idx){ return (*this->walkers)[idx]; }
     double getTimeInterval(){ return this->timeInterval; }
     double getDiffusionCoefficient(){ return this->diffusionCoefficient; }
     double getGiromagneticRatio(){ return this->giromagneticRatio; }
@@ -340,9 +346,9 @@ public:
 
     void reset()
     {
-        if (this->walkers.size() > 0)
+        if (this->walkers->size() > 0)
         {
-            walkers.clear();
+            this->walkers->clear();
         }
     }
 
@@ -354,7 +360,7 @@ public:
 
         // vector objects
         this->pores.clear();
-        this->walkers.clear();
+        this->walkers->clear();
 
         // image attributes
         this->binaryMap.clear();
