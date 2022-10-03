@@ -15,8 +15,8 @@ private:
 	uint depthScale;
 
 public:	
-	InternalField(BitBlock &_bitblock, string _file);
-	InternalField(BitBlock &_bitblock, double _resolution, double _gradient, int _direction);
+	InternalField(BitBlock *_bitblock, string _file);
+	InternalField(BitBlock *_bitblock, double _resolution, double _gradient, int _direction);
 	InternalField(const InternalField &_other);
 	virtual ~InternalField()
 	{
@@ -27,25 +27,29 @@ public:
         }
 	}
 
+	void setData(double *_data){ this->data = _data; };
+	void setData(double _v, long _idx){ this->data[_idx] = _v; }
+	void setData(double _v, uint _x, uint _y, uint _z){ this->data[getIndex(_x,_y,_z)] = _v; }
+	void setDimX(int _x){if(_x > 0)	this->dimX = _x;};
+	void setDimY(int _y){if(_y > 0)	this->dimY = _y;};
+	void setDimZ(int _z){if(_z > 0)	this->dimZ = _z;};
+	void setLinearRowScale();
+	void setLinearDepthScale();
+	void setDims(int _x, int _y, int _z);
+	
+	
 	int getDimX() { return this->dimX; }
 	int getDimY() { return this->dimY; }
 	int getDimZ() { return this->dimZ; }
 	long getSize() { return (*this).getDimX() * (*this).getDimY() * (*this).getDimZ(); }
 	double *getData() { return this->data; }
 	double getData(int x, int y, int z);
-	void setData(double *_data){ this->data = _data; };
-	void setDimX(int _x){if(_x > 0)	this->dimX = _x;};
-	void setDimY(int _y){if(_y > 0)	this->dimX = _y;};
-	void setDimZ(int _z){if(_z > 0)	this->dimX = _z;};
 	uint getRowScale() { return this->rowScale; }
 	uint getDepthScale() { return this->depthScale; }
 	long getIndex(int x, int y, int z) { return ( x + (y * (*this).getRowScale()) + (z * (*this).getDepthScale()) ); }
-	void setLinearRowScale();
-	void setLinearDepthScale();
-	void setDims(int _x, int _y, int _z);
+	
 	void allocDataArray();
-	void fillDataArray(BitBlock &_bitblock, double _resolution, double _gValue, int _gDirection);
-	void fillData(long _index, double _data);
+	void fillDataArray(BitBlock *_bitblock, double _resolution, double _gValue, int _gDirection);
 	void readDataFromFile(string _file);
 	void show();	
 };

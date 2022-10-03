@@ -84,7 +84,7 @@ void ConfigFilesTest::TestCPMGConfigFile()
 	cpmg_config config;
 	config.readConfigFile((*this).getInputDir() + config_path);
 	Assert::check(config.getMethod(), (string)"image-based", "cpmg: Method");
-	Assert::check(config.getObservationTime(), (double) 3000.0, "cpmg: ObservationTime");
+	Assert::check(config.getObservationTime(), (double) 1000.0, "cpmg: ObservationTime");
 	Assert::check(config.getApplyBulk(), (bool) false, "cpmg: ApplyBulk");
 	Assert::check(config.getTimeVerbose(), (bool) false, "cpmg: TimeVerbose");
 	Assert::check(config.getResidualField(), (string)"uniform", "cpmg: ResidualField");

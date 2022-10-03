@@ -110,24 +110,24 @@ public:
     void createRandomSeed();
 
     // supermethods
-    typedef void (Walker::*map_ptr)(BitBlock &);
-    typedef void (Walker::*walk_ptr)(BitBlock &);
+    typedef void (Walker::*map_ptr)(BitBlock *);
+    typedef void (Walker::*walk_ptr)(BitBlock *);
 
 private:
     map_ptr mapPointer;
     walk_ptr walkPointer;
 
     // 2D
-    void map_2D(BitBlock &_bitBlock);
-    void walk_2D(BitBlock &_bitBlock);
+    void map_2D(BitBlock *_bitBlock);
+    void walk_2D(BitBlock *_bitBlock);
 
     // 3D
-    void map_3D(BitBlock &_bitBlock);
-    void walk_3D(BitBlock &_bitBlock);
+    void map_3D(BitBlock *_bitBlock);
+    void walk_3D(BitBlock *_bitBlock);
 
 public:
-    void map(BitBlock &_bitBlock);
-    void walk(BitBlock &_bitBlock);
+    void map(BitBlock *_bitBlock);
+    void walk(BitBlock *_bitBlock);
     void associateMap(bool _3rdDim);
     void associateWalk(bool _3rdDim);
 
@@ -264,7 +264,7 @@ public:
         }
     };
 
-    inline void checkBorder_2D(BitBlock &_bitBlock)
+    inline void checkBorder_2D(BitBlock *_bitBlock)
     {
         switch (this->nextDirection)
         {
@@ -277,7 +277,7 @@ public:
 
         case South:
 
-            if (this->currentPosition.getY() == _bitBlock.getImageRows() - 1)
+            if (this->currentPosition.getY() == _bitBlock->getImageRows() - 1)
             {
                 nextDirection = North;
             }
@@ -291,7 +291,7 @@ public:
             break;
 
         case East:
-            if (this->currentPosition.getX() == _bitBlock.getImageColumns() - 1)
+            if (this->currentPosition.getX() == _bitBlock->getImageColumns() - 1)
             {
                 nextDirection = West;
             }
@@ -304,14 +304,14 @@ public:
         return (_nextPosition.isPore(_binaryMap));
     };
 
-    inline bool checkNextPosition_2D(Point3D _nextPosition, BitBlock &_bitBlock)
+    inline bool checkNextPosition_2D(Point3D _nextPosition, BitBlock *_bitBlock)
     {
         int next_x = _nextPosition.getX();
         int next_y = _nextPosition.getY();
-        int nextBlock = _bitBlock.findBlock(next_x, next_y);
-        int nextBit = _bitBlock.findBitInBlock(next_x, next_y);
+        int nextBlock = _bitBlock->findBlock(next_x, next_y);
+        int nextBit = _bitBlock->findBitInBlock(next_x, next_y);
 
-        return (!_bitBlock.checkIfBitIsWall(nextBlock, nextBit));
+        return (!_bitBlock->checkIfBitIsWall(nextBlock, nextBit));
     };
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -417,7 +417,7 @@ public:
         }
     };
 
-    inline void checkBorder_3D(BitBlock &_bitBlock)
+    inline void checkBorder_3D(BitBlock *_bitBlock)
     {
         switch (this->nextDirection)
         {
@@ -430,7 +430,7 @@ public:
 
         case South:
 
-            if (this->currentPosition.getY() == _bitBlock.getImageRows() - 1)
+            if (this->currentPosition.getY() == _bitBlock->getImageRows() - 1)
             {
                 nextDirection = North;
             }
@@ -444,14 +444,14 @@ public:
             break;
 
         case East:
-            if (this->currentPosition.getX() == _bitBlock.getImageColumns() - 1)
+            if (this->currentPosition.getX() == _bitBlock->getImageColumns() - 1)
             {
                 nextDirection = West;
             }
             break;
 
         case Up:
-            if (this->currentPosition.getZ() == _bitBlock.getImageDepth() - 1)
+            if (this->currentPosition.getZ() == _bitBlock->getImageDepth() - 1)
             {
                 nextDirection = Down;
             }
@@ -471,15 +471,15 @@ public:
         return (_nextPosition.isPore(_binaryMap));
     };
 
-    inline bool checkNextPosition_3D(Point3D _nextPosition, BitBlock &_bitBlock)
+    inline bool checkNextPosition_3D(Point3D _nextPosition, BitBlock *_bitBlock)
     {
         int next_x = _nextPosition.getX();
         int next_y = _nextPosition.getY();
         int next_z = _nextPosition.getZ();
-        int nextBlock = _bitBlock.findBlock(next_x, next_y, next_z);
-        int nextBit = _bitBlock.findBitInBlock(next_x, next_y, next_z);
+        int nextBlock = _bitBlock->findBlock(next_x, next_y, next_z);
+        int nextBit = _bitBlock->findBitInBlock(next_x, next_y, next_z);
 
-        return (!_bitBlock.checkIfBitIsWall(nextBlock, nextBit));
+        return (!_bitBlock->checkIfBitIsWall(nextBlock, nextBit));
     };
 
     inline void moveWalker(Point3D _nextPosition)

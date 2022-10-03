@@ -27,14 +27,14 @@ void NMR_cpmg::buildInternalField(string _mode)
 {
     if(_mode == "uniform")
     {
-        this->internalField = new InternalField(this->model.bitBlock, 
+        this->internalField = new InternalField(this->model.getBitBlock(), 
                                                 this->model.getImageResolution(), 
                                                 this->CPMG_config.getGradientValue(), 
                                                 this->CPMG_config.getGradientDirection());
     } 
     else if(_mode == "import")
     {
-        this->internalField = new InternalField(this->model.bitBlock, 
+        this->internalField = new InternalField(this->model.getBitBlock(), 
                                                 this->CPMG_config.getPathToField());
     } 
 
@@ -45,9 +45,9 @@ void NMR_cpmg::checkInternalField()
 {
     if(this->internalField != NULL)
     {
-        if(this->model.getImageWidth() != this->internalField->getDimX() 
-           or this->model.getImageHeight() != this->internalField->getDimY() 
-           or this->model.getImageDepth() != this->internalField->getDimZ())
+        if(this->model.getWidth() != this->internalField->getDimX() 
+           or this->model.getHeight() != this->internalField->getDimY() 
+           or this->model.getDepth() != this->internalField->getDimZ())
         {
             cout << "Internal field dimensions doesnt match image data." << endl;
             exit(1);
@@ -81,15 +81,15 @@ void NMR_cpmg::buildName(string parent, string sufix)
 
 void NMR_cpmg::createDirectoryForData()
 {
-	string path = this->model.getDBPath();
-    BaseFunctions::createDirectory(path, this->model.simulationName + "/" + this->name );
-    this->dir = (path + this->model.simulationName + "/" + this->name);
+	string path = this->model.getDbPath();
+    BaseFunctions::createDirectory(path, this->model.getName() + "/" + this->name );
+    this->dir = (path + this->model.getName() + "/" + this->name);
 }
 
 
 void NMR_cpmg::buildModelTimeFramework(bool _map)
 {
-    this->model.setTimeFramework((*this).getExposureTime()); 
+    this->model.buildTimeFramework((*this).getExposureTime()); 
 
     // reserve memory space for signal amps
     if(this->signalAmps.size() != 0) this->signalAmps.clear();
@@ -108,16 +108,16 @@ void NMR_cpmg::buildModelTimeFramework(bool _map)
     }
 
     cout << "- Initial map time: " << (*this).getExposureTime() << " ms ";
-    cout << "[" << this->model.simulationSteps << " RW-steps]" << endl;
+    cout << "[" << this->model.getSimulationSteps() << " RW-steps]" << endl;
     if(_map) this->model.mapSimulation();
 
     // Update xi_rate and relaxivity of walkers
-    vector<double> rho = this->model.rwNMR_config.getRho();
-    if(this->model.rwNMR_config.getRhoType() == "uniform")    
+    vector<double> rho = this->model.getRWNMRConfig().getRho();
+    if(this->model.getRWNMRConfig().getRhoType() == "uniform")    
     {
         this->model.updateWalkersRelaxativity(rho[0]);
     } 
-    else if(this->model.rwNMR_config.getRhoType() == "sigmoid")
+    else if(this->model.getRWNMRConfig().getRhoType() == "sigmoid")
     {
         this->model.updateWalkersRelaxativity(rho);
     }
@@ -129,16 +129,16 @@ void NMR_cpmg::run_simulation()
     if((*this).getMethod() == "image-based")
     {
         // Choose method considering GPU usage
-        if(this->model.getGPU()) (*this).image_simulation_cuda();
+        if(this->model.getGpuUsage()) (*this).image_simulation_cuda();
         else (*this).image_simulation_omp();
 
     } else
     if((*this).getMethod() == "histogram")
     {
         vector<double> rho;
-        rho = this->model.rwNMR_config.getRho();
-        if(this->model.rwNMR_config.getRhoType() == "uniform") (*this).createPenaltiesVector(rho[0]);
-        else if(this->model.rwNMR_config.getRhoType() == "sigmoid") (*this).createPenaltiesVector(rho);
+        rho = this->model.getRWNMRConfig().getRho();
+        if(this->model.getRWNMRConfig().getRhoType() == "uniform") (*this).createPenaltiesVector(rho[0]);
+        else if(this->model.getRWNMRConfig().getRhoType() == "sigmoid") (*this).createPenaltiesVector(rho);
         (*this).histogram_simulation();
     }
 
@@ -158,47 +158,47 @@ void NMR_cpmg::image_simulation_omp()
 
     cout << "initializing CPMG-NMR simulation... ";
 
-    for (uint id = 0; id < this->model.walkers.size(); id++)
+    for (uint id = 0; id < this->model.getWalkers()->size(); id++)
     {
-        this->model.walkers[id].resetPosition();
-        this->model.walkers[id].resetSeed();
-        this->model.walkers[id].resetEnergy();
+        (*this->model.getWalkers())[id].resetPosition();
+        (*this->model.getWalkers())[id].resetSeed();
+        (*this->model.getWalkers())[id].resetEnergy();
     }
 
     // reset vector to store energy decay
     this->resetSignal();
-    this->signalAmps.reserve(this->model.numberOfEchoes);
+    this->signalAmps.reserve(this->model.getNumberOfEchoes());
 
     // get initial energy state
     double energySum = 0.0;
-    for (uint id = 0; id < this->model.walkers.size(); id++)
+    for (uint id = 0; id < this->model.getWalkers()->size(); id++)
     {
-        energySum += this->model.walkers[id].getEnergy();
+        energySum += (*this->model.getWalkers())[id].getEnergy();
     }
     this->signalAmps.push_back(energySum);
 
 
     energySum = 0.0;
     uint id, step;
-    for (uint echo = 0; echo < this->model.numberOfEchoes; echo++)
+    for (uint echo = 0; echo < this->model.getNumberOfEchoes(); echo++)
     {
 
         // walkers walk some steps with omp parallel
         // #pragma omp parallel for if(NMR_OPENMP) private(id, step) shared(walkers, bitBlock, simulationSteps)
-        for (id = 0; id < this->model.numberOfWalkers; id++)
+        for (id = 0; id < this->model.getNumberOfWalkers(); id++)
         {
-            for (step = 0; step < this->model.stepsPerEcho; step++)
+            for (step = 0; step < this->model.getStepsPerEcho(); step++)
             {
-                this->model.walkers[id].walk(this->model.bitBlock);
+                (*this->model.getWalkers())[id].walk(this->model.getBitBlock());
             }
         }
 
         // collect energy from all walkers with omp reduce
         energySum = 0.0; // reset energy summation
         // #pragma omp parallel for if(NMR_OPENMP) reduction(+:energySum) private(id) shared(walkers)
-        for (id = 0; id < this->model.numberOfWalkers; id++)
+        for (id = 0; id < this->model.getNumberOfWalkers(); id++)
         {
-            energySum += this->model.walkers[id].getEnergy();
+            energySum += (*this->model.getWalkers())[id].getEnergy();
         }
 
         //energySum = energySum / (double)numberOfWalkers;
@@ -218,14 +218,15 @@ void NMR_cpmg::createPenaltiesVector(vector<double> &_sigmoid)
         delete[] this->penalties;
         this->penalties = NULL;
     } 
-    this->penalties = new double[this->model.histogram.getSize()];
+    CollisionHistogram histogram = this->model.getHistogram();
+    this->penalties = new double[histogram.getSize()];
     
     Walker toy;
     double artificial_xirate;
     double artificial_steps = (double) this->model.getStepsPerEcho();
-    for(int idx = 0; idx < this->model.histogram.getSize(); idx++)
+    for(int idx = 0; idx < histogram.getSize(); idx++)
     {   
-        artificial_xirate = this->model.histogram.getBin(idx);
+        artificial_xirate = histogram.getBin(idx);
         toy.setXiRate(artificial_xirate);
         toy.setSurfaceRelaxivity(_sigmoid);
         toy.computeDecreaseFactor(this->model.getImageVoxelResolution(), this->model.getDiffusionCoefficient());
@@ -241,14 +242,16 @@ void NMR_cpmg::createPenaltiesVector(double rho)
         delete[] this->penalties;
         this->penalties = NULL;
     } 
-    this->penalties = new double[this->model.histogram.getSize()];
+
+    CollisionHistogram histogram = this->model.getHistogram();
+    this->penalties = new double[histogram.getSize()];
     
     Walker toy;
     double artificial_xirate;
     double artificial_steps = (double) this->model.getStepsPerEcho();
-    for(int idx = 0; idx < this->model.histogram.getSize(); idx++)
+    for(int idx = 0; idx < histogram.getSize(); idx++)
     {   
-        artificial_xirate = this->model.histogram.getBin(idx);
+        artificial_xirate = histogram.getBin(idx);
         toy.setXiRate(artificial_xirate);
         toy.setSurfaceRelaxivity(rho);
         toy.computeDecreaseFactor(this->model.getImageVoxelResolution(), this->model.getDiffusionCoefficient());
@@ -259,10 +262,10 @@ void NMR_cpmg::createPenaltiesVector(double rho)
 void NMR_cpmg::histogram_simulation()
 {
     double beginTime = omp_get_wtime();
-    string bc = this->model.boundaryCondition;
+    string bc = this->model.getBoundaryCondition();
     cout << "- starting RW-CPMG simulation (histrogram) [bc:" << bc << "]...";
 
-    if(this->model.histogramList.size() == 0)  
+    if(this->model.getHistogramList().size() == 0)  
     {
         cout << "could not start simulation without histogram list" << endl;
         return;
@@ -275,7 +278,7 @@ void NMR_cpmg::histogram_simulation()
 
     // initialize energyDistribution array
     double *energyDistribution = NULL;
-    energyDistribution = new double[this->model.histogram.getSize()];
+    energyDistribution = new double[this->model.getHistogram().getSize()];
 
 
     // reset vector to store energy decay
@@ -283,27 +286,27 @@ void NMR_cpmg::histogram_simulation()
     this->signalAmps.push_back(1.0);
 
     // histogram simulation main loop    
-    for(int hst_ID = 0; hst_ID < this->model.histogramList.size(); hst_ID++)
+    for(int hst_ID = 0; hst_ID < this->model.getHistogramList().size(); hst_ID++)
     {
-        for(uint id = 0; id < this->model.histogram.getSize(); id++)
+        for(uint id = 0; id < this->model.getHistogram().getSize(); id++)
         {
-            energyDistribution[id] = this->signalAmps.back() * this->model.histogramList[hst_ID].getAmp(id);
+            energyDistribution[id] = this->signalAmps.back() * this->model.getHistogramList()[hst_ID].getAmp(id);
         }
 
         double energyLvl;
-        int eBegin = this->model.histogramList[hst_ID].getFirstEcho();
-        int eEnd = this->model.histogramList[hst_ID].getLastEcho();
+        int eBegin = this->model.getHistogramList()[hst_ID].getFirstEcho();
+        int eEnd = this->model.getHistogramList()[hst_ID].getLastEcho();
         for(uint echo = eBegin; echo < eEnd; echo++)
         {
             // apply penalties
-            for(uint id = 0; id < this->model.histogram.getSize(); id++)
+            for(uint id = 0; id < this->model.getHistogram().getSize(); id++)
             {
                 energyDistribution[id] *= this->penalties[id];
             }
 
             // get global energy
             energyLvl = 0.0;
-            for(uint id = 0; id < this->model.histogram.getSize(); id++)
+            for(uint id = 0; id < this->model.getHistogram().getSize(); id++)
             {
                 energyLvl += energyDistribution[id];
             }
@@ -536,18 +539,18 @@ void NMR_cpmg::writeWalkers()
     file << ",RNGSeed" << endl;
 
     const int precision = 6;
-    for (uint index = 0; index < this->model.walkers.size(); index++)
+    for (uint index = 0; index < this->model.getWalkers()->size(); index++)
     {
-        file << setprecision(precision) << this->model.walkers[index].getInitialPositionX()
-        << "," << this->model.walkers[index].getInitialPositionY()
-        << "," << this->model.walkers[index].getInitialPositionZ()
-        << "," << this->model.walkers[index].getCurrentPositionX() 
-        << "," << this->model.walkers[index].getCurrentPositionY() 
-        << "," << this->model.walkers[index].getCurrentPositionZ() 
-        << "," << this->model.walkers[index].getCollisions() 
-        << "," << this->model.walkers[index].getXiRate() 
-        << "," << this->model.walkers[index].getEnergy() 
-        << "," << this->model.walkers[index].getInitialSeed() << endl;
+        file << setprecision(precision) << (*this->model.getWalkers())[index].getInitialPositionX()
+        << "," << (*this->model.getWalkers())[index].getInitialPositionY()
+        << "," << (*this->model.getWalkers())[index].getInitialPositionZ()
+        << "," << (*this->model.getWalkers())[index].getCurrentPositionX() 
+        << "," << (*this->model.getWalkers())[index].getCurrentPositionY() 
+        << "," << (*this->model.getWalkers())[index].getCurrentPositionZ() 
+        << "," << (*this->model.getWalkers())[index].getCollisions() 
+        << "," << (*this->model.getWalkers())[index].getXiRate() 
+        << "," << (*this->model.getWalkers())[index].getEnergy() 
+        << "," << (*this->model.getWalkers())[index].getInitialSeed() << endl;
     }
 
     file.close();
@@ -566,13 +569,13 @@ void NMR_cpmg::writeHistogram()
 
     file << "Bins"; 
     file << ",Amps" << endl;
-    const int num_points = this->model.histogram.getSize();
+    const int num_points = this->model.getHistogram().getSize();
     const int precision = std::numeric_limits<double>::max_digits10;
     for (int i = 0; i < num_points; i++)
     {
         file << setprecision(precision) 
-        << this->model.histogram.getBin(i) 
-        << "," << this->model.histogram.getAmp(i) << endl;
+        << this->model.getHistogram().getBin(i) 
+        << "," << this->model.getHistogram().getAmp(i) << endl;
     }
 
     file.close();
@@ -589,7 +592,7 @@ void NMR_cpmg::writeHistogramList()
         exit(1);
     }
 
-    const int histograms = this->model.histogramList.size();
+    const int histograms = this->model.getHistogramList().size();
 
     for(int hIdx = 0; hIdx < histograms; hIdx++)
     {
@@ -598,14 +601,14 @@ void NMR_cpmg::writeHistogramList()
     }
     file << endl;
 
-    const int num_points = this->model.histogram.getSize();
+    const int num_points = this->model.getHistogram().getSize();
     const int precision = std::numeric_limits<double>::max_digits10;
     for (int i = 0; i < num_points; i++)
     {
         for(int hIdx = 0; hIdx < histograms; hIdx++)
         {
-            file << setprecision(precision) << this->model.histogramList[hIdx].getBin(i) << ",";
-            file << setprecision(precision) << this->model.histogramList[hIdx].getAmp(i) << ",";
+            file << setprecision(precision) << this->model.getHistogramList()[hIdx].getBin(i) << ",";
+            file << setprecision(precision) << this->model.getHistogramList()[hIdx].getAmp(i) << ",";
         }
 
         file << endl;

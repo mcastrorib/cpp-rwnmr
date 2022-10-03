@@ -76,6 +76,7 @@ enable_testing()
 # List test commands
 add_test(NAME Runs COMMAND rwnmr)
 add_test(NAME CPMG-smooth-run COMMAND rwnmr cpmg)
+add_test(NAME CPMG_uniform_gradient-smooth-run COMMAND rwnmr cpmg -config ../input/testing/tcpmg_uniform_field.config)
 add_test(NAME PFGSE-smooth-run COMMAND rwnmr pfgse)
 add_test(NAME MultiTau-smooth-run COMMAND rwnmr multitau)
 add_test(NAME ArgsParserTest COMMAND test-rwnmr argsparser)

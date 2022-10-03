@@ -113,17 +113,17 @@ void Walker::associateWalk(bool _3rdDim)
     }
 }
 
-void Walker::map(BitBlock &_bitBlock)
+void Walker::map(BitBlock *_bitBlock)
 {
     (this->*mapPointer)(_bitBlock);
 }
 
-void Walker::walk(BitBlock &_bitBlock)
+void Walker::walk(BitBlock *_bitBlock)
 {
     (this->*walkPointer)(_bitBlock);
 }
 
-void Walker::map_2D(BitBlock &_bitBlock)
+void Walker::map_2D(BitBlock *_bitBlock)
 {
     computeNextDirection_2D();
     checkBorder_2D(_bitBlock);
@@ -141,7 +141,7 @@ void Walker::map_2D(BitBlock &_bitBlock)
     }
 }
 
-void Walker::walk_2D(BitBlock &_bitBlock)
+void Walker::walk_2D(BitBlock *_bitBlock)
 {
     computeNextDirection_2D();
     checkBorder_2D(_bitBlock);
@@ -159,7 +159,7 @@ void Walker::walk_2D(BitBlock &_bitBlock)
     }
 }
 
-void Walker::map_3D(BitBlock &_bitBlock)
+void Walker::map_3D(BitBlock *_bitBlock)
 {
     computeNextDirection_3D();
     checkBorder_3D(_bitBlock);
@@ -177,7 +177,7 @@ void Walker::map_3D(BitBlock &_bitBlock)
     }
 }
 
-void Walker::walk_3D(BitBlock &_bitBlock)
+void Walker::walk_3D(BitBlock *_bitBlock)
 {
     computeNextDirection_3D();
     checkBorder_3D(_bitBlock);

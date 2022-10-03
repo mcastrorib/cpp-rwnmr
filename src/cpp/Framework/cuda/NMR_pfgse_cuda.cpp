@@ -506,7 +506,7 @@ __global__ void PFG_reduce(double *data,
 // walker's PFG-NMR in Graphics Processing Unit
 void NMR_PFGSE::simulation_cuda()
 {   
-    string bc = this->model.boundaryCondition;
+    string bc = this->model.getBoundaryCondition();
     cout << "- starting RW-PFGSE simulation (in GPU) [bc:" << bc << "]...";
 
     bool time_verbose = false;
@@ -522,21 +522,21 @@ void NMR_PFGSE::simulation_cuda()
     cudaEventRecord(start, 0);
 
     // integer values for sizing issues
-    uint numberOfWalkers = this->model.numberOfWalkers;
-    uint bitBlockColumns = this->model.bitBlock.getBlockColumns();
-    uint bitBlockRows = this->model.bitBlock.getBlockRows();
-    uint numberOfBitBlocks = this->model.bitBlock.getNumberOfBlocks();
-    int map_columns = this->model.bitBlock.getImageColumns();
-    int map_rows = this->model.bitBlock.getImageRows();
-    int map_depth = this->model.bitBlock.getImageDepth();
-    int shiftConverter = log2(this->model.voxelDivision);
-    double voxelResolution = this->model.imageVoxelResolution;
-    uint numberOfSteps = this->model.simulationSteps - this->stepsTaken;
+    uint numberOfWalkers = this->model.getNumberOfWalkers();
+    uint bitBlockColumns = this->model.getBitBlock()->getBlockColumns();
+    uint bitBlockRows = this->model.getBitBlock()->getBlockRows();
+    uint numberOfBitBlocks = this->model.getBitBlock()->getNumberOfBlocks();
+    int map_columns = this->model.getBitBlock()->getImageColumns();
+    int map_rows = this->model.getBitBlock()->getImageRows();
+    int map_depth = this->model.getBitBlock()->getImageDepth();
+    int shiftConverter = log2(this->model.getVoxelDivision());
+    double voxelResolution = this->model.getImageVoxelResolution();
+    uint numberOfSteps = this->model.getSimulationSteps() - this->stepsTaken;
     this->stepsTaken += numberOfSteps;
     cout << "[" << numberOfSteps << " RW-steps]... ";
 
     // create a steps bucket
-    uint stepsLimit = this->model.rwNMR_config.getMaxRWSteps();
+    uint stepsLimit = this->model.getRWNMRConfig().getMaxRWSteps();
     uint stepsSize = numberOfSteps/stepsLimit;
     vector<uint> steps;
     for(uint idx = 0; idx < stepsSize; idx++)
@@ -552,8 +552,8 @@ void NMR_PFGSE::simulation_cuda()
     
 
     // define parameters for CUDA kernel launch: blockDim, gridDim etc
-    uint threadsPerBlock = this->model.rwNMR_config.getThreadsPerBlock();
-    uint blocksPerKernel = this->model.rwNMR_config.getBlocks();
+    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
+    uint blocksPerKernel = this->model.getRWNMRConfig().getBlocks();
     uint walkersPerKernel = threadsPerBlock * blocksPerKernel;
 
     // treat case when only one kernel is needed
@@ -585,7 +585,7 @@ void NMR_PFGSE::simulation_cuda()
     // Copy bitBlock3D data from host to device (only once)
     // assign pointer to bitBlock datastructure
     uint64_t *h_bitBlock;
-    h_bitBlock = this->model.bitBlock.getBlocks();
+    h_bitBlock = this->model.getBitBlock()->getBlocks();
     uint64_t *d_bitBlock;
     cudaMalloc((void **)&d_bitBlock, numberOfBitBlocks * sizeof(uint64_t));
     cudaMemcpy(d_bitBlock, h_bitBlock, numberOfBitBlocks * sizeof(uint64_t), cudaMemcpyHostToDevice);
@@ -681,7 +681,7 @@ void NMR_PFGSE::simulation_cuda()
         // Host data copy
         // copy original walkers' data to temporary host arrays
         tick = omp_get_wtime();
-        if(this->model.rwNMR_config.getOpenMPUsage())
+        if(this->model.getRWNMRConfig().getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -697,34 +697,34 @@ void NMR_PFGSE::simulation_cuda()
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    h_walker_x0[id] = this->model.walkers[id + packOffset].getInitialPositionX();
-                    h_walker_y0[id] = this->model.walkers[id + packOffset].getInitialPositionY();
-                    h_walker_z0[id] = this->model.walkers[id + packOffset].getInitialPositionZ();
-                    h_walker_px[id] = this->model.walkers[id + packOffset].getCurrentPositionX();
-                    h_walker_py[id] = this->model.walkers[id + packOffset].getCurrentPositionY();
-                    h_walker_pz[id] = this->model.walkers[id + packOffset].getCurrentPositionZ();
+                    h_walker_x0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionX();
+                    h_walker_y0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionY();
+                    h_walker_z0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionZ();
+                    h_walker_px[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionX();
+                    h_walker_py[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionY();
+                    h_walker_pz[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionZ();
                     h_collisions[id] = 0; 
-                    h_penalty[id] = this->model.walkers[id + packOffset].getDecreaseFactor();
-                    h_seed[id] = this->model.walkers[id + packOffset].getCurrentSeed();
-                    h_energy[id] = this->model.walkers[id + packOffset].getEnergy();
-                    h_phase[id] = this->model.walkers[id + packOffset].getEnergy();
+                    h_penalty[id] = (*this->model.getWalkers())[id + packOffset].getDecreaseFactor();
+                    h_seed[id] = (*this->model.getWalkers())[id + packOffset].getCurrentSeed();
+                    h_energy[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
+                    h_phase[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
                 }
             }
         } else
         {
             for (uint id = 0; id < walkersPerKernel; id++)
             {
-                h_walker_x0[id] = this->model.walkers[id + packOffset].getInitialPositionX();
-                h_walker_y0[id] = this->model.walkers[id + packOffset].getInitialPositionY();
-                h_walker_z0[id] = this->model.walkers[id + packOffset].getInitialPositionZ();
-                h_walker_px[id] = this->model.walkers[id + packOffset].getCurrentPositionX();
-                h_walker_py[id] = this->model.walkers[id + packOffset].getCurrentPositionY();
-                h_walker_pz[id] = this->model.walkers[id + packOffset].getCurrentPositionZ();
+                h_walker_x0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionX();
+                h_walker_y0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionY();
+                h_walker_z0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionZ();
+                h_walker_px[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionX();
+                h_walker_py[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionY();
+                h_walker_pz[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionZ();
                 h_collisions[id] = 0; 
-                h_penalty[id] = this->model.walkers[id + packOffset].getDecreaseFactor();
-                h_seed[id] = this->model.walkers[id + packOffset].getCurrentSeed();
-                h_energy[id] = this->model.walkers[id + packOffset].getEnergy();
-                h_phase[id] = this->model.walkers[id + packOffset].getEnergy();
+                h_penalty[id] = (*this->model.getWalkers())[id + packOffset].getDecreaseFactor();
+                h_seed[id] = (*this->model.getWalkers())[id + packOffset].getCurrentSeed();
+                h_energy[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
+                h_phase[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
             }
         }
         buffer_time += omp_get_wtime() - tick;
@@ -822,7 +822,7 @@ void NMR_PFGSE::simulation_cuda()
         copy_time = omp_get_wtime() - tick;
 
         tick = omp_get_wtime();
-        if(this->model.rwNMR_config.getOpenMPUsage())
+        if(this->model.getRWNMRConfig().getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -838,24 +838,24 @@ void NMR_PFGSE::simulation_cuda()
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    this->model.walkers[id + packOffset].setCurrentPositionX(h_walker_px[id]);
-                    this->model.walkers[id + packOffset].setCurrentPositionY(h_walker_py[id]);
-                    this->model.walkers[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
-                    this->model.walkers[id + packOffset].setCollisions(this->model.walkers[id + packOffset].getCollisions() + h_collisions[id]);
-                    this->model.walkers[id + packOffset].setEnergy(h_energy[id]);
-                    this->model.walkers[id + packOffset].setCurrentSeed(h_seed[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionX(h_walker_px[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionY(h_walker_py[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCollisions((*this->model.getWalkers())[id + packOffset].getCollisions() + h_collisions[id]);
+                    (*this->model.getWalkers())[id + packOffset].setEnergy(h_energy[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentSeed(h_seed[id]);
                 }
             }
         } else
         {
             for (uint id = 0; id < walkersPerKernel; id++)
             {
-                this->model.walkers[id + packOffset].setCurrentPositionX(h_walker_px[id]);
-                this->model.walkers[id + packOffset].setCurrentPositionY(h_walker_py[id]);
-                this->model.walkers[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
-                this->model.walkers[id + packOffset].setCollisions(this->model.walkers[id + packOffset].getCollisions() + h_collisions[id]);
-                this->model.walkers[id + packOffset].setEnergy(h_energy[id]);
-                this->model.walkers[id + packOffset].setCurrentSeed(h_seed[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionX(h_walker_px[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionY(h_walker_py[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
+                (*this->model.getWalkers())[id + packOffset].setCollisions((*this->model.getWalkers())[id + packOffset].getCollisions() + h_collisions[id]);
+                (*this->model.getWalkers())[id + packOffset].setEnergy(h_energy[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentSeed(h_seed[id]);
             }
         }
         buffer_time += omp_get_wtime() - tick;
@@ -883,7 +883,7 @@ void NMR_PFGSE::simulation_cuda()
                                                                 k_Z);
             cudaDeviceSynchronize();
 
-            if(this->model.rwNMR_config.getReduceInGPU())
+            if(this->model.getRWNMRConfig().getReduceInGPU())
             {
                 // Kernel call to reduce walker final phases
                 PFG_reduce<<<blocksPerKernel/2, 
@@ -916,7 +916,7 @@ void NMR_PFGSE::simulation_cuda()
 
     
 
-        if(this->model.rwNMR_config.getReduceInGPU())
+        if(this->model.getRWNMRConfig().getReduceInGPU())
         {
             // Kernel call to reduce walker final energies
             PFG_reduce<<<blocksPerKernel/2, 
@@ -957,7 +957,7 @@ void NMR_PFGSE::simulation_cuda()
         // Host data copy
         // copy original walkers' data to temporary host arrays
         tick = omp_get_wtime();
-        if(this->model.rwNMR_config.getOpenMPUsage())
+        if(this->model.getRWNMRConfig().getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -973,34 +973,34 @@ void NMR_PFGSE::simulation_cuda()
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    h_walker_x0[id] = this->model.walkers[id + packOffset].getInitialPositionX();
-                    h_walker_y0[id] = this->model.walkers[id + packOffset].getInitialPositionY();
-                    h_walker_z0[id] = this->model.walkers[id + packOffset].getInitialPositionZ();
-                    h_walker_px[id] = this->model.walkers[id + packOffset].getCurrentPositionX();
-                    h_walker_py[id] = this->model.walkers[id + packOffset].getCurrentPositionY();
-                    h_walker_pz[id] = this->model.walkers[id + packOffset].getCurrentPositionZ();
+                    h_walker_x0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionX();
+                    h_walker_y0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionY();
+                    h_walker_z0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionZ();
+                    h_walker_px[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionX();
+                    h_walker_py[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionY();
+                    h_walker_pz[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionZ();
                     h_collisions[id] = 0; 
-                    h_penalty[id] = this->model.walkers[id + packOffset].getDecreaseFactor();
-                    h_seed[id] = this->model.walkers[id + packOffset].getCurrentSeed();
-                    h_energy[id] = this->model.walkers[id + packOffset].getEnergy();
-                    h_phase[id] = this->model.walkers[id + packOffset].getEnergy();
+                    h_penalty[id] = (*this->model.getWalkers())[id + packOffset].getDecreaseFactor();
+                    h_seed[id] = (*this->model.getWalkers())[id + packOffset].getCurrentSeed();
+                    h_energy[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
+                    h_phase[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
                 }
             }
         } else
         {
             for (uint id = 0; id < lastWalkerPackSize; id++)
             {
-                h_walker_x0[id] = this->model.walkers[id + packOffset].getInitialPositionX();
-                h_walker_y0[id] = this->model.walkers[id + packOffset].getInitialPositionY();
-                h_walker_z0[id] = this->model.walkers[id + packOffset].getInitialPositionZ();
-                h_walker_px[id] = this->model.walkers[id + packOffset].getCurrentPositionX();
-                h_walker_py[id] = this->model.walkers[id + packOffset].getCurrentPositionY();
-                h_walker_pz[id] = this->model.walkers[id + packOffset].getCurrentPositionZ();
+                h_walker_x0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionX();
+                h_walker_y0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionY();
+                h_walker_z0[id] = (*this->model.getWalkers())[id + packOffset].getInitialPositionZ();
+                h_walker_px[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionX();
+                h_walker_py[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionY();
+                h_walker_pz[id] = (*this->model.getWalkers())[id + packOffset].getCurrentPositionZ();
                 h_collisions[id] = 0; 
-                h_penalty[id] = this->model.walkers[id + packOffset].getDecreaseFactor();
-                h_seed[id] = this->model.walkers[id + packOffset].getCurrentSeed();
-                h_energy[id] = this->model.walkers[id + packOffset].getEnergy();
-                h_phase[id] = this->model.walkers[id + packOffset].getEnergy();
+                h_penalty[id] = (*this->model.getWalkers())[id + packOffset].getDecreaseFactor();
+                h_seed[id] = (*this->model.getWalkers())[id + packOffset].getCurrentSeed();
+                h_energy[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
+                h_phase[id] = (*this->model.getWalkers())[id + packOffset].getEnergy();
             }
         }
 
@@ -1110,7 +1110,7 @@ void NMR_PFGSE::simulation_cuda()
         copy_time += omp_get_wtime() - tick;
 
         tick = omp_get_wtime();
-        if(this->model.rwNMR_config.getOpenMPUsage())
+        if(this->model.getRWNMRConfig().getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -1126,24 +1126,24 @@ void NMR_PFGSE::simulation_cuda()
 
                 for (uint id = loop_start; id < loop_finish; id++)
                 {
-                    this->model.walkers[id + packOffset].setCurrentPositionX(h_walker_px[id]);
-                    this->model.walkers[id + packOffset].setCurrentPositionY(h_walker_py[id]);
-                    this->model.walkers[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
-                    this->model.walkers[id + packOffset].setCollisions(this->model.walkers[id + packOffset].getCollisions() + h_collisions[id]);
-                    this->model.walkers[id + packOffset].setEnergy(h_energy[id]);
-                    this->model.walkers[id + packOffset].setCurrentSeed(h_seed[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionX(h_walker_px[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionY(h_walker_py[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCollisions((*this->model.getWalkers())[id + packOffset].getCollisions() + h_collisions[id]);
+                    (*this->model.getWalkers())[id + packOffset].setEnergy(h_energy[id]);
+                    (*this->model.getWalkers())[id + packOffset].setCurrentSeed(h_seed[id]);
                 }
             }
         } else
         {
             for (uint id = 0; id < lastWalkerPackSize; id++)
             {
-                this->model.walkers[id + packOffset].setCurrentPositionX(h_walker_px[id]);
-                this->model.walkers[id + packOffset].setCurrentPositionY(h_walker_py[id]);
-                this->model.walkers[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
-                this->model.walkers[id + packOffset].setCollisions(this->model.walkers[id + packOffset].getCollisions() + h_collisions[id]);
-                this->model.walkers[id + packOffset].setEnergy(h_energy[id]);
-                this->model.walkers[id + packOffset].setCurrentSeed(h_seed[id]);      
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionX(h_walker_px[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionY(h_walker_py[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentPositionZ(h_walker_pz[id]);
+                (*this->model.getWalkers())[id + packOffset].setCollisions((*this->model.getWalkers())[id + packOffset].getCollisions() + h_collisions[id]);
+                (*this->model.getWalkers())[id + packOffset].setEnergy(h_energy[id]);
+                (*this->model.getWalkers())[id + packOffset].setCurrentSeed(h_seed[id]);      
             }
         }
         buffer_time += omp_get_wtime() - tick;
@@ -1172,7 +1172,7 @@ void NMR_PFGSE::simulation_cuda()
 
             cudaDeviceSynchronize();
 
-            if(this->model.rwNMR_config.getReduceInGPU())
+            if(this->model.getRWNMRConfig().getReduceInGPU())
             {
                 // Kernel call to reduce walker final phases
                 PFG_reduce<<<blocksPerKernel/2, 
@@ -1204,7 +1204,7 @@ void NMR_PFGSE::simulation_cuda()
             }
         }
 
-        if(this->model.rwNMR_config.getReduceInGPU())
+        if(this->model.getRWNMRConfig().getReduceInGPU())
         {
             // Kernel call to reduce walker final energies
             PFG_reduce<<<blocksPerKernel/2, 
@@ -1328,7 +1328,7 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithGpu()
     Mkt_samples = new double*[this->gradientPoints];
     for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
     {
-        Mkt_samples[kIdx] = new double[this->model.walkerSamples];
+        Mkt_samples[kIdx] = new double[this->model.getWalkerSamples()];
     }
 
     /*
@@ -1336,7 +1336,7 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithGpu()
     */
     for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
     {
-        for(int sample = 0; sample < this->model.walkerSamples; sample++)
+        for(int sample = 0; sample < this->model.getWalkerSamples(); sample++)
         {
             Mkt_samples[kIdx][sample] = 0.0;
         }
@@ -1345,9 +1345,9 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithGpu()
     bool time_verbose = false;
 
     // define parameters for CUDA kernel launch: blockDim, gridDim etc
-    uint blocksPerKernel = this->model.rwNMR_config.getBlocks();
-    uint threadsPerBlock = this->model.rwNMR_config.getThreadsPerBlock();
-    uint trueWalkersPerSample = this->model.numberOfWalkers / this->model.walkerSamples;        
+    uint blocksPerKernel = this->model.getRWNMRConfig().getBlocks();
+    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
+    uint trueWalkersPerSample = this->model.getNumberOfWalkers() / this->model.getWalkerSamples();        
     uint blocksPerSample = trueWalkersPerSample / threadsPerBlock;
     if(trueWalkersPerSample % threadsPerBlock != 0) blocksPerSample++;
 
@@ -1363,7 +1363,7 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithGpu()
     */
 
     // treat case when only one kernel is needed
-    if (blocksPerSample*this->model.walkerSamples <= blocksPerKernel)
+    if (blocksPerSample*this->model.getWalkerSamples() <= blocksPerKernel)
     {
         cout << "Number of block of walkers is smaller than kernel grid dimension" << endl;
         (*this).computeMktSmallPopulation(Mkt_samples, time_verbose);
@@ -1397,10 +1397,10 @@ void NMR_PFGSE::computeMktSmallPopulation(double **Mkt_samples, bool time_verbos
         Define parameters for CUDA kernel launch: blockDim, gridDim etc
     */
     double voxelResolution = this->model.getImageVoxelResolution();
-    uint walkerSamples = this->model.walkerSamples;
-    uint trueWalkersPerSample = this->model.numberOfWalkers / walkerSamples;  
+    uint walkerSamples = this->model.getWalkerSamples();
+    uint trueWalkersPerSample = this->model.getNumberOfWalkers() / walkerSamples;  
     
-    uint threadsPerBlock = this->model.rwNMR_config.getThreadsPerBlock();
+    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
     uint minThreadsPerBlock = 64;
     while(trueWalkersPerSample < threadsPerBlock and trueWalkersPerSample < (threadsPerBlock/2) and threadsPerBlock > minThreadsPerBlock)
     {
@@ -1508,13 +1508,13 @@ void NMR_PFGSE::computeMktSmallPopulation(double **Mkt_samples, bool time_verbos
         uint bufferOffset = sample * (trueWalkersPerSample + fakeWalkersPerSample);
         for(int idx = 0; idx < trueWalkersPerSample; idx++)
         {
-            h_walker_x0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionX();
-            h_walker_y0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionY();
-            h_walker_z0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionZ();
-            h_walker_xF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionX();
-            h_walker_yF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionY();
-            h_walker_zF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionZ();
-            h_energy[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getEnergy();
+            h_walker_x0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionX();
+            h_walker_y0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionY();
+            h_walker_z0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionZ();
+            h_walker_xF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionX();
+            h_walker_yF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionY();
+            h_walker_zF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionZ();
+            h_energy[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getEnergy();
         }
     }
     buffer_time += omp_get_wtime() - tick;
@@ -1668,10 +1668,10 @@ void NMR_PFGSE::computeMktSmallPopulation2(double **Mkt_samples, bool time_verbo
         Define parameters for CUDA kernel launch: blockDim, gridDim etc
     */
     double voxelResolution = this->model.getImageVoxelResolution();
-    uint walkerSamples = this->model.walkerSamples;
-    uint trueWalkersPerSample = this->model.numberOfWalkers / walkerSamples;  
+    uint walkerSamples = this->model.getWalkerSamples();
+    uint trueWalkersPerSample = this->model.getNumberOfWalkers() / walkerSamples;  
     
-    uint threadsPerBlock = this->model.rwNMR_config.getThreadsPerBlock();
+    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
     uint minThreadsPerBlock = 64;
     while(trueWalkersPerSample < threadsPerBlock and trueWalkersPerSample < (threadsPerBlock/2) and threadsPerBlock > minThreadsPerBlock)
     {
@@ -1798,13 +1798,13 @@ void NMR_PFGSE::computeMktSmallPopulation2(double **Mkt_samples, bool time_verbo
         uint bufferOffset = sample * (trueWalkersPerSample + fakeWalkersPerSample);
         for(int idx = 0; idx < trueWalkersPerSample; idx++)
         {
-            h_walker_x0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionX();
-            h_walker_y0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionY();
-            h_walker_z0[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getInitialPositionZ();
-            h_walker_xF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionX();
-            h_walker_yF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionY();
-            h_walker_zF[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getCurrentPositionZ();
-            h_energy[bufferOffset + idx] = this->model.walkers[nativeOffset + idx].getEnergy();
+            h_walker_x0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionX();
+            h_walker_y0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionY();
+            h_walker_z0[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getInitialPositionZ();
+            h_walker_xF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionX();
+            h_walker_yF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionY();
+            h_walker_zF[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getCurrentPositionZ();
+            h_energy[bufferOffset + idx] = (*this->model.getWalkers())[nativeOffset + idx].getEnergy();
         }
     }
     buffer_time += omp_get_wtime() - tick;
@@ -1962,12 +1962,12 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
         Define parameters for CUDA kernel launch: blockDim, gridDim etc
     */
     double voxelResolution = this->model.getImageVoxelResolution();
-    uint numberOfWalkers = this->model.numberOfWalkers;
-    uint walkerSamples = this->model.walkerSamples;
+    uint numberOfWalkers = this->model.getNumberOfWalkers();
+    uint walkerSamples = this->model.getWalkerSamples();
     uint trueWalkersPerSample = numberOfWalkers / walkerSamples;  
     
-    uint blocksPerKernel = this->model.rwNMR_config.getBlocks();
-    uint threadsPerBlock = this->model.rwNMR_config.getThreadsPerBlock();
+    uint blocksPerKernel = this->model.getRWNMRConfig().getBlocks();
+    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
     uint minThreadsPerBlock = 64;
     while(trueWalkersPerSample < threadsPerBlock and 
           trueWalkersPerSample < (threadsPerBlock/2) and 
@@ -2135,13 +2135,13 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < trueWalkersPerSample; idx++)
             {
                 int finalWalkerIndex = kernelWalkerOffset + nativeOffset + idx;
-                h_walker_x0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionX();
-                h_walker_y0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionY();
-                h_walker_z0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionZ();
-                h_walker_xF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionX();
-                h_walker_yF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionY();
-                h_walker_zF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionZ();
-                h_energy[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getEnergy();                
+                h_walker_x0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionX();
+                h_walker_y0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionY();
+                h_walker_z0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionZ();
+                h_walker_xF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionX();
+                h_walker_yF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionY();
+                h_walker_zF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionZ();
+                h_energy[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getEnergy();                
             }
         }
         buffer_time += omp_get_wtime() - tick;
@@ -2270,13 +2270,13 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < trueWalkersPerSample; idx++)
             {
                 int finalWalkerIndex = kernelWalkerOffset + nativeOffset + idx;
-                h_walker_x0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionX();
-                h_walker_y0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionY();
-                h_walker_z0[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getInitialPositionZ();
-                h_walker_xF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionX();
-                h_walker_yF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionY();
-                h_walker_zF[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionZ();
-                h_energy[bufferOffset + idx] = this->model.walkers[finalWalkerIndex].getEnergy();                
+                h_walker_x0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionX();
+                h_walker_y0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionY();
+                h_walker_z0[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionZ();
+                h_walker_xF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionX();
+                h_walker_yF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionY();
+                h_walker_zF[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionZ();
+                h_energy[bufferOffset + idx] = (*this->model.getWalkers())[finalWalkerIndex].getEnergy();                
             }
         }
         buffer_time += omp_get_wtime() - tick;
@@ -2433,10 +2433,10 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
         Define parameters for CUDA kernel launch: blockDim, gridDim etc
     */
     double voxelResolution = this->model.getImageVoxelResolution();
-    uint numberOfWalkers = this->model.numberOfWalkers;
-    uint walkerSamples = this->model.walkerSamples;   
-    uint blocksPerKernel = this->model.rwNMR_config.getBlocks();
-    uint threadsPerBlock = this->model.rwNMR_config.getThreadsPerBlock();
+    uint numberOfWalkers = this->model.getNumberOfWalkers();
+    uint walkerSamples = this->model.getWalkerSamples();   
+    uint blocksPerKernel = this->model.getRWNMRConfig().getBlocks();
+    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
     
     uint trueWalkersPerSample = numberOfWalkers / walkerSamples;  
     uint fakeWalkersPerSample = threadsPerBlock - (trueWalkersPerSample % threadsPerBlock);
@@ -2591,13 +2591,13 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < walkersPerKernel; idx++)
             {
                 int finalWalkerIndex = sampleWalkerOffset + kernelWalkerOffset + idx;
-                h_walker_x0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionX();
-                h_walker_y0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionY();
-                h_walker_z0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionZ();
-                h_walker_xF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionX();
-                h_walker_yF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionY();
-                h_walker_zF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionZ();
-                h_energy[idx] = this->model.walkers[finalWalkerIndex].getEnergy();           
+                h_walker_x0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionX();
+                h_walker_y0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionY();
+                h_walker_z0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionZ();
+                h_walker_xF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionX();
+                h_walker_yF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionY();
+                h_walker_zF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionZ();
+                h_energy[idx] = (*this->model.getWalkers())[finalWalkerIndex].getEnergy();           
             }
             buffer_time += omp_get_wtime() - tick;
 
@@ -2716,13 +2716,13 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
             for(int idx = 0; idx < trueWalkersInLastKernel; idx++)
             {
                 int finalWalkerIndex = sampleWalkerOffset + kernelWalkerOffset + idx;
-                h_walker_x0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionX();
-                h_walker_y0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionY();
-                h_walker_z0[idx] = this->model.walkers[finalWalkerIndex].getInitialPositionZ();
-                h_walker_xF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionX();
-                h_walker_yF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionY();
-                h_walker_zF[idx] = this->model.walkers[finalWalkerIndex].getCurrentPositionZ();
-                h_energy[idx] = this->model.walkers[finalWalkerIndex].getEnergy();   
+                h_walker_x0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionX();
+                h_walker_y0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionY();
+                h_walker_z0[idx] = (*this->model.getWalkers())[finalWalkerIndex].getInitialPositionZ();
+                h_walker_xF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionX();
+                h_walker_yF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionY();
+                h_walker_zF[idx] = (*this->model.getWalkers())[finalWalkerIndex].getCurrentPositionZ();
+                h_energy[idx] = (*this->model.getWalkers())[finalWalkerIndex].getEnergy();   
             }
             buffer_time += omp_get_wtime() - tick;
 

@@ -50,6 +50,19 @@ public:
     void readImgFiles();
 
     // -- Read methods
+    void setDirPath(string s){ this->DIR_PATH = s;}
+    void setFilename(string s){ this->FILENAME = s;}
+    void setFirstIdx(uint s){ this->FIRST_IDX = s; }
+    void setDigits(uint s){ this->DIGITS = s; }
+    void setExtension(string s){ this->EXTENSION = s; }
+    void setSlices(uint s){ this->SLICES = s; }
+    void setResolution(double s){ this->RESOLUTION = s; }
+    void setVoxelDivision(uint s){ this->VOXEL_DIVISION = s; }
+    void setImgFilesList(string s){ this->IMG_FILES_LIST = s; }
+    void setImgFiles(vector<string> s){ this->IMG_FILES = s; }
+
+
+    // -- Read methods
     string getConfigFilepath() {return this->config_filepath; }
     string getDirPath(){ return this->DIR_PATH;}
     string getFilename(){ return this->FILENAME;}

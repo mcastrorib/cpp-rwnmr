@@ -90,11 +90,6 @@ public:
     void readSeed(string s);
     void readBC(string s);
 
-    // -- Saving
-    void readSaveImgInfo(string s);
-    void readSaveBinImg(string s);
-    void readSaveWalkers(string s);
-
     // Histograms
     void readHistograms(string s);  
     void readHistogramSize(string s);
@@ -121,6 +116,60 @@ public:
     void readBatchTag(string s);
     void readT2Tag(string s);
     void readEndTag(string s);
+
+    // -- Saving
+    void readSaveImgInfo(string s);
+    void readSaveBinImg(string s);
+    void readSaveWalkers(string s);
+
+    // Set methods
+    // -- RW Params
+    void setName(string s){ this->NAME = s;}
+    void setWalkers(uint s){ this->WALKERS = s;}
+    void setWalkerSamples(uint s){ this->WALKER_SAMPLES = s;}
+    void setWalkersPlacement(string s){ this->WALKERS_PLACEMENT = s;}
+    void setPlacementDeviation(uint s){ this->PLACEMENT_DEVIATION = s;}
+    void setRhoType(string s){ this->RHO_TYPE = s;}
+    void setRho(vector<double> s){ this->RHO = s;} 
+    void setD0(double s){ this->D0 = s;} 
+    void setGiromagneticRatio(double s){ this->GIROMAGNETIC_RATIO = s;}    
+    void setGiromagneticUnit(string s){ this->GIROMAGNETIC_UNIT = s;}    
+    void setBulkTime(double s){ this->BULK_TIME = s;}
+    void setStepsPerEcho(uint s){ this->STEPS_PER_ECHO = s;}
+    void setSeed(uint64_t s){ this->SEED = s;}
+    void setBC(string s){ this->BC = s;}
+
+    // Histograms
+    void setHistograms(uint s){ this->HISTOGRAMS = s;}  
+    void setHistogramSize(uint s){ this->HISTOGRAM_SIZE = s;}
+    void setHistogramScale(string s){ this->HISTOGRAM_SCALE = s;}
+
+    // -- OpenMP
+    void setOpenMPUsage(bool s){ this->OPENMP_USAGE = s;}
+    void setOpenMPThreads(uint s){ this->OPENMP_THREADS = s;}
+
+    // -- CUDA/GPU Params
+    void setGPUUsage(bool s){ this->GPU_USAGE = s;}
+    void setBlocks(uint s){ this->BLOCKS = s;}
+    void setThreadsPerBlock(uint s){ this->THREADSPERBLOCK = s;}
+    void setEchoesPerKernel(uint s){ this->ECHOESPERKERNEL = s;}
+    void setMaxRWSteps(uint s){ this->MAX_RWSTEPS = s;}
+    void setReduceInGPU(bool s){ this->REDUCE_IN_GPU = s;}
+    
+    // -- MPI Params
+    void setBitBlockBatchesSize(uint s){ this->BITBLOCKS_BATCHES_SIZE = s;}
+    void setBitBlockPropertiesSize(uint s){ this->BITBLOCK_PROP_SIZE = s;}
+    void setNMRT2Size(uint s){ this->NMR_T2_SIZE = s;}
+    void setStartTag(uint s){ this->NMR_START_TAG = s;}
+    void setBitBlockTag(uint s){ this->NMR_BITBLOCK_TAG = s;}
+    void setBatchTag(uint s){ this->NMR_BATCH_TAG = s;}
+    void setT2Tag(uint s){ this->NMR_T2_TAG = s;}
+    void setEndTag(uint s){ this->NMR_END_TAG = s;}
+
+    // -- Saving
+    void setSaveImgInfo(bool s){ this->SAVE_IMG_INFO = s;}
+    void setSaveBinImg(bool s){ this->SAVE_BINIMG = s;}
+    void setSaveWalkers(bool s){ this->SAVE_WALKERS = s;}
 
     // Get methods
     // -- RW Params
