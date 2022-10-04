@@ -3,26 +3,22 @@
 std::mt19937 NMR_PFGSE::_rng;
 
 NMR_PFGSE::NMR_PFGSE(Model &_model,  
-				     pfgse_config _pfgseConfig,
-					 int _mpi_rank,
-					 int _mpi_processes) : model(_model),
-										   PFGSE_config(_pfgseConfig),
-										   Dsat(0.0),
-										   DsatError(0.0),
-										   DsatStdev(0.0),
-										   Dmsd(0.0),
-										   DmsdStdev(0.0),
-										   msd(0.0),
-										   msdStdev(0.0),
-										   vecMsd(0.0, 0.0, 0.0),
-										   vecMsdStdev(0.0, 0.0, 0.0),
-										   vecDmsd(0.0, 0.0, 0.0),
-										   vecDmsdStdev(0.0, 0.0, 0.0),
-										   stepsTaken(0),
-										   currentTime(0),
-										   DsatAdjustSamples(0),
-										   mpi_rank(_mpi_rank),
-										   mpi_processes(_mpi_processes)
+				     pfgse_config _pfgseConfig) : model(_model),
+												  PFGSE_config(_pfgseConfig),
+												  Dsat(0.0),
+												  DsatError(0.0),
+												  DsatStdev(0.0),
+												  Dmsd(0.0),
+												  DmsdStdev(0.0),
+												  msd(0.0),
+												  msdStdev(0.0),
+												  vecMsd(0.0, 0.0, 0.0),
+												  vecMsdStdev(0.0, 0.0, 0.0),
+												  vecDmsd(0.0, 0.0, 0.0),
+												  vecDmsdStdev(0.0, 0.0, 0.0),
+												  stepsTaken(0),
+												  currentTime(0),
+												  DsatAdjustSamples(0)
 {
 	// Initialize random state
 	NMR_PFGSE::_rng.seed(this->model.getInitialSeed());

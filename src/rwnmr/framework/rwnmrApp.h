@@ -1,16 +1,11 @@
 #ifndef RWNMRAPP_H_
 #define RWNMRAPP_H_
 
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <cstdint>
-#include <vector>
-#include <string>
-
-#include "utils/Utils.h"
-#include "configFiles/ConfigFiles.h"
-#include "framework/Framework.h"
+#include "Defs.h"
+#include "Model.h"
+#include "NMR_cpmg.h"
+#include "NMR_multitau.h"
+#include "NMR_pfgse.h"
 
 using namespace std;
 

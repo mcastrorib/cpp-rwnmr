@@ -25,7 +25,7 @@ private:
     InternalField *internalField;
     
 public:
-	NMR_cpmg(Model &_model, cpmg_config _cpmgConfig, int _mpi_rank = 0, int _mpi_processes = 0);	
+	NMR_cpmg(Model &_model, cpmg_config _cpmgConfig);	
 	virtual ~NMR_cpmg()
 	{
 		if(this->penalties != NULL)
@@ -123,11 +123,6 @@ public:
 	void createPenaltiesVector(vector<double> &_sigmoid);
     void createPenaltiesVector(double rho);
     void histogram_simulation();
-	
-
-private:
-	int mpi_rank;
-	int mpi_processes;
 };
 
 #endif

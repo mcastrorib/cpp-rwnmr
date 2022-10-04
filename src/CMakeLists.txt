@@ -9,20 +9,10 @@ project(RWNMR VERSION 1.1 LANGUAGES C CXX CUDA)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Specify mpi compilers
-SET(CMAKE_C_COMPILER mpicc)
-SET(CMAKE_CXX_COMPILER mpicxx)
-
 # Configure a header file to pass some of the CMake settings to the source code
 configure_file(config.h.in config.h)
 
 # Includes
-# Include MPI package
-find_package(MPI REQUIRED)
-set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
-set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
-include_directories(MPI_INCLUDE_PATH)
-
 # Include OpenCV package
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
@@ -47,9 +37,9 @@ add_subdirectory(rwnmr)
 list(APPEND EXTRA_LIBS rwnmr)
 
 # Add the executable
-add_executable(rwnmr-app main.cpp)
+add_executable(rwnmr-app rwnmr/main.cpp)
 target_compile_options(rwnmr-app PUBLIC -O3)
-target_link_libraries(rwnmr-app PUBLIC ${EXTRA_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
+target_link_libraries(rwnmr-app PUBLIC ${EXTRA_LIBS} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
 target_link_libraries(rwnmr-app PRIVATE CUDA::cudart)
 
 # Add the binary tree to the search path for include files so that it will find RandomWalkConfig.h
@@ -58,9 +48,9 @@ target_include_directories(rwnmr PUBLIC "${PROJECT_BINARY_DIR}")
 ## Testing
 # Add the test executable
 list(APPEND TEST_LIBS testing ${EXTRA_LIBS})
-add_executable(rwnmr-test test.cpp)
+add_executable(rwnmr-test testing/test.cpp)
 target_compile_options(rwnmr-test PUBLIC -O3)
-target_link_libraries(rwnmr-test PUBLIC ${TEST_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
+target_link_libraries(rwnmr-test PUBLIC ${TEST_LIBS} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
 target_link_libraries(rwnmr-test PRIVATE CUDA::cudart)
 
 # Add the binary tree to the search path for include files so that it will find RandomWalkConfig.h
@@ -81,4 +71,4 @@ add_test(NAME ConfigFilesTest COMMAND rwnmr-test configfiles)
 ## Installation
 install(TARGETS rwnmr-app DESTINATION bin)
 install(TARGETS rwnmr-test DESTINATION bin)
-install(FILES "${PROJECT_BINARY_DIR}/config.h"  DESTINATION include)
+install(FILES "${PROJECT_BINARY_DIR}/config.h" DESTINATION include)

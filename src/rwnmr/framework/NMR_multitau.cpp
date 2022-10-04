@@ -4,14 +4,10 @@ using namespace std;
 
 NMR_multitau::NMR_multitau( Model &_model,  
                             multitau_config _multitauConfig,  
-                            cpmg_config _cpmgConfig,
-                            int _mpi_rank,
-                            int _mpi_processes) : model(_model),
-                                                  cpmg(NULL), 
-                                                  MultiTau_config(_multitauConfig), 
-                                                  CPMG_config(_cpmgConfig), 
-                                                  mpi_rank(_mpi_rank), 
-                                                  mpi_processes(_mpi_processes)
+                            cpmg_config _cpmgConfig) : model(_model), 
+                                                       cpmg(NULL), 
+                                                       MultiTau_config(_multitauConfig), 
+                                                       CPMG_config(_cpmgConfig)
 {
     // Initialize cpmg object
     (*this).setCPMG(new NMR_cpmg((*this).getModel(), (*this).getCPMGConfig()));

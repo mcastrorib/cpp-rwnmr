@@ -48,10 +48,7 @@ private:
 	int currentTime;	
 
 public:
-	NMR_PFGSE(Model &_model, 
-			  pfgse_config _pfgseConfig,
-			  int _mpi_rank = 0, 
-			  int _mpi_processes = 0);	
+	NMR_PFGSE(Model &_model, pfgse_config _pfgseConfig);	
 	
 	virtual ~NMR_PFGSE(){};
 
@@ -265,9 +262,6 @@ public:
 
 private:
 	static std::mt19937 _rng;
-	int mpi_rank;
-	int mpi_processes;
-
 	
 	void simulation_cuda();
 	void simulation_omp();
