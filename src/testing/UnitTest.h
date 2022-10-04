@@ -5,9 +5,13 @@
 #include <string>
 #include <vector>
 
-#include "../Utils/ArgsParser.h"
-#include "../ConfigFiles/configFiles_defs.h"
-#include "../Framework/Framework.h"
+#include "../rwnmr/utils/ArgsParser.h"
+#include "../rwnmr/configFiles/configFiles_defs.h"
+#include "../rwnmr/framework/Framework.h"
+
+#include "configFiles/ConfigFilesTest.h"
+#include "utils/ArgsParserTest.h"
+
 
 // #include "UnitTest_includes.h"
 

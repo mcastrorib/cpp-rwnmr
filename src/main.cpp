@@ -3,10 +3,10 @@
 #include <unistd.h>
 
 // include CMake Configuration file
-#include "RWNMR_Config.h"
+#include "config.h"
 
 // include interface header files
-#include "rwnmrApp.h"
+#include "rwnmr.h"
 
 using namespace std;
 

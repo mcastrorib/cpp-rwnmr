@@ -14,7 +14,7 @@ SET(CMAKE_C_COMPILER mpicc)
 SET(CMAKE_CXX_COMPILER mpicxx)
 
 # Configure a header file to pass some of the CMake settings to the source code
-configure_file(RWNMR_Config.h.in RWNMR_Config.h)
+configure_file(config.h.in config.h)
 
 # Includes
 # Include MPI package
@@ -42,47 +42,43 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 include_directories(/usr/include/eigen3)
 
 # Add and list libraries (respecting libs building order)
-add_subdirectory(UnitTest)
-add_subdirectory(App)
-add_subdirectory(Framework)
-add_subdirectory(Math)
-add_subdirectory(ConfigFiles)
-add_subdirectory(Utils)
-list(APPEND EXTRA_LIBS App Framework Math ConfigFiles Utils)
+add_subdirectory(testing)
+add_subdirectory(rwnmr)
+list(APPEND EXTRA_LIBS rwnmr)
 
 # Add the executable
-add_executable(rwnmr main.cpp)
-target_compile_options(rwnmr PUBLIC -O3)
-target_link_libraries(rwnmr PUBLIC ${EXTRA_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
-target_link_libraries(rwnmr PRIVATE CUDA::cudart)
+add_executable(rwnmr-app main.cpp)
+target_compile_options(rwnmr-app PUBLIC -O3)
+target_link_libraries(rwnmr-app PUBLIC ${EXTRA_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
+target_link_libraries(rwnmr-app PRIVATE CUDA::cudart)
 
 # Add the binary tree to the search path for include files so that it will find RandomWalkConfig.h
 target_include_directories(rwnmr PUBLIC "${PROJECT_BINARY_DIR}")
 
 ## Testing
 # Add the test executable
-list(APPEND TEST_LIBS UnitTest ${EXTRA_LIBS})
-add_executable(test-rwnmr testing.cpp)
-target_compile_options(test-rwnmr PUBLIC -O3)
-target_link_libraries(test-rwnmr PUBLIC ${TEST_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
-target_link_libraries(test-rwnmr PRIVATE CUDA::cudart)
+list(APPEND TEST_LIBS testing ${EXTRA_LIBS})
+add_executable(rwnmr-test test.cpp)
+target_compile_options(rwnmr-test PUBLIC -O3)
+target_link_libraries(rwnmr-test PUBLIC ${TEST_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
+target_link_libraries(rwnmr-test PRIVATE CUDA::cudart)
 
 # Add the binary tree to the search path for include files so that it will find RandomWalkConfig.h
-target_include_directories(test-rwnmr PUBLIC "${PROJECT_BINARY_DIR}")
+target_include_directories(rwnmr-test PUBLIC "${PROJECT_BINARY_DIR}")
 
 # Enabling testing
 enable_testing()
 
 # List test commands
-add_test(NAME Runs COMMAND rwnmr)
-add_test(NAME CPMG-smooth-run COMMAND rwnmr cpmg)
-add_test(NAME CPMG_uniform_gradient-smooth-run COMMAND rwnmr cpmg -config ../input/testing/tcpmg_uniform_field.config)
-add_test(NAME PFGSE-smooth-run COMMAND rwnmr pfgse)
-add_test(NAME MultiTau-smooth-run COMMAND rwnmr multitau)
-add_test(NAME ArgsParserTest COMMAND test-rwnmr argsparser)
-add_test(NAME ConfigFilesTest COMMAND test-rwnmr configfiles)
+add_test(NAME Runs COMMAND rwnmr-app)
+add_test(NAME CPMG-smooth-run COMMAND rwnmr-app cpmg)
+add_test(NAME CPMG_uniform_gradient-smooth-run COMMAND rwnmr-app cpmg -config ../input/testing/tcpmg_uniform_field.config)
+add_test(NAME PFGSE-smooth-run COMMAND rwnmr-app pfgse)
+add_test(NAME MultiTau-smooth-run COMMAND rwnmr-app multitau)
+add_test(NAME ArgsParserTest COMMAND rwnmr-test argsparser)
+add_test(NAME ConfigFilesTest COMMAND rwnmr-test configfiles)
 
 ## Installation
-install(TARGETS rwnmr DESTINATION bin)
-install(TARGETS test-rwnmr DESTINATION bin)
-install(FILES "${PROJECT_BINARY_DIR}/RWNMR_Config.h"  DESTINATION include)
+install(TARGETS rwnmr-app DESTINATION bin)
+install(TARGETS rwnmr-test DESTINATION bin)
+install(FILES "${PROJECT_BINARY_DIR}/config.h"  DESTINATION include)

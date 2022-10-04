@@ -8,9 +8,9 @@
 #include <vector>
 #include <string>
 
-#include "../Utils/Utils.h"
-#include "../ConfigFiles/ConfigFiles.h"
-#include "../Framework/Framework.h"
+#include "utils/Utils.h"
+#include "configFiles/ConfigFiles.h"
+#include "framework/Framework.h"
 
 using namespace std;
 
