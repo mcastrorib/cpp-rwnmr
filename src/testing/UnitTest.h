@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "../rwnmr/utils/ArgsParser.h"
-#include "../rwnmr/configFiles/configFiles_defs.h"
-#include "../rwnmr/framework/Framework.h"
+#include "utils/ArgsParser.h"
+#include "configFiles/configFiles_defs.h"
+#include "framework/Framework.h"
 
 #include "configFiles/ConfigFilesTest.h"
 #include "utils/ArgsParserTest.h"
