@@ -1,5 +1,5 @@
 file(GLOB_RECURSE SOURCES ./*.cpp)
-file(GLOB_RECURSE CUDA_SRC_FILES ./*_cuda.*)
+file(GLOB_RECURSE CUDA_SRC_FILES ./*_cuda.*) # Always indicate CUDA files by "_cuda" sufix before format (e.g. mysrcfile_cuda.cxx or myheaderfile_cuda.h)
 file(GLOB_RECURSE HEADERS ./*.h)
 add_library(rwnmr ${SOURCES})
 
@@ -28,8 +28,8 @@ endforeach()
 find_package(CUDA)
 if (CUDA_FOUND)
   #Get CUDA compute capability
-  set(OUTPUTFILE ${CMAKE_CURRENT_SOURCE_DIR}/cuda_check/cuda_script) # No suffix required
-  set(CUDAFILE ${CMAKE_CURRENT_SOURCE_DIR}/cuda_check/check_cuda.cu)
+  set(OUTPUTFILE ${CMAKE_CURRENT_SOURCE_DIR}/cudaCheck/cuda_script) # No suffix required
+  set(CUDAFILE ${CMAKE_CURRENT_SOURCE_DIR}/cudaCheck/check_cuda.cu)
   execute_process(COMMAND nvcc -lcuda ${CUDAFILE} -o ${OUTPUTFILE})
   execute_process(COMMAND ${OUTPUTFILE}
                   RESULT_VARIABLE CUDA_RETURN_CODE

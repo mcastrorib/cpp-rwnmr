@@ -6,7 +6,7 @@
 #include <string>
 #include <cstring>
 
-#include "../../rwnmr/utils/ArgsParser.h"
+#include "utils/ArgsParser.h"
 
 using namespace std;
 

@@ -6,13 +6,13 @@
 #include <string>
 #include <stdint.h>
 
-#include "../../rwnmr/configFiles/configFiles_defs.h"
-#include "../../rwnmr/configFiles/rwnmr_config.h"
-#include "../../rwnmr/configFiles/uct_config.h"
-#include "../../rwnmr/configFiles/cpmg_config.h"
-#include "../../rwnmr/configFiles/pfgse_config.h"
-#include "../../rwnmr/configFiles/multitau_config.h"
-#include "../../rwnmr/configFiles/ga_config.h"
+#include "configFiles/configFiles_defs.h"
+#include "configFiles/rwnmr_config.h"
+#include "configFiles/uct_config.h"
+#include "configFiles/cpmg_config.h"
+#include "configFiles/pfgse_config.h"
+#include "configFiles/multitau_config.h"
+#include "configFiles/ga_config.h"
 #include "../Assert.h"
 
 using namespace std;
