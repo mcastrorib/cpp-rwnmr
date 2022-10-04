@@ -2,7 +2,7 @@
 #define PFGSE_CONFIG_H_
 
 #include "configFiles_defs.h"
-#include "../Math/Math.h"
+#include "../math/Math.h"
 
 using namespace std;
 

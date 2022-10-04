@@ -8,7 +8,7 @@ procs=$(nproc --all)
 
 # Source code path
 ROOT_DIR=${pwd}
-SRC_DIR='./src/cpp'
+SRC_DIR='./src/'
 APP_EXECUTABLE='rwnmr'
 
 # Assign compilation mode from command line args
@@ -51,7 +51,7 @@ cmake --build ${TARGET_DIR} -j${procs}
 if [ ${TARGET_MODE} == "Release" ] 
 then
 	# Create symbolic link in root directory
-	ln -sf ${TARGET_DIR}/rwnmr ${APP_EXECUTABLE}
+	ln -sf ${TARGET_DIR}/rwnmr-app ${APP_EXECUTABLE}
 
 	if [ ${TEST_MODE} == "true" ]
 	then

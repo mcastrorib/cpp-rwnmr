@@ -6,12 +6,6 @@
 #include <string>
 
 // include project files
-#include "../Utils/ArgsParser.h"
-#include "../App/rwnmrApp.h"
-
-
-#include "ConfigFilesTest.h"
-#include "ArgsParserTest.h"
 #include "UnitTest.h"
 
 UnitTest::UnitTest(string proot) : projectRoot(proot), sucessResult(true)
