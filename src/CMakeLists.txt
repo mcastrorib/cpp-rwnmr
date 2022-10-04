@@ -47,7 +47,7 @@ add_subdirectory(rwnmr)
 list(APPEND EXTRA_LIBS rwnmr)
 
 # Add the executable
-add_executable(rwnmr-app main.cpp)
+add_executable(rwnmr-app rwnmr/main.cpp)
 target_compile_options(rwnmr-app PUBLIC -O3)
 target_link_libraries(rwnmr-app PUBLIC ${EXTRA_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
 target_link_libraries(rwnmr-app PRIVATE CUDA::cudart)
@@ -58,7 +58,7 @@ target_include_directories(rwnmr PUBLIC "${PROJECT_BINARY_DIR}")
 ## Testing
 # Add the test executable
 list(APPEND TEST_LIBS testing ${EXTRA_LIBS})
-add_executable(rwnmr-test test.cpp)
+add_executable(rwnmr-test testing/test.cpp)
 target_compile_options(rwnmr-test PUBLIC -O3)
 target_link_libraries(rwnmr-test PUBLIC ${TEST_LIBS} ${MPI_LIBRARIES} ${OpenCV_LIBS} OpenMP::OpenMP_CXX Eigen3::Eigen)
 target_link_libraries(rwnmr-test PRIVATE CUDA::cudart)
