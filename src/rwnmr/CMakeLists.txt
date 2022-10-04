@@ -6,10 +6,7 @@ add_library(rwnmr ${SOURCES})
 
 include_directories(math/Laplace/include)
 include_directories(/usr/include/eigen3)    
-
-target_include_directories(rwnmr
-          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
-          )
+target_include_directories(rwnmr INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Request the library to be built with -std=c++11
 # As this is public compile feature, anything that links to
@@ -19,7 +16,7 @@ target_compile_features(rwnmr PUBLIC cxx_std_11)
 # Explicitly state that all CUDA files in the 
 # library needs to be built with -dc as the member functions 
 # could be called by other libraries and executables
-set(CMAKE_CUDA_FLAGS "-Xcompiler -fopenmp -O3 -w")
+set(CMAKE_CUDA_FLAGS "-Xcompiler -fopenmp -O3 -w -Wno-deprecated-gpu-targets")
 foreach(CUDA_SRC ${CUDA_SRC_FILES})
     set_source_files_properties(${CUDA_SRC} PROPERTIES LANGUAGE "CUDA")
 endforeach()
@@ -47,21 +44,18 @@ if (CUDA_FOUND)
     message(STATUS "CUDA Architecture: ${ARCH}")
     message(STATUS "CUDA Version: ${CUDA_VERSION_STRING}")
     message(STATUS "CUDA Path: ${CUDA_TOOLKIT_ROOT_DIR}")
-    # message(STATUS "CUDA Libraries: ${CUDA_LIBRARIES}")
-    # message(STATUS "CUDA Performance Primitives: ${CUDA_npp_LIBRARY}")
-
     set(CUDA_NVCC_FLAGS "${ARCH}")
-	set_property(TARGET rwnmr PROPERTY CUDA_ARCHITECTURES "${ARCH}")
+	  set_property(TARGET rwnmr PROPERTY CUDA_ARCHITECTURES "${ARCH}")
     add_definitions(-DGPU) #You may not require this
-
+  
   else()
     message(WARNING ${ARCH})
+
   endif()
 endif()
 
 target_compile_options(rwnmr PUBLIC -O3)
 target_link_libraries(rwnmr PRIVATE CUDA::cudart)
 
-target_compile_options(rwnmr PUBLIC -O3)
 install(TARGETS rwnmr DESTINATION lib)
 install(FILES ${HEADERS} DESTINATION include)

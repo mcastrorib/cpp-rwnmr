@@ -20,11 +20,7 @@ private:
     vector<double> signalAmps;
 
 public:
-	NMR_multitau(Model &_model, 
-				 multitau_config _multitauConfig, 
-				 cpmg_config _cpmgConfig, 
-				 int _mpi_rank = 0, 
-				 int _mpi_processes = 0);	
+	NMR_multitau(Model &_model, multitau_config _multitauConfig, cpmg_config _cpmgConfig);	
 
 	virtual ~NMR_multitau()
 	{
@@ -82,9 +78,6 @@ public:
 	void writeHistogramList();
 
 private:
-	int mpi_rank;
-	int mpi_processes;
-
 	// Returns a vector<double> linearly space from @start to @end with @points
     vector<double> linspace(double start, double end, uint points);
 

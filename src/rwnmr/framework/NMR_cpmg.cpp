@@ -1,14 +1,10 @@
 #include "NMR_cpmg.h"
 
 NMR_cpmg::NMR_cpmg( Model &_model,  
-                    cpmg_config _cpmgConfig,
-                    int _mpi_rank,
-                    int _mpi_processes) : model(_model),
-                                        CPMG_config(_cpmgConfig),
-                                        mpi_rank(_mpi_rank),
-                                        mpi_processes(_mpi_processes),
-                                        penalties(NULL),
-                                        internalField(NULL)
+                    cpmg_config _cpmgConfig) : model(_model), 
+                                               CPMG_config(_cpmgConfig), 
+                                               penalties(NULL), 
+                                               internalField(NULL)
 {
 	// vectors object init
     vector<double> signalAmps();
