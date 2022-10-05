@@ -1,27 +1,16 @@
 #ifndef CONFIGFILES_TEST_H_
 #define CONFIGFILES_TEST_H_
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <stdint.h>
-
-#include "configFiles/configFiles_defs.h"
-#include "configFiles/rwnmr_config.h"
-#include "configFiles/uct_config.h"
-#include "configFiles/cpmg_config.h"
-#include "configFiles/pfgse_config.h"
-#include "configFiles/multitau_config.h"
-#include "configFiles/ga_config.h"
-#include "../Assert.h"
-
-using namespace std;
+#include "Includes.h"
+#include "rwnmr_configTest.h"
+#include "uct_configTest.h"
+#include "cpmg_configTest.h"
+#include "pfgse_configTest.h"
+#include "multitau_configTest.h"
 
 class ConfigFilesTest
 {
 public:
-
-
 	ConfigFilesTest(string proot) : projectRoot(proot) 
 	{
 		(*this).setInputDir(proot + "/input/testing/");
@@ -38,7 +27,6 @@ public:
 	void run();
 	void TestRWNMRConfigFile();
 	void TestUCTConfigFile();
-	void TestCPMGConfigFile();
 	void TestPFGSEConfigFile();
 	void TestMULTITAUConfigFile();
 

@@ -1,16 +1,8 @@
 #ifndef UNITTEST_H_
 #define UNITTEST_H_
 
-#include <iostream>
-#include <string>
-#include <vector>
-
-#include "utils/ArgsParser.h"
-#include "configFiles/configFiles_defs.h"
-#include "framework/Framework.h"
-
-#include "configFiles/ConfigFilesTest.h"
-#include "utils/ArgsParserTest.h"
+#include "Includes.h"
+#include "Assert.h"
 
 
 // #include "UnitTest_includes.h"

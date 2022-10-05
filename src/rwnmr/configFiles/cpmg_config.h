@@ -86,7 +86,7 @@ public:
     // set methods
     void setD0(double _v){ this->D0 = _v; }
     void setApplyBulk(bool _v){ this->APPLY_BULK = _v; }
-    void setTimeVerbos(bool _v){ this->TIME_VERBOSE = _v; }
+    void setTimeVerbose(bool _v){ this->TIME_VERBOSE = _v; }
     void setObservationTime(double _v){ this->OBS_TIME = _v; }
     void setMethod(string _m){ this->METHOD = _m; }
     void setResidualField(string _s){ this->RESIDUAL_FIELD = _s; }
@@ -94,7 +94,7 @@ public:
     void setGradientDirection(int _v){ this->GRADIENT_DIRECTION = _v; }
     void setPathToField(string _s){ this->PATH_TO_FIELD = _s; }
     void setMinT2(double _v){ this->MIN_T2 = _v; }
-    void setMaxT2(double _v){ this->MIN_T2 = _v; }
+    void setMaxT2(double _v){ this->MAX_T2 = _v; }
     void setUseT2Logspace(bool _v){ this->USE_T2_LOGSPACE = _v; }
     void setNumT2Bins(int _v){ this->NUM_T2_BINS = _v;}
     void setMinLambda(double _v){ this->MIN_LAMBDA = _v;}

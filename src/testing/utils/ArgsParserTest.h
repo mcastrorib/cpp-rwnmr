@@ -1,14 +1,7 @@
 #ifndef ARGSPARSER_TEST_H_
 #define ARGSPARSER_TEST_H_
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <cstring>
-
-#include "utils/ArgsParser.h"
-
-using namespace std;
+#include "Includes.h"
 
 class ArgsParserTest
 {

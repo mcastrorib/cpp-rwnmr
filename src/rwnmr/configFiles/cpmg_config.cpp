@@ -115,132 +115,133 @@ void cpmg_config::readConfigFile(const string configFile)
 
 void cpmg_config::readD0(string s)
 {
-	this->D0 = std::stod(s);
+    (*this).setD0(std::stod(s));
 }
 
 void cpmg_config::readApplyBulk(string s)
 {
-    if(s == "true") this->APPLY_BULK = true;
-    else this->APPLY_BULK = false;
+    if(s == "true") (*this).setApplyBulk(true);
+    else (*this).setApplyBulk(false);
 }
 
 void cpmg_config::readTimeVerbose(string s)
 {
-    if(s == "true") this->TIME_VERBOSE = true;
-    else this->TIME_VERBOSE = false;
+    if(s == "true") (*this).setTimeVerbose(true);
+    else (*this).setTimeVerbose(false);
 }
 
 void cpmg_config::readObservationTime(string s)
 {
-    this->OBS_TIME = std::stod(s);
+    (*this).setObservationTime(std::stod(s));
 }
 
 void cpmg_config::readMethod(string s)
 {
-    this->METHOD = s;
+    if(s == "histogram") (*this).setMethod(s);
+    else (*this).setMethod("image-based");
 }
 
 void cpmg_config::readResidualField(string s)
 {
-    if(s == "uniform" or s == "import") this->RESIDUAL_FIELD = s;
-    else this->RESIDUAL_FIELD = "none";
+    if(s == "uniform" or s == "import") (*this).setResidualField(s);
+    else (*this).setResidualField("none");
 }
 
 void cpmg_config::readGradientValue(string s)
 {
-    this->GRADIENT_VALUE = std::stod(s);
+    (*this).setGradientValue(std::stod(s));
 }
 
 void cpmg_config::readGradientDirection(string s)
 {
-    if(s == "0" or s == "x")    this->GRADIENT_DIRECTION = 0;
-    else if(s == "1" or s == "y")    this->GRADIENT_DIRECTION = 1;
-    else this->GRADIENT_DIRECTION = 2;
+    if(s == "0" or s == "x")  (*this).setGradientDirection(0);
+    else if(s == "1" or s == "y") (*this).setGradientDirection(1);
+    else (*this).setGradientDirection(2);
 }
 
 void cpmg_config::readPathToField(string s)
 {
-    this->PATH_TO_FIELD = s;
+    (*this).setPathToField(s);
 }
 
 void cpmg_config::readMinT2(string s)
 {
-    this->MIN_T2 = std::stod(s);
+    (*this).setMinT2(std::stod(s));
 }
 
 void cpmg_config::readMaxT2(string s)
 {
-    this->MAX_T2 = std::stod(s);
+    (*this).setMaxT2(std::stod(s));
 }
 
 void cpmg_config::readUseT2Logspace(string s)
 {
-    if(s == "true") this->USE_T2_LOGSPACE = true;
-    else this->USE_T2_LOGSPACE = false;
+    if(s == "true") (*this).setUseT2Logspace(true);
+    else (*this).setUseT2Logspace(false);
 }
 
 void cpmg_config::readNumT2Bins(string s)
 {
-    this->NUM_T2_BINS = std::stoi(s);
+    (*this).setNumT2Bins(std::stoi(s));
 }
 
 void cpmg_config::readMinLambda(string s)
 {
-    this->MIN_LAMBDA = std::stod(s);
+    (*this).setMinLambda(std::stod(s));
 }
 
 void cpmg_config::readMaxLambda(string s)
 {
-    this->MAX_LAMBDA = std::stod(s);
+    (*this).setMaxLambda(std::stod(s));
 }
 
 void cpmg_config::readNumLambdas(string s)
-{
-    this->NUM_LAMBDAS = std::stoi(s);
+{   
+    (*this).setNumLambdas(std::stoi(s));
 }
 
 void cpmg_config::readPruneNum(string s)
 {
-    this->PRUNE_NUM = std::stoi(s);
+    (*this).setPruneNum(std::stoi(s));
 }
 
 void cpmg_config::readNoiseAmp(string s)
 {
-    this->NOISE_AMP = std::stod(s);
+    (*this).setNoiseAmp(std::stod(s));
 }
 
 void cpmg_config::readSaveMode(string s)
 {
-    if(s == "true") this->SAVE_MODE = true;
-    else this->SAVE_MODE = false;
+    if(s == "true") (*this).setSaveMode(true);
+    else (*this).setSaveMode(false);
 }
 
 void cpmg_config::readSaveWalkers(string s)
 {
-    if(s == "true") this->SAVE_WALKERS = true;
-    else this->SAVE_WALKERS = false;
+    if(s == "true") (*this).setSaveWalkers(true);
+    else (*this).setSaveWalkers(false);
 }
 
 void cpmg_config::readSaveDecay(string s)
 {
-    if(s == "true") this->SAVE_DECAY = true;
-    else this->SAVE_DECAY = false;
+    if(s == "true") (*this).setSaveDecay(true);
+    else (*this).setSaveDecay(false);
 }
 
 void cpmg_config::readSaveHistogram(string s)
 {
-    if(s == "true") this->SAVE_HISTOGRAM = true;
-    else this->SAVE_HISTOGRAM = false;
+    if(s == "true") (*this).setSaveHistogram(true);
+    else (*this).setSaveHistogram(false);
 }
 
 void cpmg_config::readSaveHistogramList(string s)
 {
-    if(s == "true") this->SAVE_HISTOGRAM_LIST = true;
-    else this->SAVE_HISTOGRAM_LIST = false;
+    if(s == "true") (*this).setSaveHistogramList(true);
+    else (*this).setSaveHistogramList(false);
 }
 
 void cpmg_config::readSaveT2(string s)
 {
-    if(s == "true") this->SAVE_T2 = true;
-    else this->SAVE_T2 = false;
+    if(s == "true") (*this).setSaveT2(true);
+    else (*this).setSaveT2(false);
 }

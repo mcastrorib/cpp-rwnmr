@@ -15,7 +15,8 @@ void UnitTest::runTest(string tag)
 {
 	if(tag == "all") (*this).runAll();
 	else if(tag == "argsparser") ArgsParserTest((*this).getProjectRoot());
-	else if(tag == "configfiles") ConfigFilesTest((*this).getProjectRoot());  
+	else if(tag == "cpmg_config") cpmg_configTest((*this).getProjectRoot());
+	// else if(tag == "configfiles") ConfigFilesTest((*this).getProjectRoot());  
 }
 
 void UnitTest::runAll()
