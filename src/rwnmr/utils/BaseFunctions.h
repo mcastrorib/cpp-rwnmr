@@ -129,5 +129,14 @@ class BaseFunctions
             mkdir(directory, 0700);
         }
     }
+
+    template <typename T>
+	vector<T> concatenateVectors(vector<T> v1, vector<T> v2)
+	{
+		vector<T> concat;
+		for(int i = 0; i < v1.size(); i++) concat.push_back(v1[i]);
+		for(int i = 0; i < v2.size(); i++) concat.push_back(v2[i]);
+		return concat;
+	}
 };
 #endif

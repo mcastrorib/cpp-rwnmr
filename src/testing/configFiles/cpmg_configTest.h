@@ -3,78 +3,22 @@
 
 #include "Includes.h"
 
-class cpmg_configTest
+class cpmg_configTest : public TestSuite
 {
-	typedef void (cpmg_configTest::*mptr)();
-private:
-	vector<mptr> testSuite;
-	string projectRoot;
-	string inputDir;
-	bool sucessResult;
-	cpmg_config *config;
 public:
-	cpmg_configTest(string proot) : projectRoot(proot), config(NULL)
+	typedef TestResult (cpmg_configTest::*mptr)();
+
+private:
+	vector<mptr> testCases;
+	cpmg_config *config;
+
+public:
+	cpmg_configTest(string proot);
+	
+	cpmg_configTest(const cpmg_configTest& otherTest) : TestSuite(otherTest.projectRoot)
 	{
-		// vector<mptr> testSuite();
-		this->config = new cpmg_config();
-		(*this).setInputDir(proot + "/input/testing/");
-
-		// add test cases to suite vector
-		this->testSuite.push_back(&cpmg_configTest::readConfigFileTest);
-		this->testSuite.push_back(&cpmg_configTest::readD0Test);
-		this->testSuite.push_back(&cpmg_configTest::readApplyBulkTest_True);
-		this->testSuite.push_back(&cpmg_configTest::readApplyBulkTest_False);
-		this->testSuite.push_back(&cpmg_configTest::readApplyBulkTest_Unknown);
-		this->testSuite.push_back(&cpmg_configTest::readTimeVerboseTest);
-		this->testSuite.push_back(&cpmg_configTest::readApplyBulkTest_Unknown);		
-    	this->testSuite.push_back(&cpmg_configTest::readObservationTimeTest);
-    	this->testSuite.push_back(&cpmg_configTest::readMethodTest_ImageBased);
-		this->testSuite.push_back(&cpmg_configTest::readMethodTest_Histogram);
-		this->testSuite.push_back(&cpmg_configTest::readMethodTest_Unknown);
-    	this->testSuite.push_back(&cpmg_configTest::readResidualFieldTest_None);
-    	this->testSuite.push_back(&cpmg_configTest::readResidualFieldTest_Uniform);
-    	this->testSuite.push_back(&cpmg_configTest::readResidualFieldTest_Import);
-    	this->testSuite.push_back(&cpmg_configTest::readResidualFieldTest_Unknown);
-    	this->testSuite.push_back(&cpmg_configTest::readGradientValueTest);
-    	this->testSuite.push_back(&cpmg_configTest::readGradientDirectionTest_0);
-    	this->testSuite.push_back(&cpmg_configTest::readGradientDirectionTest_1);
-    	this->testSuite.push_back(&cpmg_configTest::readGradientDirectionTest_2);
-    	this->testSuite.push_back(&cpmg_configTest::readGradientDirectionTest_Unknown);
-    	this->testSuite.push_back(&cpmg_configTest::readPathToFieldTest);
-    	this->testSuite.push_back(&cpmg_configTest::readMinT2Test);
-    	this->testSuite.push_back(&cpmg_configTest::readMaxT2Test);
-    	this->testSuite.push_back(&cpmg_configTest::readUseT2LogspaceTest_True);
-    	this->testSuite.push_back(&cpmg_configTest::readUseT2LogspaceTest_False);
-    	this->testSuite.push_back(&cpmg_configTest::readUseT2LogspaceTest_Unknown);
-    	this->testSuite.push_back(&cpmg_configTest::readNumT2BinsTest);
-    	this->testSuite.push_back(&cpmg_configTest::readMinLambdaTest);
-    	this->testSuite.push_back(&cpmg_configTest::readMaxLambdaTest);
-    	this->testSuite.push_back(&cpmg_configTest::readNumLambdasTest);
-    	this->testSuite.push_back(&cpmg_configTest::readPruneNumTest);
-    	this->testSuite.push_back(&cpmg_configTest::readNoiseAmpTest); 
-    	this->testSuite.push_back(&cpmg_configTest::readSaveModeTest_True);
-    	this->testSuite.push_back(&cpmg_configTest::readSaveModeTest_False);
-    	this->testSuite.push_back(&cpmg_configTest::readSaveModeTest_Unknown);
-    	this->testSuite.push_back(&cpmg_configTest::readSaveWalkersTest_True);
-    	this->testSuite.push_back(&cpmg_configTest::readSaveWalkersTest_False);
-    	this->testSuite.push_back(&cpmg_configTest::readSaveWalkersTest_Unknown);
-    	this->testSuite.push_back(&cpmg_configTest::readSaveDecayTest_True);
-		this->testSuite.push_back(&cpmg_configTest::readSaveDecayTest_False);
-		this->testSuite.push_back(&cpmg_configTest::readSaveHistogramTest_True);
-		this->testSuite.push_back(&cpmg_configTest::readSaveHistogramTest_False);
-		this->testSuite.push_back(&cpmg_configTest::readSaveHistogramListTest_True);
-    	this->testSuite.push_back(&cpmg_configTest::readSaveT2Test_True);
-		this->testSuite.push_back(&cpmg_configTest::readSaveT2Test_False);	
-
-		// run tests 
-		(*this).run();
-	}
-
-	cpmg_configTest(const cpmg_configTest& otherTest)
-	{
-		this->projectRoot = otherTest.projectRoot;
-		this->inputDir = otherTest.inputDir;
-		this->sucessResult = otherTest.sucessResult;
+		this->testCases = otherTest.testCases; 
+		this->config = otherTest.config;
 	}
 
 	virtual ~cpmg_configTest(){
@@ -96,60 +40,62 @@ public:
 		this->config = NULL;
 	}
 
-	void run();
+	virtual vector<TestResult> run();
 	
-	void readConfigFileTest();
-	void readD0Test();
-	void readApplyBulkTest_True();
-	void readApplyBulkTest_False();
-	void readApplyBulkTest_Unknown();
-    void readTimeVerboseTest();
-    void readObservationTimeTest();
-    void readMethodTest_ImageBased();
-	void readMethodTest_Histogram();
-	void readMethodTest_Unknown();
-    void readResidualFieldTest_None();
-    void readResidualFieldTest_Uniform();
-    void readResidualFieldTest_Import();
-    void readResidualFieldTest_Unknown();
-    void readGradientValueTest();
-    void readGradientDirectionTest_0();
-    void readGradientDirectionTest_1();
-    void readGradientDirectionTest_2();
-    void readGradientDirectionTest_Unknown();
-    void readPathToFieldTest();
-    void readMinT2Test();
-    void readMaxT2Test();
-    void readUseT2LogspaceTest_True();
-    void readUseT2LogspaceTest_False();
-    void readUseT2LogspaceTest_Unknown();
-    void readNumT2BinsTest();
-    void readMinLambdaTest();
-    void readMaxLambdaTest();
-    void readNumLambdasTest();
-    void readPruneNumTest();
-    void readNoiseAmpTest(); 
-    void readSaveModeTest_True(); 
-    void readSaveModeTest_False(); 
-    void readSaveModeTest_Unknown();
-    void readSaveWalkersTest_True();
-    void readSaveWalkersTest_False();
-    void readSaveWalkersTest_Unknown();
-    void readSaveDecayTest_True();
-	void readSaveDecayTest_False();
-    void readSaveHistogramTest_True();
-    void readSaveHistogramTest_False();
-    void readSaveHistogramListTest_True();   
-    void readSaveT2Test_True(); 
-	void readSaveT2Test_False(); 
+	TestResult readConfigFileTest();
+	TestResult readD0Test();
+	TestResult readApplyBulkTest_True();
+	TestResult readApplyBulkTest_False();
+	TestResult readApplyBulkTest_Unknown();
+    TestResult readTimeVerboseTest();
+    TestResult readObservationTimeTest();
+    TestResult readMethodTest_ImageBased();
+	TestResult readMethodTest_Histogram();
+	TestResult readMethodTest_Unknown();
+    TestResult readResidualFieldTest_None();
+    TestResult readResidualFieldTest_Uniform();
+    TestResult readResidualFieldTest_Import();
+    TestResult readResidualFieldTest_Unknown();
+    TestResult readGradientValueTest();
+    TestResult readGradientDirectionTest_0();
+    TestResult readGradientDirectionTest_1();
+    TestResult readGradientDirectionTest_2();
+    TestResult readGradientDirectionTest_Unknown();
+    TestResult readPathToFieldTest();
+    TestResult readMinT2Test();
+    TestResult readMaxT2Test();
+    TestResult readUseT2LogspaceTest_True();
+    TestResult readUseT2LogspaceTest_False();
+    TestResult readUseT2LogspaceTest_Unknown();
+    TestResult readNumT2BinsTest();
+    TestResult readMinLambdaTest();
+    TestResult readMaxLambdaTest();
+    TestResult readNumLambdasTest();
+    TestResult readPruneNumTest();
+    TestResult readNoiseAmpTest(); 
+    TestResult readSaveModeTest_True(); 
+    TestResult readSaveModeTest_False(); 
+    TestResult readSaveModeTest_Unknown();
+    TestResult readSaveWalkersTest_True();
+    TestResult readSaveWalkersTest_False();
+    TestResult readSaveWalkersTest_Unknown();
+    TestResult readSaveDecayTest_True();
+	TestResult readSaveDecayTest_False();
+    TestResult readSaveHistogramTest_True();
+    TestResult readSaveHistogramTest_False();
+    TestResult readSaveHistogramListTest_True();   
+    TestResult readSaveT2Test_True(); 
+	TestResult readSaveT2Test_False(); 
 
+	void setTestCases(vector<mptr> _tc){ this->testCases = _tc; }
+	void setTestCases(mptr _t, int i){ this->testCases[i] = _t; }
+	void addTest(mptr _t){ this->testCases.push_back(_t); }
+	void clearTestCases(){ this->testCases.clear(); }
+	void setConfig(cpmg_config *_conf){ this->config = _conf; }
 
-	void setProjectRoot(string proot){ this->projectRoot = proot; }
-	string getProjectRoot(){ return this->projectRoot; }
-	void setSuccessResult(bool result){ this->sucessResult = result; }
-	bool getSuccessResult(){ return this->sucessResult; }
-	void setInputDir(string _path){ this->inputDir = _path; }
-	string getInputDir(){ return this->inputDir; }
+	vector<mptr> getTestCases(){ return this->testCases; }
+	mptr getTestCase(int i){ return this->testCases[i]; }
+	cpmg_config *getConfig(){ return this->config; }
 };
 
 #endif

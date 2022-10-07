@@ -1,434 +1,531 @@
 #include "cpmg_configTest.h"
 
-void cpmg_configTest::run()
+cpmg_configTest::cpmg_configTest(string proot) : TestSuite(proot), config(NULL)
 {
-	for(int t = 0; t < this->testSuite.size(); t++)
+	// add test cases to suite vector
+	(*this).addTest(&cpmg_configTest::readConfigFileTest);
+	(*this).addTest(&cpmg_configTest::readD0Test);
+	(*this).addTest(&cpmg_configTest::readApplyBulkTest_True);
+	(*this).addTest(&cpmg_configTest::readApplyBulkTest_False);
+	(*this).addTest(&cpmg_configTest::readApplyBulkTest_Unknown);
+	(*this).addTest(&cpmg_configTest::readTimeVerboseTest);
+	(*this).addTest(&cpmg_configTest::readApplyBulkTest_Unknown);		
+	(*this).addTest(&cpmg_configTest::readObservationTimeTest);
+	(*this).addTest(&cpmg_configTest::readMethodTest_ImageBased);
+	(*this).addTest(&cpmg_configTest::readMethodTest_Histogram);
+	(*this).addTest(&cpmg_configTest::readMethodTest_Unknown);
+	(*this).addTest(&cpmg_configTest::readResidualFieldTest_None);
+	(*this).addTest(&cpmg_configTest::readResidualFieldTest_Uniform);
+	(*this).addTest(&cpmg_configTest::readResidualFieldTest_Import);
+	(*this).addTest(&cpmg_configTest::readResidualFieldTest_Unknown);
+	(*this).addTest(&cpmg_configTest::readGradientValueTest);
+	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_0);
+	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_1);
+	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_2);
+	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_Unknown);
+	(*this).addTest(&cpmg_configTest::readPathToFieldTest);
+	(*this).addTest(&cpmg_configTest::readMinT2Test);
+	(*this).addTest(&cpmg_configTest::readMaxT2Test);
+	(*this).addTest(&cpmg_configTest::readUseT2LogspaceTest_True);
+	(*this).addTest(&cpmg_configTest::readUseT2LogspaceTest_False);
+	(*this).addTest(&cpmg_configTest::readUseT2LogspaceTest_Unknown);
+	(*this).addTest(&cpmg_configTest::readNumT2BinsTest);
+	(*this).addTest(&cpmg_configTest::readMinLambdaTest);
+	(*this).addTest(&cpmg_configTest::readMaxLambdaTest);
+	(*this).addTest(&cpmg_configTest::readNumLambdasTest);
+	(*this).addTest(&cpmg_configTest::readPruneNumTest);
+	(*this).addTest(&cpmg_configTest::readNoiseAmpTest); 
+	(*this).addTest(&cpmg_configTest::readSaveModeTest_True);
+	(*this).addTest(&cpmg_configTest::readSaveModeTest_False);
+	(*this).addTest(&cpmg_configTest::readSaveModeTest_Unknown);
+	(*this).addTest(&cpmg_configTest::readSaveWalkersTest_True);
+	(*this).addTest(&cpmg_configTest::readSaveWalkersTest_False);
+	(*this).addTest(&cpmg_configTest::readSaveWalkersTest_Unknown);
+	(*this).addTest(&cpmg_configTest::readSaveDecayTest_True);
+	(*this).addTest(&cpmg_configTest::readSaveDecayTest_False);
+	(*this).addTest(&cpmg_configTest::readSaveHistogramTest_True);
+	(*this).addTest(&cpmg_configTest::readSaveHistogramTest_False);
+	(*this).addTest(&cpmg_configTest::readSaveHistogramListTest_True);
+	(*this).addTest(&cpmg_configTest::readSaveT2Test_True);
+	(*this).addTest(&cpmg_configTest::readSaveT2Test_False);	
+}
+
+vector<TestResult> cpmg_configTest::run()
+{
+	vector<TestResult> results;
+	
+	for(int t = 0; t < this->testCases.size(); t++)
 	{
 		(*this).beforeEach();
-		(this->*testSuite[t])();
+		results.push_back((this->*testCases[t])());
 		(*this).afterEach();
 	}
-	return;
-}
-
-void cpmg_configTest::readConfigFileTest()
-{	
-	cout << "::Testing readConfigFile()...";
-
-	string config_path = "tcpmg.config";
 	
-	this->config->readConfigFile((*this).getInputDir() + config_path);
-	Assert::assertEquals(this->config->getMethod(), (string)"image-based", "cpmg: Method");
-	Assert::assertEquals(this->config->getObservationTime(), (double) 1000.0, "cpmg: ObservationTime");
-	Assert::assertEquals(this->config->getApplyBulk(), (bool) false, "cpmg: ApplyBulk");
-	Assert::assertEquals(this->config->getTimeVerbose(), (bool) false, "cpmg: TimeVerbose");
-	Assert::assertEquals(this->config->getResidualField(), (string)"uniform", "cpmg: ResidualField");
-	Assert::assertEquals(this->config->getGradientValue(), (double) 1.0, "cpmg: GradientValue");
-	Assert::assertEquals(this->config->getGradientDirection(), (int) 2, "cpmg: GradientDirection");
-	Assert::assertEquals(this->config->getMinT2(), (double) 0.1, "cpmg: MinT2");
-	Assert::assertEquals(this->config->getMaxT2(), (double) 10000.0, "cpmg: MaxT2");
-	Assert::assertEquals(this->config->getUseT2Logspace(), (bool) true, "cpmg: UseT2Logspace");
-	Assert::assertEquals(this->config->getNumT2Bins(), (int) 256, "cpmg: NumT2Bins");
-	Assert::assertEquals(this->config->getMinLambda(), (double) -4.0, "cpmg: MinLambda");
-	Assert::assertEquals(this->config->getMaxLambda(), (double) 2.0, "cpmg: MaxLambda");
-	Assert::assertEquals(this->config->getNumLambdas(), (int) 512, "cpmg: NumLambdas");
-	Assert::assertEquals(this->config->getPruneNum(), (int) 512, "cpmg: PruneNum");
-	Assert::assertEquals(this->config->getNoiseAmp(), (double) 0.0, "cpmg: NoiseAmp");
-	Assert::assertEquals(this->config->getSaveMode(), (bool) true, "cpmg: SaveMode");
-	Assert::assertEquals(this->config->getSaveDecay(), (bool) false, "cpmg: SaveDecay");
-	Assert::assertEquals(this->config->getSaveT2(), (bool) false, "cpmg: SaveT2");
-	Assert::assertEquals(this->config->getSaveWalkers(), (bool) false, "cpmg: SaveWalkers");
-	Assert::assertEquals(this->config->getSaveHistogram(), (bool) false, "cpmg: SaveHistogram");
-	Assert::assertEquals(this->config->getSaveHistogramList(), (bool) false, "cpmg: SaveHistogramList");
-
-	cout << "Ok." << endl;
-	return;
+	return results;
 }
 
-void cpmg_configTest::readD0Test()
+TestResult cpmg_configTest::readConfigFileTest()
+{	
+	TestResult result;
+	result.setMessage("cpmg_config::readConfigFile()");
+
+	string config_path = "tcpmg.config";	
+	this->config->readConfigFile((*this).getInputDir() + config_path);	
+	if(Assert::assertEquals(this->config->getMethod(), (string)"image-based") and
+	   Assert::assertEquals(this->config->getObservationTime(), (double) 1000.0) and
+	   Assert::assertEquals(this->config->getApplyBulk(), (bool) false) and 
+	   Assert::assertEquals(this->config->getTimeVerbose(), (bool) false) and 
+	   Assert::assertEquals(this->config->getResidualField(), (string)"uniform") and 
+	   Assert::assertEquals(this->config->getGradientValue(), (double) 1.0) and
+	   Assert::assertEquals(this->config->getGradientDirection(), (int) 2) and 
+	   Assert::assertEquals(this->config->getMinT2(), (double) 0.1) and
+	   Assert::assertEquals(this->config->getMaxT2(), (double) 10000.0) and
+	   Assert::assertEquals(this->config->getUseT2Logspace(), (bool) true) and 
+	   Assert::assertEquals(this->config->getNumT2Bins(), (int) 256) and
+	   Assert::assertEquals(this->config->getMinLambda(), (double) -4.0) and 
+	   Assert::assertEquals(this->config->getMaxLambda(), (double) 2.0) and
+	   Assert::assertEquals(this->config->getNumLambdas(), (int) 512) and
+	   Assert::assertEquals(this->config->getPruneNum(), (int) 512) and
+	   Assert::assertEquals(this->config->getNoiseAmp(), (double) 0.0) and 
+	   Assert::assertEquals(this->config->getSaveMode(), (bool) true) and
+	   Assert::assertEquals(this->config->getSaveDecay(), (bool) false) and 
+	   Assert::assertEquals(this->config->getSaveT2(), (bool) false) and
+	   Assert::assertEquals(this->config->getSaveWalkers(), (bool) false) and 
+	   Assert::assertEquals(this->config->getSaveHistogram(), (bool) false) and 
+	   Assert::assertEquals(this->config->getSaveHistogramList(), (bool) false)
+	) result.setSuccess(true);
+	else result.setSuccess(false); 
+
+	return result;
+}
+
+TestResult cpmg_configTest::readD0Test()
 {
-	cout << "::Testing readD0()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readD0()");
 	string token = "2.5";
 	this->config->readD0(token);
-	Assert::assertEquals(this->config->getD0(), (double) 2.5, "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getD0(), (double) 2.5));
+	return result;
 }
 
-void cpmg_configTest::readApplyBulkTest_True()
+TestResult cpmg_configTest::readApplyBulkTest_True()
 {
-	cout << "::Testing readApplyBulk(true)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readApplyBulk(true)");
 	string token = "true";
 	this->config->readApplyBulk(token);
-	Assert::assertTrue(this->config->getApplyBulk(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertTrue(this->config->getApplyBulk()));
+	return result;
 }
 
-void cpmg_configTest::readApplyBulkTest_False()
+TestResult cpmg_configTest::readApplyBulkTest_False()
 {
-	cout << "::Testing readApplyBulk(false)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readApplyBulk(false)");
 	string token = "false";
 	this->config->readApplyBulk(token);
-	Assert::assertFalse(this->config->getApplyBulk(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertFalse(this->config->getApplyBulk()));
+	return result;
 }
 
-void cpmg_configTest::readApplyBulkTest_Unknown()
+TestResult cpmg_configTest::readApplyBulkTest_Unknown()
 {
-	cout << "::Testing readApplyBulk(unknown)...";
+	TestResult result;
+	result.setMessage("cpmg_config::Testing readApplyBulk(unknown)");
 	string token = "da5s1d6";
 	this->config->readApplyBulk(token);
-	Assert::assertFalse(this->config->getApplyBulk(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertFalse(this->config->getApplyBulk()));
+	return result;
 }
 
-void cpmg_configTest::readTimeVerboseTest()
+TestResult cpmg_configTest::readTimeVerboseTest()
 {
-	cout << "::Testing readApplyBulk()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readApplyBulk()");
 	string token = "true";
 	this->config->readTimeVerbose(token);
-	Assert::assertEquals(this->config->getTimeVerbose(), (bool) true, "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getTimeVerbose(), (bool) true));
+	return result;
 }
 
-void cpmg_configTest::cpmg_configTest::readObservationTimeTest()
+TestResult cpmg_configTest::cpmg_configTest::readObservationTimeTest()
 {
-	cout << "::Testing readObservationTime()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readObservationTime()");
 	string token = "1000.0";
 	this->config->readObservationTime(token);
-	Assert::assertEquals(this->config->getObservationTime(), (double) 1000.0, "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getObservationTime(), (double) 1000.0));
+	return result;
 }
 
-void cpmg_configTest::readMethodTest_ImageBased()
+TestResult cpmg_configTest::readMethodTest_ImageBased()
 {
-	cout << "::Testing readMethod(image-based)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readMethod(image-based)");
 	string token = "image-based";
 	this->config->readMethod(token);
-	Assert::assertEquals(this->config->getMethod(), (string) "image-based", "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getMethod(), (string) "image-based"));
+	return result;
 }
 
-void cpmg_configTest::readMethodTest_Histogram()
+TestResult cpmg_configTest::readMethodTest_Histogram()
 {
-	cout << "::Testing readMethod(histogram)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readMethod(histogram)");
 	string token = "histogram";
 	this->config->readMethod(token);
-	Assert::assertEquals(this->config->getMethod(), (string) "histogram", "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getMethod(), (string) "histogram"));
+	return result;
 }
 
-void cpmg_configTest::readMethodTest_Unknown()
+TestResult cpmg_configTest::readMethodTest_Unknown()
 {
-	cout << "::Testing readMethod(unknown)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readMethod(unknown)");
 	string token = "xxx";
 	this->config->readMethod(token);
-	Assert::assertEquals(this->config->getMethod(), (string) "image-based", "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getMethod(), (string) "image-based"));
+	return result;
 }
 
-void cpmg_configTest::readResidualFieldTest_None()
+TestResult cpmg_configTest::readResidualFieldTest_None()
 {
-	cout << "::Testing readResidualField(none)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readResidualField(none)");
 	string token = "none";
 	this->config->readResidualField(token);
-	Assert::assertEquals(this->config->getResidualField(), (string) "none", "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getResidualField(), (string) "none"));
+	return result;
 }
 
-void cpmg_configTest::readResidualFieldTest_Uniform()
+TestResult cpmg_configTest::readResidualFieldTest_Uniform()
 {
-	cout << "::Testing readResidualField(uniform)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readResidualField(uniform)");
 	string token = "uniform";
 	this->config->readResidualField(token);
-	Assert::assertEquals(this->config->getResidualField(), (string) "uniform", "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getResidualField(), (string) "uniform"));
+	return result;
 }
 
-void cpmg_configTest::readResidualFieldTest_Import()
+TestResult cpmg_configTest::readResidualFieldTest_Import()
 {
-	cout << "::Testing readResidualField(import)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readResidualField(import)");
 	string token = "import";
 	this->config->readResidualField(token);
-	Assert::assertEquals(this->config->getResidualField(), (string) "import", "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getResidualField(), (string) "import"));
+	return result;
 }
 
-void cpmg_configTest::readResidualFieldTest_Unknown()
+TestResult cpmg_configTest::readResidualFieldTest_Unknown()
 {
-	cout << "::Testing readResidualField(unknown)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readResidualField(unknown)");
 	string token = "dsasd";
 	this->config->readResidualField(token);
-	Assert::assertEquals(this->config->getResidualField(), (string) "none", "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getResidualField(), (string) "none"));
+	return result;
 }
 
-void cpmg_configTest::readGradientValueTest()
+TestResult cpmg_configTest::readGradientValueTest()
 {
-	cout << "::Testing readGradientValue()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readGradientValue()");
 	string token = "1.0";
 	this->config->readGradientValue(token);
-	Assert::assertEquals(this->config->getGradientValue(), (double) 1.0, "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getGradientValue(), (double) 1.0));
+	return result;
 }
 
-void cpmg_configTest::readGradientDirectionTest_0()
+TestResult cpmg_configTest::readGradientDirectionTest_0()
 {
-	cout << "::Testing readGradientDirection(0)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readGradientDirection(0)");
 	string token = "0";
 	this->config->readGradientDirection(token);
-	Assert::assertEquals(this->config->getGradientDirection(), (int) 0, "Failed.");
-	cout << "Ok." << endl;	
+	result.setSuccess(Assert::assertEquals(this->config->getGradientDirection(), (int) 0));
+	return result;	
 }
 
-void cpmg_configTest::readGradientDirectionTest_1()
+TestResult cpmg_configTest::readGradientDirectionTest_1()
 {
-	cout << "::Testing readGradientDirection(1)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readGradientDirection(1)");
 	string token = "1";
 	this->config->readGradientDirection(token);
-	Assert::assertEquals(this->config->getGradientDirection(), (int) 1, "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getGradientDirection(), (int) 1));
+	return result;
 }
 
-void cpmg_configTest::readGradientDirectionTest_2()
+TestResult cpmg_configTest::readGradientDirectionTest_2()
 {
-	cout << "::Testing readGradientDirection(2)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readGradientDirection(2)");
 	string token = "2";
 	this->config->readGradientDirection(token);
-	Assert::assertEquals(this->config->getGradientDirection(), (int) 2, "Failed.");
-	cout << "Ok." << endl;	
+	result.setSuccess(Assert::assertEquals(this->config->getGradientDirection(), (int) 2));
+	return result;	
 }
 
-void cpmg_configTest::readGradientDirectionTest_Unknown()
+TestResult cpmg_configTest::readGradientDirectionTest_Unknown()
 {
-	cout << "::Testing readGradientDirection(Unknown)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readGradientDirection(Unknown)");
 	string token = "xx x";
 	this->config->readGradientDirection(token);
-	Assert::assertEquals(this->config->getGradientDirection(), (int) 2, "Failed.");
-	cout << "Ok." << endl;	
+	result.setSuccess(Assert::assertEquals(this->config->getGradientDirection(), (int) 2));
+	return result;	
 }
 
-void cpmg_configTest::readPathToFieldTest()
+TestResult cpmg_configTest::readPathToFieldTest()
 {
-	cout << "::Testing readPathToField()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readPathToField()");
 	string token = "my-path";
 	this->config->readPathToField(token);
-	Assert::assertEquals(this->config->getPathToField(), (string) "my-path", "Failed.");
-	cout << "Ok." << endl;	
+	result.setSuccess(Assert::assertEquals(this->config->getPathToField(), (string) "my-path"));
+	return result;	
 }
 
-void cpmg_configTest::readMinT2Test()
+TestResult cpmg_configTest::readMinT2Test()
 {
-	cout << "::Testing readMinT2()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readMinT2()");
 	string token = "0.1";
 	this->config->readMinT2(token);
-	Assert::assertEquals(this->config->getMinT2(), (double) 0.1, "Failed.");
-	cout << "Ok." << endl;		
+	result.setSuccess(Assert::assertEquals(this->config->getMinT2(), (double) 0.1));
+	return result;		
 }
 
-void cpmg_configTest::readMaxT2Test()
+TestResult cpmg_configTest::readMaxT2Test()
 {
-	cout << "::Testing readMaxT2()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readMaxT2()");
 	string token = "10";
 	this->config->readMaxT2(token);
-	Assert::assertEquals(this->config->getMaxT2(), (double) 10.0, "Failed.");
-	cout << "Ok." << endl;			
+	result.setSuccess(Assert::assertEquals(this->config->getMaxT2(), (double) 10.0));
+	return result;			
 }
 
-void cpmg_configTest::readUseT2LogspaceTest_True()
+TestResult cpmg_configTest::readUseT2LogspaceTest_True()
 {
-	cout << "::Testing readUseT2Logspace(true)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readUseT2Logspace(true)");
 	string token = "true";
 	this->config->readUseT2Logspace(token);
-	Assert::assertTrue(this->config->getUseT2Logspace(), "Failed.");
-	cout << "Ok." << endl;		
+	result.setSuccess(Assert::assertTrue(this->config->getUseT2Logspace()));
+	return result;		
 }
 
-void cpmg_configTest::readUseT2LogspaceTest_False()
+TestResult cpmg_configTest::readUseT2LogspaceTest_False()
 {
-	cout << "::Testing readUseT2Logspace(false)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readUseT2Logspace(false)");
 	string token = "false";
 	this->config->readUseT2Logspace(token);
-	Assert::assertFalse(this->config->getUseT2Logspace(), "Failed.");
-	cout << "Ok." << endl;		
+	result.setSuccess(Assert::assertFalse(this->config->getUseT2Logspace()));
+	return result;		
 }
 
-void cpmg_configTest::readUseT2LogspaceTest_Unknown()
+TestResult cpmg_configTest::readUseT2LogspaceTest_Unknown()
 {
-	cout << "::Testing readUseT2Logspace(true)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readUseT2Logspace(true)");
 	string token = "nnn";
 	this->config->readUseT2Logspace(token);
-	Assert::assertFalse(this->config->getUseT2Logspace(), "Failed.");
-	cout << "Ok." << endl;		
+	result.setSuccess(Assert::assertFalse(this->config->getUseT2Logspace()));
+	return result;		
 }
 
-void cpmg_configTest::readNumT2BinsTest()
+TestResult cpmg_configTest::readNumT2BinsTest()
 {
-	cout << "::Testing readNumT2Bins()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readNumT2Bins()");
 	string token = "10";
 	this->config->readNumT2Bins(token);
-	Assert::assertEquals(this->config->getNumT2Bins(), (int) 10, "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getNumT2Bins(), (int) 10));
+	return result;
 }
 
-void cpmg_configTest::readMinLambdaTest()
+TestResult cpmg_configTest::readMinLambdaTest()
 {
-	cout << "::Testing readMinLambda()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readMinLambda()");
 	string token = "1e-3";
 	this->config->readMinLambda(token);
-	Assert::assertEquals(this->config->getMinLambda(), (double) 0.001, "Failed.");
-	cout << "Ok." << endl;		
+	result.setSuccess(Assert::assertEquals(this->config->getMinLambda(), (double) 0.001));
+	return result;		
 }
 
-void cpmg_configTest::readMaxLambdaTest()
+TestResult cpmg_configTest::readMaxLambdaTest()
 {
-	cout << "::Testing readMinLambda()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readMinLambda()");
 	string token = "10";
 	this->config->readMaxLambda(token);
-	Assert::assertEquals(this->config->getMaxLambda(), (double) 1e1, "Failed.");
-	cout << "Ok." << endl;			
+	result.setSuccess(Assert::assertEquals(this->config->getMaxLambda(), (double) 1e1));
+	return result;			
 }
 
-void cpmg_configTest::readNumLambdasTest()
+TestResult cpmg_configTest::readNumLambdasTest()
 {
-	cout << "::Testing readNumLambdas()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readNumLambdas()");
 	string token = "256.0";
 	this->config->readNumLambdas(token);
-	Assert::assertEquals(this->config->getNumLambdas(), (int) 256, "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getNumLambdas(), (int) 256));
+	return result;
 }
 
-void cpmg_configTest::readPruneNumTest()
+TestResult cpmg_configTest::readPruneNumTest()
 {
-	cout << "::Testing readPruneNum()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readPruneNum()");
 	string token = "111.02";
 	this->config->readPruneNum(token);
-	Assert::assertEquals(this->config->getPruneNum(), (int) 111, "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getPruneNum(), (int) 111));
+	return result;
 }
 
-void cpmg_configTest::readNoiseAmpTest()
+TestResult cpmg_configTest::readNoiseAmpTest()
 {
-	cout << "::Testing readNoiseAmp()...";
+	TestResult result;
+	result.setMessage("cpmg_config::readNoiseAmp()");
 	string token = "0.05";
 	this->config->readNoiseAmp(token);
-	Assert::assertEquals(this->config->getNoiseAmp(), (double) 0.05, "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertEquals(this->config->getNoiseAmp(), (double) 0.05));
+	return result;
 }
 
-void cpmg_configTest::readSaveModeTest_True()
+TestResult cpmg_configTest::readSaveModeTest_True()
 {
-	cout << "::Testing readSaveMode(true)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveMode(true)");
 	string token = "true";
 	this->config->readSaveMode(token);
-	Assert::assertTrue(this->config->getSaveMode(), "Failed.");
-	cout << "Ok." << endl;	
+	result.setSuccess(Assert::assertTrue(this->config->getSaveMode()));
+	return result;	
 }
 
-void cpmg_configTest::readSaveModeTest_False()
+TestResult cpmg_configTest::readSaveModeTest_False()
 {
-	cout << "::Testing readSaveMode(false)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveMode(false)");
 	string token = "false";
 	this->config->readSaveMode(token);
-	Assert::assertFalse(this->config->getSaveMode(), "Failed.");
-	cout << "Ok." << endl;	
+	result.setSuccess(Assert::assertFalse(this->config->getSaveMode()));
+	return result;	
 }
 
-void cpmg_configTest::readSaveModeTest_Unknown()
+TestResult cpmg_configTest::readSaveModeTest_Unknown()
 {
-	cout << "::Testing readSaveMode(unknown)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveMode(unknown)");
 	string token = "ttt";
 	this->config->readSaveMode(token);
-	Assert::assertFalse(this->config->getSaveMode(), "Failed.");
-	cout << "Ok." << endl;	
+	result.setSuccess(Assert::assertFalse(this->config->getSaveMode()));
+	return result;	
 }
 
-void cpmg_configTest::readSaveWalkersTest_True()
+TestResult cpmg_configTest::readSaveWalkersTest_True()
 {
-	cout << "::Testing readSaveWalkers(true)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveWalkers(true)");
 	string token = "true";
 	this->config->readSaveWalkers(token);
-	Assert::assertTrue(this->config->getSaveWalkers(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertTrue(this->config->getSaveWalkers()));
+	return result;
 }
 
-void cpmg_configTest::readSaveWalkersTest_False()
+TestResult cpmg_configTest::readSaveWalkersTest_False()
 {
-	cout << "::Testing readSaveWalkers(false)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveWalkers(false)");
 	string token = "false";
 	this->config->readSaveWalkers(token);
-	Assert::assertFalse(this->config->getSaveWalkers(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertFalse(this->config->getSaveWalkers()));
+	return result;
 }
 
-void cpmg_configTest::readSaveWalkersTest_Unknown()
+TestResult cpmg_configTest::readSaveWalkersTest_Unknown()
 {
-	cout << "::Testing readSaveWalkers(unknown)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveWalkers(unknown)");
 	string token = "bbb";
 	this->config->readSaveWalkers(token);
-	Assert::assertFalse(this->config->getSaveWalkers(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertFalse(this->config->getSaveWalkers()));
+	return result;
 }
 
-void cpmg_configTest::readSaveDecayTest_True()
+TestResult cpmg_configTest::readSaveDecayTest_True()
 {
-	cout << "::Testing readSaveDecay(true)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveDecay(true)");
 	string token = "true";
 	this->config->readSaveDecay(token);
-	Assert::assertTrue(this->config->getSaveDecay(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertTrue(this->config->getSaveDecay()));
+	return result;
 }
 
-void cpmg_configTest::readSaveDecayTest_False()
+TestResult cpmg_configTest::readSaveDecayTest_False()
 {
-	cout << "::Testing readSaveDecay(false)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveDecay(false)");
 	string token = "das";
 	this->config->readSaveDecay(token);
-	Assert::assertFalse(this->config->getSaveDecay(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertFalse(this->config->getSaveDecay()));
+	return result;
 }
 
 
-void cpmg_configTest::readSaveHistogramTest_True()
+TestResult cpmg_configTest::readSaveHistogramTest_True()
 {
-	cout << "::Testing readSaveHistogram(true)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveHistogram(true)");
 	string token = "true";
 	this->config->readSaveHistogram(token);
-	Assert::assertTrue(this->config->getSaveHistogram(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertTrue(this->config->getSaveHistogram()));
+	return result;
 }
 
-void cpmg_configTest::readSaveHistogramTest_False()
+TestResult cpmg_configTest::readSaveHistogramTest_False()
 {
-	cout << "::Testing readSaveHistogram(false)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveHistogram(false)");
 	string token = "FFF";
 	this->config->readSaveHistogram(token);
-	Assert::assertFalse(this->config->getSaveHistogram(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertFalse(this->config->getSaveHistogram()));
+	return result;
 }
 
-void cpmg_configTest::readSaveHistogramListTest_True()
+TestResult cpmg_configTest::readSaveHistogramListTest_True()
 {
-	cout << "::Testing readSaveHistogramList(true)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveHistogramList(true)");
 	string token = "true";
 	this->config->readSaveHistogramList(token);
-	Assert::assertTrue(this->config->getSaveHistogramList(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertTrue(this->config->getSaveHistogramList()));
+	return result;
 }   
 
-void cpmg_configTest::readSaveT2Test_True()
+TestResult cpmg_configTest::readSaveT2Test_True()
 {
-	cout << "::Testing readSaveT2(true)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveT2(true)");
 	string token = "true";
 	this->config->readSaveT2(token);
-	Assert::assertTrue(this->config->getSaveT2(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertTrue(this->config->getSaveT2()));
+	return result;
 }
 
-void cpmg_configTest::readSaveT2Test_False()
+TestResult cpmg_configTest::readSaveT2Test_False()
 {
-	cout << "::Testing readSaveHistogram(true)...";
+	TestResult result;
+	result.setMessage("cpmg_config::readSaveHistogram(true)");
 	string token = "jae";
 	this->config->readSaveT2(token);
-	Assert::assertFalse(this->config->getSaveT2(), "Failed.");
-	cout << "Ok." << endl;
+	result.setSuccess(Assert::assertFalse(this->config->getSaveT2()));
+	return result;
 }

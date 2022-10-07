@@ -9,193 +9,81 @@ public:
 	Assert(){}
 	virtual ~Assert(){}
 
-	static void assertTrue(bool condition, string warning)
+	static bool assertTrue(bool condition)
 	{
-		if(!condition)
-		{
-			cout << warning << endl;
-			exit(1);
-		}
+		if(!condition) return false;			
+		else return true;
 	}
 
-	static void assertFalse(bool condition, string warning)
+	static bool assertFalse(bool condition)
 	{
-		if(condition)
-		{
-			cout << warning << endl;
-			exit(1);
-		}
+		if(condition) return false;			
+		else return true;	
 	}
 
-	static void assertEquals(bool result, bool expected, string warning)
+	template<typename T>
+	static bool assertEquals(T result, T expected)
 	{
-		if(result != expected)
-		{
-			cout << warning << endl;
-			exit(1);
-		}
+		if(result != expected) return false;			
+		else return true;
 	}
 
-	static void assertEquals(uint result, uint expected, string warning)
+	static bool assertEquals(float result, float expected, double tol=1.0e-6)
 	{
-		if(result != expected)
-		{
-			cout << warning << endl;
-			exit(1);
-		}
+		if(std::abs(result - expected) > tol) return false;			
+		else return true;
 	}
 
-	static void assertEquals(int result, int expected, string warning)
+	static bool assertEquals(double result, double expected, double tol=1.0e-6)
 	{
-		if(result != expected)
-		{
-			cout << warning << endl;
-			exit(1);
-		}
+		if(std::abs(result - expected) > tol) return false;			
+		else return true;
 	}
 
-	static void assertEquals(uint64_t result, uint64_t expected, string warning)
+	template<typename T>
+	static bool assertVectorEquals(vector<T> result, vector<T> expected)
 	{
-		if(result != expected)
-		{
-			cout << warning << endl;
-			exit(1);
-		}
-	}
-
-	static void assertEquals(float result, float expected, string warning, double tol=1.0e-6)
-	{
-		if(std::abs(result - expected) > tol)
-		{
-			cout << warning << endl;
-			exit(1);
-		}
-	}
-
-	static void assertEquals(double result, double expected, string warning, double tol=1.0e-6)
-	{
-		if(std::abs(result - expected) > tol)
-		{
-			cout << warning << endl;
-			exit(1);
-		}
-	}
-
-	static void assertEquals(string result, string expected, string warning)
-	{
-		if(result != expected)
-		{
-			cout << warning << endl;
-			exit(1);
-		}
-	}
-
-	static void assertEquals(vector<int> result, vector<int> expected, string warning)
-	{
-		if(result.size() != expected.size())
-		{
-			cout << warning << endl;
-			exit(1);
-		}
+		if(result.size() != expected.size()) return false;			
 
 		for(int idx = 0; idx < result.size(); idx++)
 		{
 			if(result[idx] != expected[idx])
 			{
-				cout << warning << endl;
-				exit(1);
+				return false;				
 			}			
 		}
+
+		return true;
 	}
 
-	static void assertEquals(vector<uint> result, vector<uint> expected, string warning)
+	static bool assertVectorEquals(vector<float> result, vector<float> expected, double tol=1.0e-6)
 	{
-		if(result.size() != expected.size())
-		{
-			cout << warning << endl;
-			exit(1);
-		}
-
-		for(int idx = 0; idx < result.size(); idx++)
-		{
-			if(result[idx] != expected[idx])
-			{
-				cout << warning << endl;
-				exit(1);
-			}			
-		}
-	}
-
-	static void assertEquals(vector<uint64_t> result, vector<uint64_t> expected, string warning)
-	{
-		if(result.size() != expected.size())
-		{
-			cout << warning << endl;
-			exit(1);
-		}
-
-		for(int idx = 0; idx < result.size(); idx++)
-		{
-			if(result[idx] != expected[idx])
-			{
-				cout << warning << endl;
-				exit(1);
-			}			
-		}
-	}
-
-	static void assertEquals(vector<float> result, vector<float> expected, string warning, double tol=1.0e-6)
-	{
-		if(result.size() != expected.size())
-		{
-			cout << warning << endl;
-			exit(1);
-		}
+		if(result.size() != expected.size()) return false;			
 
 		for(int idx = 0; idx < result.size(); idx++)
 		{
 			if(std::abs(result[idx] - expected[idx]) > tol)
 			{
-				cout << warning << endl;
-				exit(1);
+				return false;				
 			}			
 		}
+
+		return true;
 	}
 
-	static void assertEquals(vector<double> result, vector<double> expected, string warning, double tol=1.0e-6)
+	static bool assertVectorEquals(vector<double> result, vector<double> expected, double tol=1.0e-6)
 	{
-		if(result.size() != expected.size())
-		{
-			cout << warning << endl;
-			exit(1);
-		}
+		if(result.size() != expected.size()) return false;			
 
 		for(int idx = 0; idx < result.size(); idx++)
 		{
 			if(std::abs(result[idx] - expected[idx]) > tol)
 			{
-				cout << warning << endl;
-				exit(1);
+				return false;				
 			}			
 		}
-	}
 
-	static void assertEquals(vector<string> result, vector<string> expected, string warning)
-	{
-		if(result.size() != expected.size())
-		{
-			cout << warning << endl;
-			exit(1);
-		}
-
-		for(int idx = 0; idx < result.size(); idx++)
-		{
-			if(result[idx] != expected[idx])
-			{
-				cout << warning << endl;
-				exit(1);
-			}			
-		}
+		return true;
 	}
 
 };
