@@ -22,8 +22,12 @@ ArgsParserTest::ArgsParserTest(string proot) : TestSuite(proot), parser(NULL)
 	(*this).addTest(&ArgsParserTest::testMissingArgs_5);	
 	(*this).addTest(&ArgsParserTest::testMissingArgs_6);	
 	(*this).addTest(&ArgsParserTest::testMissingArgs_7);
-	// (*this).addTest(&ArgsParserTest::testAllKnownArgs);
-	
+	(*this).addTest(&ArgsParserTest::testAllKnownArgs_1);
+	(*this).addTest(&ArgsParserTest::testAllKnownArgs_2);
+	(*this).addTest(&ArgsParserTest::testAllKnownArgs_3);
+	(*this).addTest(&ArgsParserTest::testAllKnownArgs_4);
+	(*this).addTest(&ArgsParserTest::testAllKnownArgs_5);
+	(*this).addTest(&ArgsParserTest::testAllKnownArgs_6);	
 }
 
 vector<TestResult> ArgsParserTest::run()
@@ -337,7 +341,7 @@ TestResult ArgsParserTest::testMissingArgs_7()
 
 TestResult ArgsParserTest::testAllKnownArgs_1()
 {
-	TestResult result("ArgsParser(rwnmr cpmg pfgse multitau)");
+	TestResult result("ArgsParser('rwnmr cpmg pfgse multitau')");
 
 	/*
 		Test all methods
@@ -354,7 +358,7 @@ TestResult ArgsParserTest::testAllKnownArgs_1()
 
 TestResult ArgsParserTest::testAllKnownArgs_2()
 {
-	TestResult result("ArgsParser(rwnmr multitau cpmg pfgse)");
+	TestResult result("ArgsParser('rwnmr multitau cpmg pfgse')");
 
 	/*
 		Test all methods, multitau in the middle
@@ -370,7 +374,7 @@ TestResult ArgsParserTest::testAllKnownArgs_2()
 
 TestResult ArgsParserTest::testAllKnownArgs_3()
 {
-	TestResult result("ArgsParser(rwnmr {+all args}[1])");
+	TestResult result("ArgsParser('rwnmr {+all args}[1]')");
 
 	/*
 		Test all methods + paths
@@ -391,7 +395,7 @@ TestResult ArgsParserTest::testAllKnownArgs_3()
 
 TestResult ArgsParserTest::testAllKnownArgs_4()
 {
-	TestResult result("ArgsParser(rwnmr {+all args}[2])");
+	TestResult result("ArgsParser('rwnmr {+all args}[2]')");
 
 	/*
 		Test all methods + paths (multitau in the middle)
@@ -412,7 +416,7 @@ TestResult ArgsParserTest::testAllKnownArgs_4()
 
 TestResult ArgsParserTest::testAllKnownArgs_5()
 {
-	TestResult result("ArgsParser(rwnmr {+all args}[3])");
+	TestResult result("ArgsParser('rwnmr {+all args}[3]')");
 
 	/*
 		Test all methods + paths (multitau in the middle)
@@ -433,7 +437,7 @@ TestResult ArgsParserTest::testAllKnownArgs_5()
 
 TestResult ArgsParserTest::testAllKnownArgs_6()
 {
-	TestResult result("ArgsParser(rwnmr {+all args}[4])");
+	TestResult result("ArgsParser('rwnmr {+all args}[4]')");
 
 	/*
 		Test all methods + paths (multitau in the middle)

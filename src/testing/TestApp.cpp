@@ -32,7 +32,7 @@ void TestApp::checkResults(string tag)
 	Color::Modifier red(Color::FG_RED);
 	TestResult current;
 
-	cout << ":::: rwnmr " << tag << " test suite:" << endl;
+	cout << ":::: rwnmr " << tag << " test suite:" << endl << endl;
  	for(int t = 0; t < (*this).getResults().size(); t++)
 	{
 		current = (*this).getResult(t);
@@ -43,6 +43,16 @@ void TestApp::checkResults(string tag)
 			(*this).setSuccessResult(false);
 		} 
 		else cout << green << "Passed." << def << endl;
+	}
+
+	cout << endl << ":::: Test result: ";
+	if((*this).getSuccessResult()) cout << green << "Passed." << def << endl;
+	else 
+	{ 
+		cout << red << "Failed." << def << endl;
+	
+		// if failed, exit program
+	 	exit(1);
 	}
 }
 
