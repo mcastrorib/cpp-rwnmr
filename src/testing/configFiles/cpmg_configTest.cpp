@@ -4,6 +4,8 @@ cpmg_configTest::cpmg_configTest(string proot) : TestSuite(proot), config(NULL)
 {
 	// add test cases to suite vector
 	(*this).addTest(&cpmg_configTest::readConfigFileTest);
+	(*this).addTest(&cpmg_configTest::checkConfigTest_True);
+	(*this).addTest(&cpmg_configTest::checkConfigTest_False);
 	(*this).addTest(&cpmg_configTest::readD0Test);
 	(*this).addTest(&cpmg_configTest::readApplyBulkTest_True);
 	(*this).addTest(&cpmg_configTest::readApplyBulkTest_False);
@@ -96,6 +98,58 @@ TestResult cpmg_configTest::readConfigFileTest()
 	) result.setSuccess(true);
 	else result.setSuccess(false); 
 
+	return result;
+}
+
+TestResult cpmg_configTest::checkConfigTest_True()
+{	
+	TestResult result;
+	result.setMessage("cpmg_config::checkConfig()");
+
+	string config_path = "tcpmg.config";	
+	this->config->readConfigFile((*this).getInputDir() + config_path);
+	vector<string> output = this->config->checkConfig();
+	vector<string> expected = {};
+	if(Assert::assertVectorEquals(output, expected) and 
+	   Assert::assertTrue(this->config->getReady())
+	) result.setSuccess(true);
+	else result.setSuccess(false);
+	return result;
+}
+
+TestResult cpmg_configTest::checkConfigTest_False()
+{	
+	TestResult result;
+	result.setMessage("cpmg_config::checkConfig()");
+
+	string config_path = "tcpmg.config";	
+	this->config->readConfigFile((*this).getInputDir() + config_path);
+	this->config->setD0(-1.0);
+	this->config->setObservationTime(-10.0);
+	this->config->setMethod("other");
+	this->config->setResidualField("other");
+	this->config->setGradientDirection(4);
+	this->config->setMinT2(-10.0);
+	this->config->setMaxT2(-1.0);
+	this->config->setNumT2Bins(-5);
+	this->config->setNumLambdas(0);
+	this->config->setPruneNum(-1);
+	
+	vector<string> output = this->config->checkConfig();
+	vector<string> expected = {"D0",
+							   "OBS_TIME",
+							   "METHOD", 
+							   "RESIDUAL_FIELD", 
+							   "GRADIENT_DIRECTION", 
+							   "MIN_T2", 
+							   "MAX_T2", 
+							   "NUM_T2_BINS",
+							   "NUM_LAMBDAS",
+							   "PRUNE_NUM"};
+	if(Assert::assertVectorEquals(output, expected) and 
+	   Assert::assertFalse(this->config->getReady())
+	) result.setSuccess(true);
+	else result.setSuccess(false);
 	return result;
 }
 

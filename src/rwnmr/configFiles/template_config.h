@@ -10,56 +10,43 @@ class template_config
 public:
     string projectRoot;
     string configFilepath;
-    ifstream *fileObject;
 
     // default constructors
-    template_config():fileObject(NULL){}
-    template_config(string croot) : projectRoot(croot), fileObject(NULL)
-    {}
+    template_config(){}
+    template_config(string croot) : projectRoot(croot){}
 
     //copy constructors
     template_config(const template_config &other)
     {
         this->projectRoot = other.projectRoot;
         this->configFilepath = other.configFilepath;
-        this->fileObject = other.fileObject;
     }
 
     // default destructor
-    virtual ~template_config()
-    {
-        if(this->fileObject != NULL) 
-        {       
-            delete this->fileObject;
-        }
-        this->fileObject = NULL;
-    } 
+    virtual ~template_config(){} 
+
     void setProjectRoot(string _croot){ this->projectRoot = _croot;}
     void setConfigFilepath(string _p){ this->configFilepath = _p; }
-    void setFileObject(ifstream *_fo){ this->fileObject = _fo; }
     string getProjectRoot(){return this->projectRoot;}
     string getConfigFilepath(){ return this->configFilepath; }
-    ifstream *getFileObject(){ return this->fileObject; }
+    
+    virtual void readConfigFile(const string configFile) = 0;
+    virtual void checkConfig() = 0;
 
-    void readConfigFile(const string configFile)
+    bool checkItem(bool condition, const string item, string &msg)
     {
-        if(this->fileObject != NULL) delete this->fileObject;
-        this->fileObject = new ifstream(configFile, ios::in);
-        if (this->fileObject->fail())
+        if(!condition)
         {
-            cout << "Could not open config file " << configFile << " from disc." << endl;
-            exit(1);
+            msg += item;
+            return false;
+        } else 
+        {
+            return true;
         }
-    }
-
-    void closeFileObject()
-    {
-        fileObject->close();
-    }
+    }    
     
     string findConfigFile(string filepath, string _default)
-    {
-       
+    {       
         string searchPath;
         // search in config dir
         searchPath = (*this).getProjectRoot() + CONFIG_ROOT + filepath;

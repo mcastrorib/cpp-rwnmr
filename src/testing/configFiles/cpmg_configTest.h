@@ -43,6 +43,8 @@ public:
 	virtual vector<TestResult> run();
 	
 	TestResult readConfigFileTest();
+	TestResult checkConfigTest_True();
+	TestResult checkConfigTest_False();
 	TestResult readD0Test();
 	TestResult readApplyBulkTest_True();
 	TestResult readApplyBulkTest_False();

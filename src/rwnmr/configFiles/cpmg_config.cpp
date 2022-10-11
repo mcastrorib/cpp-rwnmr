@@ -12,7 +12,13 @@
 using namespace std;
 
 // default constructors
-cpmg_config::cpmg_config(const string configFile, const string croot) : config_filepath(configFile)
+cpmg_config::cpmg_config(const string configFile, 
+                         const string croot) : ready(false), 
+                                               config_filepath(configFile), 
+                                               APPLY_BULK(false), 
+                                               TIME_VERBOSE(false), 
+                                               USE_T2_LOGSPACE(false), 
+                                               SAVE_MODE(false)
 {
     string default_dirpath = croot;
     string default_filename = CPMG_CONFIG_DEFAULT;
@@ -23,6 +29,7 @@ cpmg_config::cpmg_config(const string configFile, const string croot) : config_f
 //copy constructors
 cpmg_config::cpmg_config(const cpmg_config &otherConfig) 
 {
+    this->ready = otherConfig.ready;
     this->config_filepath = otherConfig.config_filepath;
     // --- Physical attributes.
     this->D0 = otherConfig.D0;
@@ -53,6 +60,35 @@ cpmg_config::cpmg_config(const cpmg_config &otherConfig)
     this->SAVE_DECAY = otherConfig.SAVE_DECAY;
     this->SAVE_HISTOGRAM = otherConfig.SAVE_HISTOGRAM;
     this->SAVE_HISTOGRAM_LIST = otherConfig.SAVE_HISTOGRAM_LIST;
+}
+
+vector<string> cpmg_config::checkConfig()
+{
+    vector<string> missingParameters;
+    bool validState = true;
+
+    validState &= (*this).checkItem((*this).getD0() > 0.0, (string)"D0", missingParameters);
+    validState &= (*this).checkItem((*this).getObservationTime() > 0.0, (string)"OBS_TIME", missingParameters);
+    
+    vector<string> methods = {"image-based", "histogram"};
+    (*this).checkItem(std::find(methods.begin(), methods.end(), (*this).getMethod()) != methods.end(), 
+                      (string)"METHOD", missingParameters);
+    
+    vector<string> rfs = {"none", "uniform", "import"};
+    (*this).checkItem(std::find(rfs.begin(), rfs.end(), (*this).getResidualField()) != rfs.end(), 
+                      (string)"RESIDUAL_FIELD", missingParameters);
+
+    (*this).checkItem(((*this).getGradientDirection() == 0 or (*this).getGradientDirection() == 1 or (*this).getGradientDirection() == 2), 
+                      (string)"GRADIENT_DIRECTION", missingParameters);
+
+    (*this).checkItem((*this).getMinT2() > 0.0, (string)"MIN_T2", missingParameters);
+    (*this).checkItem((*this).getMaxT2() > 0.0, (string)"MAX_T2", missingParameters);
+    (*this).checkItem((*this).getNumT2Bins() > 0, (string)"NUM_T2_BINS", missingParameters);
+    (*this).checkItem((*this).getNumLambdas() > 0, (string)"NUM_LAMBDAS", missingParameters);
+    (*this).checkItem((*this).getPruneNum() >= 0, (string)"PRUNE_NUM", missingParameters);
+    
+    (*this).setReady(validState);   
+    return missingParameters;
 }
 
 // read config file

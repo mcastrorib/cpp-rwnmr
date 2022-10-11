@@ -8,6 +8,7 @@ using namespace std;
 class cpmg_config
 {
 private:
+    bool ready;
     string config_filepath;
     // --- Physical attributes.
     double D0;
@@ -43,7 +44,7 @@ private:
     
 public:
     // default constructors
-    cpmg_config(){};
+    cpmg_config():ready(false), APPLY_BULK(false), TIME_VERBOSE(false), USE_T2_LOGSPACE(false), SAVE_MODE(false){};
     cpmg_config(const string configFile, const string croot);
 
     //copy constructors
@@ -55,7 +56,14 @@ public:
         // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
     } 
 
+    vector<string> checkConfig();
     void readConfigFile(const string configFile);
+
+    bool checkItem(bool condition, const string item, vector<string> &mp)
+    {
+        if(!condition) mp.push_back(item);
+        return condition;
+    }
     
     // -- Read methods
     void readD0(string s);
@@ -139,6 +147,11 @@ public:
     bool getSaveHistogram() {return this->SAVE_HISTOGRAM; }
     bool getSaveHistogramList() {return this->SAVE_HISTOGRAM_LIST; }  
     bool getSaveT2() {return this->SAVE_T2; }  
+
+private:
+    void setReady(bool _b){ this->ready = _b; }
+public:
+    bool getReady(){ return this->ready; }
 };
 
 #endif

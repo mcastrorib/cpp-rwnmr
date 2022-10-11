@@ -3,7 +3,7 @@
 using namespace std;
 
 // default constructors
-rwnmr_config::rwnmr_config(const string configFile, const string croot) : config_filepath(configFile), WALKER_SAMPLES(1)
+rwnmr_config::rwnmr_config(const string configFile, const string croot) : ready(false), config_filepath(configFile), WALKER_SAMPLES(1)
 {
 	vector<double> RHO();
 	string default_dirpath = croot;
@@ -15,6 +15,7 @@ rwnmr_config::rwnmr_config(const string configFile, const string croot) : config
 //copy constructors
 rwnmr_config::rwnmr_config(const rwnmr_config &otherConfig)
 {
+	this->ready = otherConfig.ready;
 	this->config_filepath = otherConfig.config_filepath;
     this->NAME = otherConfig.NAME;
     this->WALKERS = otherConfig.WALKERS;
@@ -53,6 +54,9 @@ rwnmr_config::rwnmr_config(const rwnmr_config &otherConfig)
     this->MAX_RWSTEPS = otherConfig.MAX_RWSTEPS;
     this->REDUCE_IN_GPU = otherConfig.REDUCE_IN_GPU;
 }
+
+void rwnmr_config::checkConfig()
+{}
 
 // read config file
 void rwnmr_config::readConfigFile(const string configFile)
