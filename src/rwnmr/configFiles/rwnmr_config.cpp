@@ -52,17 +52,6 @@ rwnmr_config::rwnmr_config(const rwnmr_config &otherConfig)
     this->ECHOESPERKERNEL = otherConfig.ECHOESPERKERNEL;
     this->MAX_RWSTEPS = otherConfig.MAX_RWSTEPS;
     this->REDUCE_IN_GPU = otherConfig.REDUCE_IN_GPU;
-    
-
-    // -- MPI COMMUNICATION
-    this->BITBLOCKS_BATCHES_SIZE = otherConfig.BITBLOCKS_BATCHES_SIZE;
-    this->BITBLOCK_PROP_SIZE = otherConfig.BITBLOCK_PROP_SIZE;
-    this->NMR_T2_SIZE = otherConfig.NMR_T2_SIZE;
-    this->NMR_START_TAG = otherConfig.NMR_START_TAG;
-    this->NMR_BITBLOCK_TAG = otherConfig.NMR_BITBLOCK_TAG;
-    this->NMR_BATCH_TAG = otherConfig.NMR_BATCH_TAG;
-    this->NMR_T2_TAG = otherConfig.NMR_T2_TAG;
-    this->NMR_END_TAG = otherConfig.NMR_END_TAG;
 }
 
 // read config file
@@ -119,14 +108,6 @@ void rwnmr_config::readConfigFile(const string configFile)
 			else if(token == "ECHOESPERKERNEL") (*this).readEchoesPerKernel(content);
 			else if(token == "REDUCE_IN_GPU") (*this).readReduceInGPU(content);
 			else if(token == "MAX_RWSTEPS") (*this).readMaxRWSteps(content);
-			else if(token == "BITBLOCKS_BATCHES_SIZE") (*this).readBitBlockBatchesSize(content);
-			else if(token == "BITBLOCK_PROP_SIZE") (*this).readBitBlockPropertiesSize(content);
-			else if(token == "NMR_T2_SIZE") (*this).readNMRT2Size(content);
-			else if(token == "NMR_START_TAG") (*this).readStartTag(content);
-			else if(token == "NMR_BITBLOCK_TAG") (*this).readBitBlockTag(content);
-			else if(token == "NMR_BATCH_TAG") (*this).readBatchTag(content);
-			else if(token == "NMR_T2_TAG") (*this).readT2Tag(content);
-			else if(token == "NMR_END_TAG") (*this).readEndTag(content);
 		}
     } 
 
@@ -315,45 +296,4 @@ void rwnmr_config::readReduceInGPU(string s)
 {
 	if(s == "true") this->REDUCE_IN_GPU = true;
 	else this->REDUCE_IN_GPU = false;
-}
-
-// -- MPI Params
-void rwnmr_config::readBitBlockBatchesSize(string s)
-{
-	this->BITBLOCKS_BATCHES_SIZE = std::stoi(s);
-}
-
-void rwnmr_config::readBitBlockPropertiesSize(string s)
-{
-	this->BITBLOCK_PROP_SIZE = std::stoi(s);
-}
-
-void rwnmr_config::readNMRT2Size(string s)
-{
-	this->NMR_T2_SIZE = std::stoi(s);
-}
-
-void rwnmr_config::readStartTag(string s)
-{
-	this->NMR_START_TAG = std::stoi(s);
-}
-
-void rwnmr_config::readBitBlockTag(string s)
-{
-	this->NMR_BITBLOCK_TAG = std::stoi(s);
-}
-
-void rwnmr_config::readBatchTag(string s)
-{
-	this->NMR_BATCH_TAG = std::stoi(s);
-}
-
-void rwnmr_config::readT2Tag(string s)
-{
-	this->NMR_T2_TAG = std::stoi(s);
-}
-
-void rwnmr_config::readEndTag(string s)
-{
-	this->NMR_END_TAG = std::stoi(s);
 }
