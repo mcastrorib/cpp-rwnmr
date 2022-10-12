@@ -2,13 +2,13 @@
 #define UCT_CONFIG_H_
 
 #include "configFiles_defs.h"
+#include "BaseConfig.h"
 
 using namespace std;
 
-class uct_config
+class uct_config : public BaseConfig
 {
 private:
-    string config_filepath;
     string DIR_PATH;
     string FILENAME;
     uint FIRST_IDX;
@@ -23,7 +23,7 @@ private:
 
 public:
     // default constructors
-    uct_config(){};
+    uct_config():BaseConfig(){};
     uct_config(const string configFile, const string croot);
 
     //copy constructors
@@ -35,6 +35,7 @@ public:
         // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
     } 
 
+    vector<string> checkConfig();
     void readConfigFile(const string configFile);
     
     // -- Read methods
@@ -63,7 +64,6 @@ public:
 
 
     // -- Read methods
-    string getConfigFilepath() {return this->config_filepath; }
     string getDirPath(){ return this->DIR_PATH;}
     string getFilename(){ return this->FILENAME;}
     uint getFirstIdx(){ return this->FIRST_IDX;}
@@ -83,10 +83,6 @@ public:
         result << std::setfill('0') << std::setw(digits) << id;
         return result.str();
     }
-
-    string configRoot;
-    void setConfigRoot(string _croot){ this->configRoot = _croot;}
-    string getConfigRoot(){return this->configRoot;}
 };
 
 #endif

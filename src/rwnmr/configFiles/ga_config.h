@@ -1,18 +1,14 @@
 #ifndef ga_CONFIG_H_
 #define ga_CONFIG_H_
 
-// include C++ standard libraries
-#include <iostream>
-#include <string>
-#include <vector>
 #include "configFiles_defs.h"
+#include "BaseConfig.h"
 
 using namespace std;
 
-class ga_config
+class ga_config : public BaseConfig
 {
 private:
-    string config_filepath;
     // -- T2 REFERENCE CURVE
     string T2_PATH;
 
@@ -52,7 +48,7 @@ private:
 
 public:
     // default constructors
-    ga_config(){};
+    ga_config():BaseConfig(){};
     ga_config(const string configFile, const string croot);
 
     //copy constructors
@@ -100,7 +96,6 @@ public:
     void readSaveGA(string s);  
 
     // -- Get methods
-    string getConfigFilepath() {return this->config_filepath; }
     string getT2Path() { return this->T2_PATH; }
     // -- 
     uint getGenotypeSize() { return this->GENOTYPE_SIZE ; }

@@ -3,7 +3,7 @@
 using namespace std;
 
 // default constructors
-ga_config::ga_config(const string configFile, const string croot) : config_filepath(configFile)
+ga_config::ga_config(const string configFile, const string croot) : BaseConfig(croot,configFile)
 {
     vector<double> GENOTYPE_MIN();
     vector<double> GENOTYPE_MAX();
@@ -17,7 +17,6 @@ ga_config::ga_config(const string configFile, const string croot) : config_filep
 //copy constructors
 ga_config::ga_config(const ga_config &otherConfig)
 {
-    this->config_filepath = otherConfig.config_filepath;
     // -- T2 REFERENCE CURVE
     this->T2_PATH = otherConfig.T2_PATH;    
 

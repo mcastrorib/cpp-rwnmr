@@ -2,14 +2,13 @@
 #define RWNMR_CONFIG_H_
 
 #include "configFiles_defs.h"
+#include "BaseConfig.h"
 
 using namespace std;
 
-class rwnmr_config
+class rwnmr_config : public BaseConfig
 {
 private:
-    bool ready;
-    string config_filepath;
     string NAME;
     uint WALKERS;
     uint WALKER_SAMPLES;
@@ -49,7 +48,7 @@ private:
     
 public:
     // default constructors
-    rwnmr_config():ready(false){};
+    rwnmr_config():BaseConfig(){};
     rwnmr_config(const string configFile, const string croot);
 
     //copy constructors
@@ -61,8 +60,8 @@ public:
         // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
     } 
 
+    vector<string> checkConfig();
     void readConfigFile(const string configFile);
-    void checkConfig();
     
     // Read methods
     // -- RW Params
@@ -154,7 +153,6 @@ public:
 
     // Get methods
     // -- RW Params
-    string getConfigFilepath(){ return this->config_filepath; }
     string getName(){ return this->NAME;}
     uint getWalkers(){ return this->WALKERS;}
     uint getWalkerSamples(){ return this->WALKER_SAMPLES;}
@@ -191,12 +189,6 @@ public:
     uint getEchoesPerKernel(){ return this->ECHOESPERKERNEL;}
     uint getMaxRWSteps(){ return this->MAX_RWSTEPS;}
     bool getReduceInGPU(){ return this->REDUCE_IN_GPU;}
-
-    // ready
-private:
-    void setReady(bool _b){ this->ready = _b; }
-public:
-    bool getReady(){ return this->ready; }
 };
 
 #endif

@@ -2,14 +2,15 @@
 #define PFGSE_CONFIG_H_
 
 #include "configFiles_defs.h"
+#include "BaseConfig.h"
 #include "../math/Math.h"
+
 
 using namespace std;
 
-class pfgse_config
+class pfgse_config : public BaseConfig
 {
 private:
-    string config_filepath;
     // --- Physical attributes.
     bool APPLY_BULK;
     double PULSE_WIDTH;
@@ -45,18 +46,16 @@ private:
 
 public:
     // default constructors
-    pfgse_config():THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0){};
+    pfgse_config():BaseConfig(),THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0){};
     pfgse_config(const string configFile, const string croot);
 
     //copy constructors
     pfgse_config(const pfgse_config &otherConfig);
 
     // default destructor
-    virtual ~pfgse_config()
-    {
-        // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
-    } 
+    virtual ~pfgse_config(){} 
 
+    vector<string> checkConfig();
     void readConfigFile(const string configFile);
     void createTimeSamples();
     

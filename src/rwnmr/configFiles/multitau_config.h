@@ -2,13 +2,11 @@
 #define MULTITAU_CONFIG_H_
 
 #include "configFiles_defs.h"
+#include "BaseConfig.h"
 
-using namespace std;
-
-class multitau_config
+class multitau_config : public BaseConfig
 {
 private:
-    string config_filepath;
     double TAU_MIN;
     double TAU_MAX;
     int TAU_POINTS;
@@ -25,7 +23,7 @@ private:
 
 public:   
     // default constructors
-    multitau_config(){};
+    multitau_config():BaseConfig(){};
     multitau_config(const string configFile, const string croot);
 
     //copy constructors
@@ -34,6 +32,7 @@ public:
     // default destructor
     virtual ~multitau_config(){} 
 
+    vector<string> checkConfig();
     void readConfigFile(const string configFile);
     
     // -- Read methods

@@ -3,20 +3,17 @@
 using namespace std;
 
 // default constructors
-multitau_config::multitau_config(const string configFile, const string croot) : config_filepath(configFile)
+multitau_config::multitau_config(const string configFile, const string croot) : BaseConfig(croot,configFile)
 {
     vector<double> TAU_VALUES();
-    string default_dirpath = croot;
-    string default_filename = CPMG_CONFIG_DEFAULT;
-    (*this).readConfigFile(default_dirpath + default_filename);
-	if(configFile != (default_dirpath + default_filename)) (*this).readConfigFile(configFile);
+    string defaultFile = (*this).getProjectRoot() + MULTITAU_CONFIG_DEFAULT;
+    if(configFile != (defaultFile)) (*this).readConfigFile(configFile);
+    else (*this).readConfigFile(defaultFile);	
 }
 
 //copy constructors
 multitau_config::multitau_config(const multitau_config &otherConfig) 
 {
-    this->config_filepath = otherConfig.config_filepath;
-
     // --- Physical attributes.
     this->TAU_MIN = otherConfig.TAU_MIN;
     this->TAU_MAX = otherConfig.TAU_MAX;

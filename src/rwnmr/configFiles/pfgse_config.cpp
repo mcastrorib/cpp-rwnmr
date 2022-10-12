@@ -3,21 +3,18 @@
 using namespace std;
 
 // default constructors
-pfgse_config::pfgse_config(const string configFile, const string croot) : config_filepath(configFile), THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0)
+pfgse_config::pfgse_config(const string configFile, const string croot) : BaseConfig(croot, configFile), THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0)
 {
     vector<double> TIME_VALUES();
-
-    string default_dirpath = croot;
-    string default_filename = PFGSE_CONFIG_DEFAULT;
-    (*this).readConfigFile(default_dirpath + default_filename);
-	(*this).readConfigFile(configFile);
+    string defaultFile = (*this).getProjectRoot() + PFGSE_CONFIG_DEFAULT;
+    if(configFile != (defaultFile)) (*this).readConfigFile(configFile);
+    else (*this).readConfigFile(defaultFile);	
     (*this).createTimeSamples();
 }
 
 //copy constructors
 pfgse_config::pfgse_config(const pfgse_config &otherConfig)
 {
-    this->config_filepath = otherConfig.config_filepath;
     // --- Physical attributes.
     this->PULSE_WIDTH = otherConfig.PULSE_WIDTH;
     this->MAX_GRADIENT = otherConfig.MAX_GRADIENT;
