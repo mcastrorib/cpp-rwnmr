@@ -13,6 +13,7 @@ void TestApp::exec(string tag)
 void TestApp::select(string tag)
 {
 	if(tag == "argsparser") this->test = new ArgsParserTest((*this).getProjectRoot());
+	else if(tag == "uct_config") this->test = new uct_configTest((*this).getProjectRoot());
 	else if(tag == "cpmg_config") this->test = new cpmg_configTest((*this).getProjectRoot());
 	// else if(tag == "cpmg_config") this->test = new cpmg_configTest((*this).getProjectRoot());
 	// else if(tag == "configfiles") ConfigFilesTest((*this).getProjectRoot()); 

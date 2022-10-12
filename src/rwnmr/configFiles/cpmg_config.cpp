@@ -65,21 +65,21 @@ vector<string> cpmg_config::checkConfig()
     validState &= (*this).checkItem((*this).getObservationTime() > 0.0, (string)"OBS_TIME", missingParameters);
     
     vector<string> methods = {"image-based", "histogram"};
-    (*this).checkItem(std::find(methods.begin(), methods.end(), (*this).getMethod()) != methods.end(), 
+    validState &= (*this).checkItem(std::find(methods.begin(), methods.end(), (*this).getMethod()) != methods.end(), 
                       (string)"METHOD", missingParameters);
     
     vector<string> rfs = {"none", "uniform", "import"};
-    (*this).checkItem(std::find(rfs.begin(), rfs.end(), (*this).getResidualField()) != rfs.end(), 
+    validState &= (*this).checkItem(std::find(rfs.begin(), rfs.end(), (*this).getResidualField()) != rfs.end(), 
                       (string)"RESIDUAL_FIELD", missingParameters);
 
-    (*this).checkItem(((*this).getGradientDirection() == 0 or (*this).getGradientDirection() == 1 or (*this).getGradientDirection() == 2), 
+    validState &= (*this).checkItem(((*this).getGradientDirection() == 0 or (*this).getGradientDirection() == 1 or (*this).getGradientDirection() == 2), 
                       (string)"GRADIENT_DIRECTION", missingParameters);
 
-    (*this).checkItem((*this).getMinT2() > 0.0, (string)"MIN_T2", missingParameters);
-    (*this).checkItem((*this).getMaxT2() > 0.0, (string)"MAX_T2", missingParameters);
-    (*this).checkItem((*this).getNumT2Bins() > 0, (string)"NUM_T2_BINS", missingParameters);
-    (*this).checkItem((*this).getNumLambdas() > 0, (string)"NUM_LAMBDAS", missingParameters);
-    (*this).checkItem((*this).getPruneNum() >= 0, (string)"PRUNE_NUM", missingParameters);
+    validState &= (*this).checkItem((*this).getMinT2() > 0.0, (string)"MIN_T2", missingParameters);
+    validState &= (*this).checkItem((*this).getMaxT2() > 0.0, (string)"MAX_T2", missingParameters);
+    validState &= (*this).checkItem((*this).getNumT2Bins() > 0, (string)"NUM_T2_BINS", missingParameters);
+    validState &= (*this).checkItem((*this).getNumLambdas() > 0, (string)"NUM_LAMBDAS", missingParameters);
+    validState &= (*this).checkItem((*this).getPruneNum() >= 0, (string)"PRUNE_NUM", missingParameters);
     
     (*this).setReady(validState);   
     return missingParameters;

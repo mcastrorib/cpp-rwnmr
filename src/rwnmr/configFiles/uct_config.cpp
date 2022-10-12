@@ -36,10 +36,10 @@ vector<string> uct_config::checkConfig()
     bool validState = true;
 
     vector<string> extensions = {".png", ".tif"};
-    (*this).checkItem(std::find(extensions.begin(), extensions.end(), (*this).getExtension()) != extensions.end(), 
+    validState &= (*this).checkItem(std::find(extensions.begin(), extensions.end(), (*this).getExtension()) != extensions.end(), 
                       (string)"EXTENSION", missingParameters);
     
-    (*this).checkItem((*this).getResolution() > 0.0, (string)"RESOLUTION", missingParameters);
+    validState &= (*this).checkItem((*this).getResolution() > 0.0, (string)"RESOLUTION", missingParameters);
     
     (*this).setReady(validState);   
     return missingParameters;
@@ -80,8 +80,7 @@ void uct_config::readConfigFile(const string configFile)
 			else if(token == "SLICES") (*this).readSlices(content);
 			else if(token == "RESOLUTION") (*this).readResolution(content);
 			else if(token == "VOXEL_DIVISION") (*this).readVoxelDivision(content);
-			else if(token == "IMG_FILES_LIST") (*this).readImgFilesList(content);
-			
+			else if(token == "IMG_FILES_LIST") (*this).readImgFilesList(content);			
 		}
     } 
 

@@ -110,7 +110,6 @@ public:
     void setSaveHistogramList(bool _v){ this->SAVE_HISTOGRAM_LIST = _v;} 
 
     // -- Get methods
-    string getConfigFilepath() {return this->config_filepath; } 
     bool getApplyBulk(){ return this->APPLY_BULK; }
     double getPulseWidth() { return this->PULSE_WIDTH ; }
     Vector3D getMaxGradient() { return this->MAX_GRADIENT ; }
