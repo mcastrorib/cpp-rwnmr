@@ -2,16 +2,14 @@
 #define CPMG_CONFIG_H_
 
 #include "configFiles_defs.h"
+#include "BaseConfig.h"
 
 using namespace std;
 
-class cpmg_config
+class cpmg_config : public BaseConfig
 {
 private:
-    bool ready;
-    string config_filepath;
     // --- Physical attributes.
-    double D0;
     bool APPLY_BULK;
     double OBS_TIME;
     string METHOD;
@@ -44,7 +42,7 @@ private:
     
 public:
     // default constructors
-    cpmg_config():ready(false), APPLY_BULK(false), TIME_VERBOSE(false), USE_T2_LOGSPACE(false), SAVE_MODE(false){};
+    cpmg_config():BaseConfig(), APPLY_BULK(false), TIME_VERBOSE(false), USE_T2_LOGSPACE(false), SAVE_MODE(false){};
     cpmg_config(const string configFile, const string croot);
 
     //copy constructors
@@ -58,15 +56,8 @@ public:
 
     vector<string> checkConfig();
     void readConfigFile(const string configFile);
-
-    bool checkItem(bool condition, const string item, vector<string> &mp)
-    {
-        if(!condition) mp.push_back(item);
-        return condition;
-    }
     
     // -- Read methods
-    void readD0(string s);
     void readApplyBulk(string s);
     void readTimeVerbose(string s);
     void readObservationTime(string s);
@@ -92,7 +83,6 @@ public:
     void readSaveT2(string s);   
 
     // set methods
-    void setD0(double _v){ this->D0 = _v; }
     void setApplyBulk(bool _v){ this->APPLY_BULK = _v; }
     void setTimeVerbose(bool _v){ this->TIME_VERBOSE = _v; }
     void setObservationTime(double _v){ this->OBS_TIME = _v; }
@@ -119,8 +109,6 @@ public:
     
 
     // get methods
-    string getConfigFilepath() {return this->config_filepath; }
-    double getD0(){return this->D0; }
     bool getApplyBulk(){ return this->APPLY_BULK; }
     bool getTimeVerbose(){ return this->TIME_VERBOSE; }
     double getObservationTime(){return this->OBS_TIME; }
@@ -147,11 +135,6 @@ public:
     bool getSaveHistogram() {return this->SAVE_HISTOGRAM; }
     bool getSaveHistogramList() {return this->SAVE_HISTOGRAM_LIST; }  
     bool getSaveT2() {return this->SAVE_T2; }  
-
-private:
-    void setReady(bool _b){ this->ready = _b; }
-public:
-    bool getReady(){ return this->ready; }
 };
 
 #endif

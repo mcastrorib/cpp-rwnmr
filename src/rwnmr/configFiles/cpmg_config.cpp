@@ -13,26 +13,21 @@ using namespace std;
 
 // default constructors
 cpmg_config::cpmg_config(const string configFile, 
-                         const string croot) : ready(false), 
-                                               config_filepath(configFile), 
+                         const string croot) : BaseConfig(croot, configFile),
                                                APPLY_BULK(false), 
                                                TIME_VERBOSE(false), 
                                                USE_T2_LOGSPACE(false), 
                                                SAVE_MODE(false)
 {
-    string default_dirpath = croot;
-    string default_filename = CPMG_CONFIG_DEFAULT;
-    (*this).readConfigFile(default_dirpath + default_filename);
-	if(configFile != (default_dirpath + default_filename)) (*this).readConfigFile(configFile);
+    string defaultFile = (*this).getProjectRoot() + CPMG_CONFIG_DEFAULT;
+    if(configFile != (defaultFile)) (*this).readConfigFile(configFile);
+    else (*this).readConfigFile(defaultFile);	
 }
 
 //copy constructors
 cpmg_config::cpmg_config(const cpmg_config &otherConfig) 
 {
-    this->ready = otherConfig.ready;
-    this->config_filepath = otherConfig.config_filepath;
-    // --- Physical attributes.
-    this->D0 = otherConfig.D0;
+    // --- Physical attributes
     this->APPLY_BULK = otherConfig.APPLY_BULK;
     this->OBS_TIME = otherConfig.OBS_TIME;
     this->METHOD = otherConfig.METHOD;
@@ -67,7 +62,6 @@ vector<string> cpmg_config::checkConfig()
     vector<string> missingParameters;
     bool validState = true;
 
-    validState &= (*this).checkItem((*this).getD0() > 0.0, (string)"D0", missingParameters);
     validState &= (*this).checkItem((*this).getObservationTime() > 0.0, (string)"OBS_TIME", missingParameters);
     
     vector<string> methods = {"image-based", "histogram"};
@@ -118,8 +112,7 @@ void cpmg_config::readConfigFile(const string configFile)
 			content = s.substr(pos + delimiter.length(), s.length());
 			s.erase(0, pos + delimiter.length());
 
-			if(token == "D0") (*this).readD0(content);
-            else if(token == "APPLY_BULK") (*this).readApplyBulk(content);  
+			if(token == "APPLY_BULK") (*this).readApplyBulk(content);  
 			else if(token == "OBS_TIME") (*this).readObservationTime(content);  
             else if(token == "METHOD") (*this).readMethod(content);
             else if(token == "TIME_VERBOSE") (*this).readTimeVerbose(content);
@@ -147,11 +140,6 @@ void cpmg_config::readConfigFile(const string configFile)
     } 
 
     fileObject.close();
-}
-
-void cpmg_config::readD0(string s)
-{
-    (*this).setD0(std::stod(s));
 }
 
 void cpmg_config::readApplyBulk(string s)

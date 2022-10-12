@@ -45,7 +45,6 @@ public:
 	TestResult readConfigFileTest();
 	TestResult checkConfigTest_True();
 	TestResult checkConfigTest_False();
-	TestResult readD0Test();
 	TestResult readApplyBulkTest_True();
 	TestResult readApplyBulkTest_False();
 	TestResult readApplyBulkTest_Unknown();

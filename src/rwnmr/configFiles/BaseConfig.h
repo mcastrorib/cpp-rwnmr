@@ -5,45 +5,43 @@
 
 using namespace std;
 
-class template_config
+class BaseConfig
 {
 public:
     string projectRoot;
     string configFilepath;
+    bool ready;
 
     // default constructors
-    template_config(){}
-    template_config(string croot) : projectRoot(croot){}
+    BaseConfig():ready(false){}
+    BaseConfig(string croot, string cfile) : projectRoot(croot), configFilepath(cfile), ready(false){}
 
     //copy constructors
-    template_config(const template_config &other)
+    BaseConfig(const BaseConfig &other)
     {
         this->projectRoot = other.projectRoot;
         this->configFilepath = other.configFilepath;
+        this->ready = other.ready;
     }
 
     // default destructor
-    virtual ~template_config(){} 
+    virtual ~BaseConfig(){} 
 
     void setProjectRoot(string _croot){ this->projectRoot = _croot;}
     void setConfigFilepath(string _p){ this->configFilepath = _p; }
     string getProjectRoot(){return this->projectRoot;}
     string getConfigFilepath(){ return this->configFilepath; }
+    void setReady(bool _b){ this->ready = _b; }
+    bool getReady(){ return this->ready; }
     
-    virtual void readConfigFile(const string configFile) = 0;
-    virtual void checkConfig() = 0;
+    void readConfigFile(const string configFile){};
+    vector<string> checkConfig(){ vector<string> base = {"base_class"}; return base;};
 
-    bool checkItem(bool condition, const string item, string &msg)
+    bool checkItem(bool condition, const string item, vector<string> &mp)
     {
-        if(!condition)
-        {
-            msg += item;
-            return false;
-        } else 
-        {
-            return true;
-        }
-    }    
+        if(!condition) mp.push_back(item);
+        return condition;
+    }   
     
     string findConfigFile(string filepath, string _default)
     {       

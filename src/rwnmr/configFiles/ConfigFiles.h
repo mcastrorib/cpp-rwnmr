@@ -2,7 +2,7 @@
 #define CONFIGFILES_H_
 
 #include "configFiles_defs.h"
-#include "template_config.h"
+#include "BaseConfig.h"
 #include "rwnmr_config.h"
 #include "uct_config.h"
 #include "cpmg_config.h"
