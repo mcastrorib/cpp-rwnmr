@@ -17,9 +17,7 @@ void TestApp::select(string tag)
 	else if(tag == "UctConfig") this->test = new UctConfigTest((*this).getProjectRoot());
 	else if(tag == "CpmgConfig") this->test = new CpmgConfigTest((*this).getProjectRoot());
 	else if(tag == "MultitauConfig") this->test = new MultitauConfigTest((*this).getProjectRoot());
-	// else if(tag == "cpmg_config") this->test = new cpmg_configTest((*this).getProjectRoot());
-	// else if(tag == "configfiles") ConfigFilesTest((*this).getProjectRoot()); 
-
+	else if(tag == "PfgseConfig") this->test = new PfgseConfigTest((*this).getProjectRoot());
 }
 
 void TestApp::run()

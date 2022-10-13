@@ -46,7 +46,15 @@ private:
 
 public:
     // default constructors
-    PfgseConfig():BaseConfig(),THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0){};
+    PfgseConfig() : BaseConfig(), 
+                    APPLY_BULK(false), 
+                    APPLY_SCALE_FACTOR(false), 
+                    ALLOW_WALKER_SAMPLING(true), 
+                    APPLY_ABSORPTION(false), 
+                    SAVE_MODE(false), 
+                    THRESHOLD_WINDOW(1), 
+                    NOISE_AMP(0.0), 
+                    TARGET_SNR(-1.0) {};
     PfgseConfig(const string configFile, const string croot);
 
     //copy constructors

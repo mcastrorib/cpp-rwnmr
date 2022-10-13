@@ -3,7 +3,15 @@
 using namespace std;
 
 // default constructors
-PfgseConfig::PfgseConfig(const string configFile, const string croot) : BaseConfig(croot, configFile), THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0)
+PfgseConfig::PfgseConfig(const string configFile, const string croot) : BaseConfig(croot, configFile), 
+                                                                        APPLY_BULK(false), 
+                                                                        APPLY_SCALE_FACTOR(false), 
+                                                                        ALLOW_WALKER_SAMPLING(true), 
+                                                                        APPLY_ABSORPTION(false), 
+                                                                        SAVE_MODE(false), 
+                                                                        THRESHOLD_WINDOW(1), 
+                                                                        NOISE_AMP(0.0), 
+                                                                        TARGET_SNR(-1.0)
 {
     vector<double> TIME_VALUES();
     string defaultFile = (*this).getProjectRoot() + PFGSE_CONFIG_DEFAULT;
@@ -49,6 +57,49 @@ PfgseConfig::PfgseConfig(const PfgseConfig &otherConfig)
     this->SAVE_HISTOGRAM = otherConfig.SAVE_HISTOGRAM;
     this->SAVE_HISTOGRAM_LIST = otherConfig.SAVE_HISTOGRAM_LIST;
 }
+
+vector<string> PfgseConfig::checkConfig()
+{
+    vector<string> missingParameters;
+    bool validState = true;
+   
+    validState &= (*this).checkItem((*this).getPulseWidth() > 0.0, (string)"PULSE_WIDTH", missingParameters);
+    validState &= (*this).checkItem((*this).getGradientSamples() > 0, (string)"GRADIENT_SAMPLES", missingParameters);
+
+    vector<string> tSeqs = {"manual", "linear", "log"};
+    validState &= (*this).checkItem(std::find(tSeqs.begin(), tSeqs.end(), (*this).getTimeSequence()) != tSeqs.end(), 
+                      (string)"TIME_SEQUENCE", missingParameters);
+    
+    validState &= (*this).checkItem((*this).getTimeSamples() > 0, (string)"TIME_SAMPLES", missingParameters);
+
+    if((*this).getTimeSequence() == "manual") 
+    {
+        validState &= (*this).checkItem((*this).getTimeValues().size() == (*this).getTimeSamples(), (string)"TIME_VALUES!=TIME_SAMPLES", missingParameters);
+        for(int i = 0; i < (*this).getTimeValues().size(); i++)
+            validState &= (*this).checkItem((*this).getTimeValues()[i] > 0.0, (string)"TIME_VALUES(<0)", missingParameters);
+    }
+    else 
+    {
+        validState &= (*this).checkItem((*this).getTimeMin() > 0.0, (string)"TIME_MIN", missingParameters);
+        validState &= (*this).checkItem((*this).getTimeMax() > 0.0, (string)"TIME_MAX", missingParameters);
+        validState &= (*this).checkItem((*this).getTimeMin() < (*this).getTimeMax(), (string)"TIME_MIN>TIME_MAX", missingParameters);    
+    }
+
+    if((*this).getApplyScaleFactor() == true)
+    {
+        validState &= (*this).checkItem((*this).getInspectionLength() > 0.0, (string)"INSPECTION_LENGTH", missingParameters);
+    }
+
+    vector<string> thresholds = {"samples", "lhs"};
+    validState &= (*this).checkItem(std::find(thresholds.begin(), thresholds.end(), (*this).getThresholdType()) != thresholds.end(), 
+                      (string)"THRESHOLD_TYPE", missingParameters);
+    validState &= (*this).checkItem((*this).getThresholdValue() > 0.0, (string)"THRESHOLD_VALUE", missingParameters);
+    validState &= (*this).checkItem((*this).getThresholdWindow() > 0, (string)"THRESHOLD_WINDOW", missingParameters);
+
+    (*this).setReady(validState);   
+    return missingParameters;
+}
+    
 
 // read config file
 void PfgseConfig::readConfigFile(const string configFile)
@@ -153,7 +204,8 @@ void PfgseConfig::readGradientSamples(string s)
 
 void PfgseConfig::readTimeSequence(string s)
 {
-    this->TIME_SEQ = s;
+    if(s == "linear" or s == "log") this->TIME_SEQ = s;
+    else this->TIME_SEQ = "manual";
 }
 
 void PfgseConfig::readTimeSamples(string s)
