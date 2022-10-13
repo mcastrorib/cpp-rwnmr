@@ -23,7 +23,7 @@ private:
 
 public:   
     // default constructors
-    MultitauConfig():BaseConfig(){};
+    MultitauConfig():BaseConfig(),SAVE_MODE(false){};
     MultitauConfig(const string configFile, const string croot);
 
     //copy constructors

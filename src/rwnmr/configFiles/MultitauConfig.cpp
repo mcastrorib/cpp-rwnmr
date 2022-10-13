@@ -3,7 +3,7 @@
 using namespace std;
 
 // default constructors
-MultitauConfig::MultitauConfig(const string configFile, const string croot) : BaseConfig(croot,configFile)
+MultitauConfig::MultitauConfig(const string configFile, const string croot) : BaseConfig(croot,configFile), COMPLETE_DECAY(true), SAVE_MODE(false)
 {
     vector<double> TAU_VALUES();
     string defaultFile = (*this).getProjectRoot() + MULTITAU_CONFIG_DEFAULT;
@@ -29,6 +29,34 @@ MultitauConfig::MultitauConfig(const MultitauConfig &otherConfig)
     this->SAVE_HISTOGRAM = otherConfig.SAVE_HISTOGRAM;
     this->SAVE_HISTOGRAM_LIST = otherConfig.SAVE_HISTOGRAM_LIST;
 }
+
+vector<string> MultitauConfig::checkConfig()
+{
+	vector<string> missingParameters;
+    bool validState = true;
+   
+    validState &= (*this).checkItem((*this).getTauPoints() > 0, (string)"TAU_POINTS", missingParameters);
+    if((*this).getTauScale() == "manual") 
+    {
+        validState &= (*this).checkItem((*this).getTauValues().size() == (*this).getTauPoints(), (string)"TAU_VALUES!=TAU_POINTS", missingParameters);
+        for(int i = 0; i < (*this).getTauValues().size(); i++)
+            validState &= (*this).checkItem((*this).getTauValues()[i] > 0.0, (string)"TAU_VALUES(<0)", missingParameters);
+    }
+    else 
+    {
+        validState &= (*this).checkItem((*this).getTauMin() > 0.0, (string)"TAU_MIN", missingParameters);
+        validState &= (*this).checkItem((*this).getTauMax() > 0.0, (string)"TAU_MAX", missingParameters);
+        validState &= (*this).checkItem((*this).getTauMin() < (*this).getTauMax(), (string)"TAU_MIN>TAU_MAX", missingParameters);    
+    }
+
+	vector<string> scales = {"manual", "linear", "log"};
+    validState &= (*this).checkItem(std::find(scales.begin(), scales.end(), (*this).getTauScale()) != scales.end(), 
+                      (string)"TAU_SCALE", missingParameters);
+
+    (*this).setReady(validState);   
+    return missingParameters;
+}
+
 
 // read config file
 void MultitauConfig::readConfigFile(const string configFile)
@@ -121,8 +149,8 @@ void MultitauConfig::readTauValues(string s)
 void MultitauConfig::readTauScale(string s)
 {
     if(s == "log") this->TAU_SCALE = s;
-    else if(s == "linear") this->TAU_SCALE = "linear";
-    else this->TAU_SCALE = "manual";
+    else if(s == "manual") this->TAU_SCALE = s;
+    else this->TAU_SCALE = "linear";
 }
 
 void MultitauConfig::readCompleteDecay(string s)
