@@ -5,61 +5,46 @@
 
 using namespace std;
 
-class template_config
+class BaseConfig
 {
 public:
     string projectRoot;
     string configFilepath;
-    ifstream *fileObject;
+    bool ready;
 
     // default constructors
-    template_config():fileObject(NULL){}
-    template_config(string croot) : projectRoot(croot), fileObject(NULL)
-    {}
+    BaseConfig():ready(false){}
+    BaseConfig(string croot, string cfile) : projectRoot(croot), configFilepath(cfile), ready(false){}
 
     //copy constructors
-    template_config(const template_config &other)
+    BaseConfig(const BaseConfig &other)
     {
         this->projectRoot = other.projectRoot;
         this->configFilepath = other.configFilepath;
-        this->fileObject = other.fileObject;
+        this->ready = other.ready;
     }
 
     // default destructor
-    virtual ~template_config()
-    {
-        if(this->fileObject != NULL) 
-        {       
-            delete this->fileObject;
-        }
-        this->fileObject = NULL;
-    } 
+    virtual ~BaseConfig(){} 
+
     void setProjectRoot(string _croot){ this->projectRoot = _croot;}
     void setConfigFilepath(string _p){ this->configFilepath = _p; }
-    void setFileObject(ifstream *_fo){ this->fileObject = _fo; }
     string getProjectRoot(){return this->projectRoot;}
     string getConfigFilepath(){ return this->configFilepath; }
-    ifstream *getFileObject(){ return this->fileObject; }
+    void setReady(bool _b){ this->ready = _b; }
+    bool getReady(){ return this->ready; }
+    
+    void readConfigFile(const string configFile){};
+    vector<string> checkConfig(){ vector<string> base = {"base_class"}; return base;};
 
-    void readConfigFile(const string configFile)
+    bool checkItem(bool condition, const string item, vector<string> &mp)
     {
-        if(this->fileObject != NULL) delete this->fileObject;
-        this->fileObject = new ifstream(configFile, ios::in);
-        if (this->fileObject->fail())
-        {
-            cout << "Could not open config file " << configFile << " from disc." << endl;
-            exit(1);
-        }
-    }
-
-    void closeFileObject()
-    {
-        fileObject->close();
-    }
+        if(!condition) mp.push_back(item);
+        return condition;
+    }   
     
     string findConfigFile(string filepath, string _default)
-    {
-       
+    {       
         string searchPath;
         // search in config dir
         searchPath = (*this).getProjectRoot() + CONFIG_ROOT + filepath;

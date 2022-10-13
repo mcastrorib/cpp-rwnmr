@@ -9,7 +9,7 @@ class NMR_PFGSE
 {
 private:
 	Model &model;
-	pfgse_config PFGSE_config;
+	PfgseConfig PFGSE_config;
 	string name;
 	string dir;
 	vector<double> gradient;
@@ -48,13 +48,13 @@ private:
 	int currentTime;	
 
 public:
-	NMR_PFGSE(Model &_model, pfgse_config _pfgseConfig);	
+	NMR_PFGSE(Model &_model, PfgseConfig _pfgseConfig);	
 	
 	virtual ~NMR_PFGSE(){};
 
 	// Get methods
 	Model &getModel(){ return this->model; }
-	pfgse_config getPFGSEConfig(){ return this->PFGSE_config;}
+	PfgseConfig getPfgseConfig(){ return this->PFGSE_config;}
 	string getName(){ return this->name; }
 	string getDir(){ return this->dir; }
 	vector<double> getGradient(){ return this->gradient; }
@@ -99,7 +99,7 @@ public:
 
 	// Set methods
 	void setModel(Model &_model){ this->model = _model; }
-	void setPFGSE_config(pfgse_config _config){ this->PFGSE_config = _config;}
+	void setPfgseConfig(PfgseConfig _config){ this->PFGSE_config = _config;}
 	void setName(string _name){ this->name = _name; }
 	void setDir(string _dir){ this->dir = _dir; }
 	void setGradient(vector<double> _vec){ this->gradient = _vec; }

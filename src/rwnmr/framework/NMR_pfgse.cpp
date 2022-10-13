@@ -3,7 +3,7 @@
 std::mt19937 NMR_PFGSE::_rng;
 
 NMR_PFGSE::NMR_PFGSE(Model &_model,  
-				     pfgse_config _pfgseConfig) : model(_model),
+				     PfgseConfig _pfgseConfig) : model(_model),
 												  PFGSE_config(_pfgseConfig),
 												  Dsat(0.0),
 												  DsatError(0.0),
@@ -118,7 +118,7 @@ void NMR_PFGSE::resetModel()
 	// reset walker's initial state with omp parallel for
 	cout << "- Reseting walker initial state" << endl;
 
-    if(this->model.getRWNMRConfig().getOpenMPUsage())
+    if(this->model.getRwnmrConfig().getOpenMPUsage())
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
@@ -156,7 +156,7 @@ void NMR_PFGSE::updateWalkersXiRate(uint _rwsteps)
 {
 	// update walker's xirate with omp parallel for
 
-    if(this->model.getRWNMRConfig().getOpenMPUsage())
+    if(this->model.getRwnmrConfig().getOpenMPUsage())
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
@@ -306,12 +306,12 @@ void NMR_PFGSE::runInitialMapSimulation()
 		this->model.mapSimulation();
 
 		// Update xi_rate and relaxivity of walkers
-		vector<double> rho = this->model.getRWNMRConfig().getRho();
-		if(this->model.getRWNMRConfig().getRhoType() == "uniform")    
+		vector<double> rho = this->model.getRwnmrConfig().getRho();
+		if(this->model.getRwnmrConfig().getRhoType() == "uniform")    
         {
         	this->model.updateWalkersRelaxativity(rho[0]);
     	} 
-    	else if(this->model.getRWNMRConfig().getRhoType() == "sigmoid")
+    	else if(this->model.getRwnmrConfig().getRhoType() == "sigmoid")
         {
         	this->model.updateWalkersRelaxativity(rho);
         }
@@ -670,7 +670,7 @@ double ** NMR_PFGSE::getSamplesMagnitude()
 	}
 	else
 	{
-		if(this->model.getRWNMRConfig().getOpenMPUsage())
+		if(this->model.getRwnmrConfig().getOpenMPUsage())
 		{
 			return (*this).computeSamplesMagnitudeWithOmp();
 		} else
@@ -1651,7 +1651,7 @@ void NMR_PFGSE::simulation_omp()
     
     // main loop
 	// reset walker's initial state with omp parallel for
-    if(this->model.getRWNMRConfig().getOpenMPUsage())
+    if(this->model.getRwnmrConfig().getOpenMPUsage())
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();

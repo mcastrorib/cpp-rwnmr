@@ -2,13 +2,13 @@
 #define RWNMR_CONFIG_H_
 
 #include "configFiles_defs.h"
+#include "BaseConfig.h"
 
 using namespace std;
 
-class rwnmr_config
+class RwnmrConfig : public BaseConfig
 {
 private:
-    string config_filepath;
     string NAME;
     uint WALKERS;
     uint WALKER_SAMPLES;
@@ -46,31 +46,30 @@ private:
     uint MAX_RWSTEPS;
     bool REDUCE_IN_GPU;
     
-
-    // -- MPI COMMUNICATION
-    uint BITBLOCKS_BATCHES_SIZE;
-    uint BITBLOCK_PROP_SIZE;
-    uint NMR_T2_SIZE;
-    uint NMR_START_TAG;
-    uint NMR_BITBLOCK_TAG;
-    uint NMR_BATCH_TAG;
-    uint NMR_T2_TAG;
-    uint NMR_END_TAG;
-
 public:
     // default constructors
-    rwnmr_config(){};
-    rwnmr_config(const string configFile, const string croot);
+    RwnmrConfig() : BaseConfig(),
+                    SAVE_IMG_INFO(false), 
+                    SAVE_BINIMG(false), 
+                    SAVE_WALKERS(false), 
+                    OPENMP_USAGE(true), 
+                    OPENMP_THREADS(omp_get_max_threads()),
+                    GPU_USAGE(true), 
+                    REDUCE_IN_GPU(true),
+                    WALKER_SAMPLES(1)
+    {};
+    RwnmrConfig(const string configFile, const string croot);
 
     //copy constructors
-    rwnmr_config(const rwnmr_config &otherConfig);    
+    RwnmrConfig(const RwnmrConfig &otherConfig);    
 
     // default destructor
-    virtual ~rwnmr_config()
+    virtual ~RwnmrConfig()
     {
         // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
     } 
 
+    vector<string> checkConfig();
     void readConfigFile(const string configFile);
     
     // Read methods
@@ -156,16 +155,6 @@ public:
     void setMaxRWSteps(uint s){ this->MAX_RWSTEPS = s;}
     void setReduceInGPU(bool s){ this->REDUCE_IN_GPU = s;}
     
-    // -- MPI Params
-    void setBitBlockBatchesSize(uint s){ this->BITBLOCKS_BATCHES_SIZE = s;}
-    void setBitBlockPropertiesSize(uint s){ this->BITBLOCK_PROP_SIZE = s;}
-    void setNMRT2Size(uint s){ this->NMR_T2_SIZE = s;}
-    void setStartTag(uint s){ this->NMR_START_TAG = s;}
-    void setBitBlockTag(uint s){ this->NMR_BITBLOCK_TAG = s;}
-    void setBatchTag(uint s){ this->NMR_BATCH_TAG = s;}
-    void setT2Tag(uint s){ this->NMR_T2_TAG = s;}
-    void setEndTag(uint s){ this->NMR_END_TAG = s;}
-
     // -- Saving
     void setSaveImgInfo(bool s){ this->SAVE_IMG_INFO = s;}
     void setSaveBinImg(bool s){ this->SAVE_BINIMG = s;}
@@ -173,7 +162,6 @@ public:
 
     // Get methods
     // -- RW Params
-    string getConfigFilepath() {return this->config_filepath; }
     string getName(){ return this->NAME;}
     uint getWalkers(){ return this->WALKERS;}
     uint getWalkerSamples(){ return this->WALKER_SAMPLES;}
@@ -210,16 +198,6 @@ public:
     uint getEchoesPerKernel(){ return this->ECHOESPERKERNEL;}
     uint getMaxRWSteps(){ return this->MAX_RWSTEPS;}
     bool getReduceInGPU(){ return this->REDUCE_IN_GPU;}
-    
-    // -- MPI Params
-    uint getBitBlockBatchesSize(){ return this->BITBLOCKS_BATCHES_SIZE;}
-    uint getBitBlockPropertiesSize(){ return this->BITBLOCK_PROP_SIZE;}
-    uint getNMRT2Size(){ return this->NMR_T2_SIZE;}
-    uint getStartTag(){ return this->NMR_START_TAG;}
-    uint getBitBlockTag(){ return this->NMR_BITBLOCK_TAG;}
-    uint getBatchTag(){ return this->NMR_BATCH_TAG;}
-    uint getT2Tag(){ return this->NMR_T2_TAG;}
-    uint getEndTag(){ return this->NMR_END_TAG;}
 };
 
 #endif

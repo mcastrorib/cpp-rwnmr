@@ -2,15 +2,14 @@
 #define CPMG_CONFIG_H_
 
 #include "configFiles_defs.h"
+#include "BaseConfig.h"
 
 using namespace std;
 
-class cpmg_config
+class CpmgConfig : public BaseConfig
 {
 private:
-    string config_filepath;
     // --- Physical attributes.
-    double D0;
     bool APPLY_BULK;
     double OBS_TIME;
     string METHOD;
@@ -43,22 +42,22 @@ private:
     
 public:
     // default constructors
-    cpmg_config(){};
-    cpmg_config(const string configFile, const string croot);
+    CpmgConfig():BaseConfig(), APPLY_BULK(false), TIME_VERBOSE(false), USE_T2_LOGSPACE(false), SAVE_MODE(false){};
+    CpmgConfig(const string configFile, const string croot);
 
     //copy constructors
-    cpmg_config(const cpmg_config &otherConfig);
+    CpmgConfig(const CpmgConfig &otherConfig);
 
     // default destructor
-    virtual ~cpmg_config()
+    virtual ~CpmgConfig()
     {
         // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
     } 
 
+    vector<string> checkConfig();
     void readConfigFile(const string configFile);
     
     // -- Read methods
-    void readD0(string s);
     void readApplyBulk(string s);
     void readTimeVerbose(string s);
     void readObservationTime(string s);
@@ -84,9 +83,8 @@ public:
     void readSaveT2(string s);   
 
     // set methods
-    void setD0(double _v){ this->D0 = _v; }
     void setApplyBulk(bool _v){ this->APPLY_BULK = _v; }
-    void setTimeVerbos(bool _v){ this->TIME_VERBOSE = _v; }
+    void setTimeVerbose(bool _v){ this->TIME_VERBOSE = _v; }
     void setObservationTime(double _v){ this->OBS_TIME = _v; }
     void setMethod(string _m){ this->METHOD = _m; }
     void setResidualField(string _s){ this->RESIDUAL_FIELD = _s; }
@@ -94,7 +92,7 @@ public:
     void setGradientDirection(int _v){ this->GRADIENT_DIRECTION = _v; }
     void setPathToField(string _s){ this->PATH_TO_FIELD = _s; }
     void setMinT2(double _v){ this->MIN_T2 = _v; }
-    void setMaxT2(double _v){ this->MIN_T2 = _v; }
+    void setMaxT2(double _v){ this->MAX_T2 = _v; }
     void setUseT2Logspace(bool _v){ this->USE_T2_LOGSPACE = _v; }
     void setNumT2Bins(int _v){ this->NUM_T2_BINS = _v;}
     void setMinLambda(double _v){ this->MIN_LAMBDA = _v;}
@@ -111,8 +109,6 @@ public:
     
 
     // get methods
-    string getConfigFilepath() {return this->config_filepath; }
-    double getD0(){return this->D0; }
     bool getApplyBulk(){ return this->APPLY_BULK; }
     bool getTimeVerbose(){ return this->TIME_VERBOSE; }
     double getObservationTime(){return this->OBS_TIME; }

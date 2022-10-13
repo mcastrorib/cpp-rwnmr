@@ -536,7 +536,7 @@ void NMR_PFGSE::simulation_cuda()
     cout << "[" << numberOfSteps << " RW-steps]... ";
 
     // create a steps bucket
-    uint stepsLimit = this->model.getRWNMRConfig().getMaxRWSteps();
+    uint stepsLimit = this->model.getRwnmrConfig().getMaxRWSteps();
     uint stepsSize = numberOfSteps/stepsLimit;
     vector<uint> steps;
     for(uint idx = 0; idx < stepsSize; idx++)
@@ -552,8 +552,8 @@ void NMR_PFGSE::simulation_cuda()
     
 
     // define parameters for CUDA kernel launch: blockDim, gridDim etc
-    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
-    uint blocksPerKernel = this->model.getRWNMRConfig().getBlocks();
+    uint threadsPerBlock = this->model.getRwnmrConfig().getThreadsPerBlock();
+    uint blocksPerKernel = this->model.getRwnmrConfig().getBlocks();
     uint walkersPerKernel = threadsPerBlock * blocksPerKernel;
 
     // treat case when only one kernel is needed
@@ -681,7 +681,7 @@ void NMR_PFGSE::simulation_cuda()
         // Host data copy
         // copy original walkers' data to temporary host arrays
         tick = omp_get_wtime();
-        if(this->model.getRWNMRConfig().getOpenMPUsage())
+        if(this->model.getRwnmrConfig().getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -822,7 +822,7 @@ void NMR_PFGSE::simulation_cuda()
         copy_time = omp_get_wtime() - tick;
 
         tick = omp_get_wtime();
-        if(this->model.getRWNMRConfig().getOpenMPUsage())
+        if(this->model.getRwnmrConfig().getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -883,7 +883,7 @@ void NMR_PFGSE::simulation_cuda()
                                                                 k_Z);
             cudaDeviceSynchronize();
 
-            if(this->model.getRWNMRConfig().getReduceInGPU())
+            if(this->model.getRwnmrConfig().getReduceInGPU())
             {
                 // Kernel call to reduce walker final phases
                 PFG_reduce<<<blocksPerKernel/2, 
@@ -916,7 +916,7 @@ void NMR_PFGSE::simulation_cuda()
 
     
 
-        if(this->model.getRWNMRConfig().getReduceInGPU())
+        if(this->model.getRwnmrConfig().getReduceInGPU())
         {
             // Kernel call to reduce walker final energies
             PFG_reduce<<<blocksPerKernel/2, 
@@ -957,7 +957,7 @@ void NMR_PFGSE::simulation_cuda()
         // Host data copy
         // copy original walkers' data to temporary host arrays
         tick = omp_get_wtime();
-        if(this->model.getRWNMRConfig().getOpenMPUsage())
+        if(this->model.getRwnmrConfig().getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -1110,7 +1110,7 @@ void NMR_PFGSE::simulation_cuda()
         copy_time += omp_get_wtime() - tick;
 
         tick = omp_get_wtime();
-        if(this->model.getRWNMRConfig().getOpenMPUsage())
+        if(this->model.getRwnmrConfig().getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -1172,7 +1172,7 @@ void NMR_PFGSE::simulation_cuda()
 
             cudaDeviceSynchronize();
 
-            if(this->model.getRWNMRConfig().getReduceInGPU())
+            if(this->model.getRwnmrConfig().getReduceInGPU())
             {
                 // Kernel call to reduce walker final phases
                 PFG_reduce<<<blocksPerKernel/2, 
@@ -1204,7 +1204,7 @@ void NMR_PFGSE::simulation_cuda()
             }
         }
 
-        if(this->model.getRWNMRConfig().getReduceInGPU())
+        if(this->model.getRwnmrConfig().getReduceInGPU())
         {
             // Kernel call to reduce walker final energies
             PFG_reduce<<<blocksPerKernel/2, 
@@ -1345,8 +1345,8 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithGpu()
     bool time_verbose = false;
 
     // define parameters for CUDA kernel launch: blockDim, gridDim etc
-    uint blocksPerKernel = this->model.getRWNMRConfig().getBlocks();
-    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
+    uint blocksPerKernel = this->model.getRwnmrConfig().getBlocks();
+    uint threadsPerBlock = this->model.getRwnmrConfig().getThreadsPerBlock();
     uint trueWalkersPerSample = this->model.getNumberOfWalkers() / this->model.getWalkerSamples();        
     uint blocksPerSample = trueWalkersPerSample / threadsPerBlock;
     if(trueWalkersPerSample % threadsPerBlock != 0) blocksPerSample++;
@@ -1400,7 +1400,7 @@ void NMR_PFGSE::computeMktSmallPopulation(double **Mkt_samples, bool time_verbos
     uint walkerSamples = this->model.getWalkerSamples();
     uint trueWalkersPerSample = this->model.getNumberOfWalkers() / walkerSamples;  
     
-    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
+    uint threadsPerBlock = this->model.getRwnmrConfig().getThreadsPerBlock();
     uint minThreadsPerBlock = 64;
     while(trueWalkersPerSample < threadsPerBlock and trueWalkersPerSample < (threadsPerBlock/2) and threadsPerBlock > minThreadsPerBlock)
     {
@@ -1671,7 +1671,7 @@ void NMR_PFGSE::computeMktSmallPopulation2(double **Mkt_samples, bool time_verbo
     uint walkerSamples = this->model.getWalkerSamples();
     uint trueWalkersPerSample = this->model.getNumberOfWalkers() / walkerSamples;  
     
-    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
+    uint threadsPerBlock = this->model.getRwnmrConfig().getThreadsPerBlock();
     uint minThreadsPerBlock = 64;
     while(trueWalkersPerSample < threadsPerBlock and trueWalkersPerSample < (threadsPerBlock/2) and threadsPerBlock > minThreadsPerBlock)
     {
@@ -1966,8 +1966,8 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
     uint walkerSamples = this->model.getWalkerSamples();
     uint trueWalkersPerSample = numberOfWalkers / walkerSamples;  
     
-    uint blocksPerKernel = this->model.getRWNMRConfig().getBlocks();
-    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
+    uint blocksPerKernel = this->model.getRwnmrConfig().getBlocks();
+    uint threadsPerBlock = this->model.getRwnmrConfig().getThreadsPerBlock();
     uint minThreadsPerBlock = 64;
     while(trueWalkersPerSample < threadsPerBlock and 
           trueWalkersPerSample < (threadsPerBlock/2) and 
@@ -2435,8 +2435,8 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
     double voxelResolution = this->model.getImageVoxelResolution();
     uint numberOfWalkers = this->model.getNumberOfWalkers();
     uint walkerSamples = this->model.getWalkerSamples();   
-    uint blocksPerKernel = this->model.getRWNMRConfig().getBlocks();
-    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
+    uint blocksPerKernel = this->model.getRwnmrConfig().getBlocks();
+    uint threadsPerBlock = this->model.getRwnmrConfig().getThreadsPerBlock();
     
     uint trueWalkersPerSample = numberOfWalkers / walkerSamples;  
     uint fakeWalkersPerSample = threadsPerBlock - (trueWalkersPerSample % threadsPerBlock);

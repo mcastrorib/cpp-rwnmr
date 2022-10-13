@@ -2,14 +2,15 @@
 #define PFGSE_CONFIG_H_
 
 #include "configFiles_defs.h"
+#include "BaseConfig.h"
 #include "../math/Math.h"
+
 
 using namespace std;
 
-class pfgse_config
+class PfgseConfig : public BaseConfig
 {
 private:
-    string config_filepath;
     // --- Physical attributes.
     bool APPLY_BULK;
     double PULSE_WIDTH;
@@ -45,18 +46,24 @@ private:
 
 public:
     // default constructors
-    pfgse_config():THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0){};
-    pfgse_config(const string configFile, const string croot);
+    PfgseConfig() : BaseConfig(), 
+                    APPLY_BULK(false), 
+                    APPLY_SCALE_FACTOR(false), 
+                    ALLOW_WALKER_SAMPLING(true), 
+                    APPLY_ABSORPTION(false), 
+                    SAVE_MODE(false), 
+                    THRESHOLD_WINDOW(1), 
+                    NOISE_AMP(0.0), 
+                    TARGET_SNR(-1.0) {};
+    PfgseConfig(const string configFile, const string croot);
 
     //copy constructors
-    pfgse_config(const pfgse_config &otherConfig);
+    PfgseConfig(const PfgseConfig &otherConfig);
 
     // default destructor
-    virtual ~pfgse_config()
-    {
-        // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
-    } 
+    virtual ~PfgseConfig(){} 
 
+    vector<string> checkConfig();
     void readConfigFile(const string configFile);
     void createTimeSamples();
     
@@ -111,7 +118,6 @@ public:
     void setSaveHistogramList(bool _v){ this->SAVE_HISTOGRAM_LIST = _v;} 
 
     // -- Get methods
-    string getConfigFilepath() {return this->config_filepath; } 
     bool getApplyBulk(){ return this->APPLY_BULK; }
     double getPulseWidth() { return this->PULSE_WIDTH ; }
     Vector3D getMaxGradient() { return this->MAX_GRADIENT ; }

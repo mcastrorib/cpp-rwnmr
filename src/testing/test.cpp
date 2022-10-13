@@ -14,13 +14,14 @@ using namespace std;
 int main(int argc, char *argv[])
 {   	
     
-    UnitTest testApp(PROJECT_ROOT_DIR);
+    TestApp app(PROJECT_ROOT_DIR);
     
-    if(argc == 1) testApp.runAll();
+    if(argc == 1) app.noArgsMessage();
+	else if((string) argv[1] == "-h") app.help();
 	else 
 	{
 		for(int t = 1; t < argc; t++)
-			testApp.runTest(argv[t]);
+			app.exec(argv[t]);
 	}
 
 	return 0;

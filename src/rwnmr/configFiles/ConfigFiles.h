@@ -2,12 +2,11 @@
 #define CONFIGFILES_H_
 
 #include "configFiles_defs.h"
-#include "template_config.h"
-#include "rwnmr_config.h"
-#include "uct_config.h"
-#include "cpmg_config.h"
-#include "pfgse_config.h"
-#include "multitau_config.h"
-#include "ga_config.h"
+#include "BaseConfig.h"
+#include "RwnmrConfig.h"
+#include "UctConfig.h"
+#include "CpmgConfig.h"
+#include "PfgseConfig.h"
+#include "MultitauConfig.h"
 
 #endif
