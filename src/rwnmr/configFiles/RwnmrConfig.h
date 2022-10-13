@@ -48,7 +48,16 @@ private:
     
 public:
     // default constructors
-    RwnmrConfig():BaseConfig(){};
+    RwnmrConfig() : BaseConfig(),
+                    SAVE_IMG_INFO(false), 
+                    SAVE_BINIMG(false), 
+                    SAVE_WALKERS(false), 
+                    OPENMP_USAGE(true), 
+                    OPENMP_THREADS(omp_get_max_threads()),
+                    GPU_USAGE(true), 
+                    REDUCE_IN_GPU(true),
+                    WALKER_SAMPLES(1)
+    {};
     RwnmrConfig(const string configFile, const string croot);
 
     //copy constructors

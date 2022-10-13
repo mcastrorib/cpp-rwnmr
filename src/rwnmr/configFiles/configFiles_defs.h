@@ -20,5 +20,6 @@
 #include <stdint.h>
 #include <algorithm> 
 #include <math.h>
+#include <omp.h>
 
 #endif

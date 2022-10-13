@@ -3,7 +3,15 @@
 using namespace std;
 
 // default constructors
-RwnmrConfig::RwnmrConfig(const string configFile, const string croot) : BaseConfig(croot, configFile), WALKER_SAMPLES(1)
+RwnmrConfig::RwnmrConfig(const string configFile, const string croot) : BaseConfig(croot, configFile), 
+																	    SAVE_IMG_INFO(false), 
+																		SAVE_BINIMG(false), 
+																		SAVE_WALKERS(false), 
+																		OPENMP_USAGE(true), 
+																		OPENMP_THREADS(omp_get_max_threads()), 
+																		GPU_USAGE(true), 
+																		REDUCE_IN_GPU(true), 
+																		WALKER_SAMPLES(1)
 {
 	vector<double> RHO();
 	string defaultFile = (*this).getProjectRoot() + RWNMR_CONFIG_DEFAULT;
@@ -50,6 +58,59 @@ RwnmrConfig::RwnmrConfig(const RwnmrConfig &otherConfig)
     this->ECHOESPERKERNEL = otherConfig.ECHOESPERKERNEL;
     this->MAX_RWSTEPS = otherConfig.MAX_RWSTEPS;
     this->REDUCE_IN_GPU = otherConfig.REDUCE_IN_GPU;
+}
+
+vector<string> RwnmrConfig::checkConfig()
+{
+	vector<string> missingParameters;
+    bool validState = true;
+   
+    validState &= (*this).checkItem((*this).getWalkers() > 0, (string)"WALKERS", missingParameters);
+    validState &= (*this).checkItem((*this).getWalkerSamples() > 0, (string)"WALKER_SAMPLES", missingParameters);
+    
+	vector<string> placements = {"random", "center", "cubic"};
+    validState &= (*this).checkItem(std::find(placements.begin(), placements.end(), (*this).getWalkersPlacement()) != placements.end(), 
+                      (string)"WALKER_PLACEMENT", missingParameters);
+
+	vector<string> rhoTypes = {"uniform", "sigmoid"};
+    validState &= (*this).checkItem(std::find(rhoTypes.begin(), rhoTypes.end(), (*this).getRhoType()) != rhoTypes.end(), 
+                      (string)"RHO_TYPE", missingParameters);	
+	if((*this).getRhoType() == "uniform")
+	{
+		validState &= (*this).checkItem((*this).getRho().size() == 1, (string)"RHO_VALUE", missingParameters);
+	} else if((*this).getRhoType() == "sigmoid")
+	{
+		validState &= (*this).checkItem(((*this).getRho().size() > 0 and (*this).getRho().size() % 4 == 0), (string)"RHO_VALUE", missingParameters);
+	} 
+
+    validState &= (*this).checkItem((*this).getGiromagneticRatio() > 0.0, (string)"GYROMAGNETIC_RATIO", missingParameters);
+	vector<string> gUnits = {"mhertz", "rad"};
+    validState &= (*this).checkItem(std::find(gUnits.begin(), gUnits.end(), (*this).getGiromagneticUnit()) != gUnits.end(), 
+                      (string)"GYROMAGNETIC_UNIT", missingParameters);
+	
+	validState &= (*this).checkItem((*this).getD0() > 0.0, (string)"D0", missingParameters);
+	validState &= (*this).checkItem((*this).getBulkTime() > 0.0, (string)"BULK_TIME", missingParameters);
+	validState &= (*this).checkItem((*this).getStepsPerEcho() > 0, (string)"STEPS_PER_ECHO", missingParameters);
+	
+	vector<string> bcs = {"no-flux", "periodic", "mirror"};
+	validState &= (*this).checkItem(std::find(bcs.begin(), bcs.end(), (*this).getBC()) != bcs.end(), 
+                      (string)"BC", missingParameters);
+		
+	validState &= (*this).checkItem((*this).getHistograms() > 0, (string)"HISTOGRAMS", missingParameters);
+	validState &= (*this).checkItem((*this).getHistogramSize() > 0, (string)"HISTOGRAM_SIZE", missingParameters);
+	vector<string> hScales = {"linear", "log"};
+	validState &= (*this).checkItem(std::find(hScales.begin(), hScales.end(), (*this).getHistogramScale()) != hScales.end(), 
+                      (string)"HISTOGRAM_SCALE", missingParameters);
+	
+	validState &= (*this).checkItem(((*this).getOpenMPUsage() == false or ((*this).getOpenMPUsage() == true and (*this).getOpenMPThreads() > 0)), 
+					(string)"OPENMP", missingParameters);
+	validState &= (*this).checkItem((*this).getBlocks() > 0, (string)"CUDA_BLOCKS", missingParameters);
+	validState &= (*this).checkItem((*this).getThreadsPerBlock() > 0, (string)"CUDA_THREADSPERBLOCK", missingParameters);
+	validState &= (*this).checkItem((*this).getEchoesPerKernel() > 0, (string)"CUDA_ECHOESPERKERNEL", missingParameters);
+	validState &= (*this).checkItem((*this).getMaxRWSteps() > 0, (string)"CUDA_MAXRWSTEPSPERKERNEL", missingParameters);	
+
+    (*this).setReady(validState);   
+    return missingParameters;
 }
 
 // read config file
@@ -129,7 +190,8 @@ void RwnmrConfig::readWalkerSamples(string s)
 
 void RwnmrConfig::readWalkersPlacement(string s)
 {
-	this->WALKERS_PLACEMENT = s;
+	if(s == "point" or s == "cubic") this->WALKERS_PLACEMENT = s;
+	else this->WALKERS_PLACEMENT = "random";
 }
 
 void RwnmrConfig::readPlacementDeviation(string s)

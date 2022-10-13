@@ -66,8 +66,11 @@ add_test(NAME CPMG_uniform_gradient-smooth-run COMMAND rwnmr-app cpmg -config ./
 add_test(NAME PFGSE-smooth-run COMMAND rwnmr-app pfgse -config ./input/testing/tpfgse.config)
 add_test(NAME MultiTau-smooth-run COMMAND rwnmr-app multitau -config ./input/testing/tmultitau.config ./input/testing/tcpmg_uniform_field.config)
 add_test(NAME ArgsParser-test COMMAND rwnmr-test ArgsParser)
-add_test(NAME uctConfig-test COMMAND rwnmr-test UctConfig)
-add_test(NAME cpmgConfig-test COMMAND rwnmr-test CpmgConfig)
+add_test(NAME RwnmrConfig-test COMMAND rwnmr-test RwnmrConfig)
+add_test(NAME UctConfig-test COMMAND rwnmr-test UctConfig)
+add_test(NAME CpmgConfig-test COMMAND rwnmr-test CpmgConfig)
+add_test(NAME PfgseConfig-test COMMAND rwnmr-test PfgseConfig)
+add_test(NAME MultitauConfig-test COMMAND rwnmr-test MultitauConfig)
 # add_test(NAME ConfigFilesTest COMMAND rwnmr-test configfiles)
 
 ## Installation
