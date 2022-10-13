@@ -45,6 +45,9 @@ public:
 	TestResult readConfigFileTest();
 	TestResult checkConfigTest_True();
 	TestResult checkConfigTest_False();
+	TestResult readDirPathTest_AbsolutePath();
+	TestResult readDirPathTest_RelativePath();
+	
 
 	void setTestCases(vector<mptr> _tc){ this->testCases = _tc; }
 	void setTestCases(mptr _t, int i){ this->testCases[i] = _t; }

@@ -93,6 +93,7 @@ void cpmg_config::readConfigFile(const string configFile)
     if (fileObject.fail())
     {
         cout << "Could not open cpmg config file from disc." << endl;
+        cout << "Check path: " << configFile << endl;
         exit(1);
     }
 
@@ -185,7 +186,8 @@ void cpmg_config::readGradientDirection(string s)
 
 void cpmg_config::readPathToField(string s)
 {
-    (*this).setPathToField(s);
+    if(s.length() > 2 and s.substr(0,2) == "./") (*this).setPathToField((*this).getProjectRoot() + s);
+	else (*this).setPathToField(s);
 }
 
 void cpmg_config::readMinT2(string s)

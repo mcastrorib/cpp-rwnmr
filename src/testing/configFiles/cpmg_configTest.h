@@ -62,7 +62,8 @@ public:
     TestResult readGradientDirectionTest_1();
     TestResult readGradientDirectionTest_2();
     TestResult readGradientDirectionTest_Unknown();
-    TestResult readPathToFieldTest();
+    TestResult readPathToFieldTest_AbsolutePath();
+	TestResult readPathToFieldTest_RelativePath();
     TestResult readMinT2Test();
     TestResult readMaxT2Test();
     TestResult readUseT2LogspaceTest_True();

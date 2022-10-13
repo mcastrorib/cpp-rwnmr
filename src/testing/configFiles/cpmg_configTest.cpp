@@ -24,7 +24,8 @@ cpmg_configTest::cpmg_configTest(string proot) : TestSuite(proot), config(NULL)
 	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_1);
 	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_2);
 	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_Unknown);
-	(*this).addTest(&cpmg_configTest::readPathToFieldTest);
+	(*this).addTest(&cpmg_configTest::readPathToFieldTest_AbsolutePath);
+	(*this).addTest(&cpmg_configTest::readPathToFieldTest_RelativePath);
 	(*this).addTest(&cpmg_configTest::readMinT2Test);
 	(*this).addTest(&cpmg_configTest::readMaxT2Test);
 	(*this).addTest(&cpmg_configTest::readUseT2LogspaceTest_True);
@@ -306,13 +307,25 @@ TestResult cpmg_configTest::readGradientDirectionTest_Unknown()
 	return result;	
 }
 
-TestResult cpmg_configTest::readPathToFieldTest()
+TestResult cpmg_configTest::readPathToFieldTest_AbsolutePath()
 {
-	TestResult result("cpmg_config::readPathToField()");
-	string token = "my-path";
+	TestResult result("uct_config::readPathToField(absolute)");
+	string token = "/this/is/my/test/absolute-path";
 	this->config->readPathToField(token);
-	result.setSuccess(Assert::assertEquals(this->config->getPathToField(), (string) "my-path"));
-	return result;	
+	result.setSuccess(Assert::assertEquals(this->config->getPathToField(), token));
+	return result;
+}
+
+TestResult cpmg_configTest::readPathToFieldTest_RelativePath()
+{
+	TestResult result("uct_config::readPathToField(relative)");
+	string projRoot = "/this/is/";
+	this->config->setProjectRoot(projRoot);
+	string token = "./my/test/relative-path";
+	this->config->readPathToField(token);
+	string expected = projRoot + token;
+	result.setSuccess(Assert::assertEquals(this->config->getPathToField(), expected));
+	return result;
 }
 
 TestResult cpmg_configTest::readMinT2Test()

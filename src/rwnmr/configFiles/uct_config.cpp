@@ -89,7 +89,8 @@ void uct_config::readConfigFile(const string configFile)
 
 void uct_config::readDirPath(string s)
 {
-	this->DIR_PATH = s;
+    if(s.length() > 2 and s.substr(0,2) == "./") (*this).setDirPath((*this).getProjectRoot() + s);
+	else (*this).setDirPath(s);
 }
 
 void uct_config::readFilename(string s)

@@ -6,6 +6,8 @@ uct_configTest::uct_configTest(string proot) : TestSuite(proot), config(NULL)
 	(*this).addTest(&uct_configTest::readConfigFileTest);
 	(*this).addTest(&uct_configTest::checkConfigTest_True);
     (*this).addTest(&uct_configTest::checkConfigTest_False);
+	(*this).addTest(&uct_configTest::readDirPathTest_AbsolutePath);
+	(*this).addTest(&uct_configTest::readDirPathTest_RelativePath);	
 }
 
 vector<TestResult> uct_configTest::run()
@@ -82,5 +84,26 @@ TestResult uct_configTest::checkConfigTest_False()
         result.setSuccess(false);
         for (int i = 0; i < output.size(); i++) cout << output[i] << endl;
     }
+	return result;
+}
+
+TestResult uct_configTest::readDirPathTest_AbsolutePath()
+{
+	TestResult result("uct_config::readDirPath(absolute)");
+	string token = "/this/is/my/test/absolute-path";
+	this->config->readDirPath(token);
+	result.setSuccess(Assert::assertEquals(this->config->getDirPath(), token));
+	return result;
+}
+
+TestResult uct_configTest::readDirPathTest_RelativePath()
+{
+	TestResult result("uct_config::readDirPath(relative)");
+	string projRoot = "/this/is/";
+	this->config->setProjectRoot(projRoot);
+	string token = "./my/test/relative-path";
+	this->config->readDirPath(token);
+	string expected = projRoot + token;
+	result.setSuccess(Assert::assertEquals(this->config->getDirPath(), expected));
 	return result;
 }

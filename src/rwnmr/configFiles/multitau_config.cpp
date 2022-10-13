@@ -37,7 +37,8 @@ void multitau_config::readConfigFile(const string configFile)
     fileObject.open(configFile, ios::in);
     if (fileObject.fail())
     {
-        cout << "Could not open cpmg config file from disc." << endl;
+        cout << "Could not open multitau config file from disc." << endl;
+        cout << "Check path: " << configFile << endl;
         exit(1);
     }
 
