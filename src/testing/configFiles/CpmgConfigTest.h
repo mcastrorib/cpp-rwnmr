@@ -3,25 +3,25 @@
 
 #include "Includes.h"
 
-class cpmg_configTest : public TestSuite
+class CpmgConfigTest : public TestSuite
 {
 public:
-	typedef TestResult (cpmg_configTest::*mptr)();
+	typedef TestResult (CpmgConfigTest::*mptr)();
 
 private:
 	vector<mptr> testCases;
-	cpmg_config *config;
+	CpmgConfig *config;
 
 public:
-	cpmg_configTest(string proot);
+	CpmgConfigTest(string proot);
 	
-	cpmg_configTest(const cpmg_configTest& otherTest) : TestSuite(otherTest.projectRoot)
+	CpmgConfigTest(const CpmgConfigTest& otherTest) : TestSuite(otherTest.projectRoot)
 	{
 		this->testCases = otherTest.testCases; 
 		this->config = otherTest.config;
 	}
 
-	virtual ~cpmg_configTest(){
+	virtual ~CpmgConfigTest(){
 		if(this->config != NULL){
 			delete this->config;
 			this->config = NULL;
@@ -31,7 +31,7 @@ public:
 	void beforeEach()
 	{
 		if(this->config != NULL) delete this->config;
-		this->config = new cpmg_config();		
+		this->config = new CpmgConfig();		
 	}
 
 	void afterEach()
@@ -93,11 +93,11 @@ public:
 	void setTestCases(mptr _t, int i){ this->testCases[i] = _t; }
 	void addTest(mptr _t){ this->testCases.push_back(_t); }
 	void clearTestCases(){ this->testCases.clear(); }
-	void setConfig(cpmg_config *_conf){ this->config = _conf; }
+	void setConfig(CpmgConfig *_conf){ this->config = _conf; }
 
 	vector<mptr> getTestCases(){ return this->testCases; }
 	mptr getTestCase(int i){ return this->testCases[i]; }
-	cpmg_config *getConfig(){ return this->config; }
+	CpmgConfig *getConfig(){ return this->config; }
 };
 
 #endif

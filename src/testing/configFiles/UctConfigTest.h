@@ -3,25 +3,25 @@
 
 #include "Includes.h"
 
-class uct_configTest : public TestSuite
+class UctConfigTest : public TestSuite
 {
 public:
-	typedef TestResult (uct_configTest::*mptr)();
+	typedef TestResult (UctConfigTest::*mptr)();
 
 private:
 	vector<mptr> testCases;
-	uct_config *config;
+	UctConfig *config;
 
 public:
-	uct_configTest(string proot);
+	UctConfigTest(string proot);
 	
-	uct_configTest(const uct_configTest& otherTest) : TestSuite(otherTest.projectRoot)
+	UctConfigTest(const UctConfigTest& otherTest) : TestSuite(otherTest.projectRoot)
 	{
 		this->testCases = otherTest.testCases; 
 		this->config = otherTest.config;
 	}
 
-	virtual ~uct_configTest(){
+	virtual ~UctConfigTest(){
 		if(this->config != NULL){
 			delete this->config;
 			this->config = NULL;
@@ -31,7 +31,7 @@ public:
 	void beforeEach()
 	{
 		if(this->config != NULL) delete this->config;
-		this->config = new uct_config();		
+		this->config = new UctConfig();		
 	}
 
 	void afterEach()
@@ -53,11 +53,11 @@ public:
 	void setTestCases(mptr _t, int i){ this->testCases[i] = _t; }
 	void addTest(mptr _t){ this->testCases.push_back(_t); }
 	void clearTestCases(){ this->testCases.clear(); }
-	void setConfig(uct_config *_conf){ this->config = _conf; }
+	void setConfig(UctConfig *_conf){ this->config = _conf; }
 
 	vector<mptr> getTestCases(){ return this->testCases; }
 	mptr getTestCase(int i){ return this->testCases[i]; }
-	uct_config *getConfig(){ return this->config; }
+	UctConfig *getConfig(){ return this->config; }
 };
 
 #endif

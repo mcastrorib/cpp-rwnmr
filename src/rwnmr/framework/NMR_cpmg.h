@@ -10,7 +10,7 @@ class NMR_cpmg
 {
 private:
 	Model &model;
-	cpmg_config CPMG_config;
+	CpmgConfig CPMG_config;
 	string name;
 	string dir;
     double exposureTime;
@@ -25,7 +25,7 @@ private:
     InternalField *internalField;
     
 public:
-	NMR_cpmg(Model &_model, cpmg_config _cpmgConfig);	
+	NMR_cpmg(Model &_model, CpmgConfig _CpmgConfig);	
 	virtual ~NMR_cpmg()
 	{
 		if(this->penalties != NULL)
@@ -43,7 +43,7 @@ public:
 
     // -- Get methods
     Model &getModel(){ return this->model; }
-    cpmg_config getCPMGConfig(){ return this->CPMG_config; }
+    CpmgConfig getCpmgConfig(){ return this->CPMG_config; }
     string getName(){return this->name;}
     string getDir(){return this->dir;}
     double getExposureTime() { return this->exposureTime; }
@@ -66,7 +66,7 @@ public:
 
 // -- Set methods
     void setModel(Model &_model){ this->model = _model; }
-	void setPFGSE_config(cpmg_config _config){ this->CPMG_config = _config;}
+	void setCpmgConfig(CpmgConfig _config){ this->CPMG_config = _config;}
 	void setName(string _name){ this->name = _name; }
 	void setDir(string _dir){ this->dir = _dir; }
 	void setExposureTime(double _value){ this->exposureTime = _value; }

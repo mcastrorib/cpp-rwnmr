@@ -1,16 +1,16 @@
-#include "uct_configTest.h"
+#include "UctConfigTest.h"
 
-uct_configTest::uct_configTest(string proot) : TestSuite(proot), config(NULL)
+UctConfigTest::UctConfigTest(string proot) : TestSuite(proot), config(NULL)
 {
 	// add test cases to suite vector
-	(*this).addTest(&uct_configTest::readConfigFileTest);
-	(*this).addTest(&uct_configTest::checkConfigTest_True);
-    (*this).addTest(&uct_configTest::checkConfigTest_False);
-	(*this).addTest(&uct_configTest::readDirPathTest_AbsolutePath);
-	(*this).addTest(&uct_configTest::readDirPathTest_RelativePath);	
+	(*this).addTest(&UctConfigTest::readConfigFileTest);
+	(*this).addTest(&UctConfigTest::checkConfigTest_True);
+    (*this).addTest(&UctConfigTest::checkConfigTest_False);
+	(*this).addTest(&UctConfigTest::readDirPathTest_AbsolutePath);
+	(*this).addTest(&UctConfigTest::readDirPathTest_RelativePath);	
 }
 
-vector<TestResult> uct_configTest::run()
+vector<TestResult> UctConfigTest::run()
 {
 	vector<TestResult> results;
 	
@@ -24,10 +24,10 @@ vector<TestResult> uct_configTest::run()
 	return results;
 }
 
-TestResult uct_configTest::readConfigFileTest()
+TestResult UctConfigTest::readConfigFileTest()
 {	
 	TestResult result;
-	result.setMessage("uct_config::readConfigFile()");
+	result.setMessage("UctConfig::readConfigFile()");
 
 	string config_path = "tuct.config";	
 	this->config->readConfigFile((*this).getInputDir() + config_path);	
@@ -46,10 +46,10 @@ TestResult uct_configTest::readConfigFileTest()
 	return result;
 }
 
-TestResult uct_configTest::checkConfigTest_True()
+TestResult UctConfigTest::checkConfigTest_True()
 {	
 	TestResult result;
-	result.setMessage("uct_config::checkConfig(true)");
+	result.setMessage("UctConfig::checkConfig(true)");
 
 	string config_path = "tuct.config";	
 	this->config->readConfigFile((*this).getInputDir() + config_path);
@@ -65,10 +65,10 @@ TestResult uct_configTest::checkConfigTest_True()
 	return result;
 }
 
-TestResult uct_configTest::checkConfigTest_False()
+TestResult UctConfigTest::checkConfigTest_False()
 {	
 	TestResult result;
-	result.setMessage("uct_config::checkConfig(false)");
+	result.setMessage("UctConfig::checkConfig(false)");
 
 	string config_path = "tuct.config";	
 	this->config->readConfigFile((*this).getInputDir() + config_path);
@@ -87,18 +87,18 @@ TestResult uct_configTest::checkConfigTest_False()
 	return result;
 }
 
-TestResult uct_configTest::readDirPathTest_AbsolutePath()
+TestResult UctConfigTest::readDirPathTest_AbsolutePath()
 {
-	TestResult result("uct_config::readDirPath(absolute)");
+	TestResult result("UctConfig::readDirPath(absolute)");
 	string token = "/this/is/my/test/absolute-path";
 	this->config->readDirPath(token);
 	result.setSuccess(Assert::assertEquals(this->config->getDirPath(), token));
 	return result;
 }
 
-TestResult uct_configTest::readDirPathTest_RelativePath()
+TestResult UctConfigTest::readDirPathTest_RelativePath()
 {
-	TestResult result("uct_config::readDirPath(relative)");
+	TestResult result("UctConfig::readDirPath(relative)");
 	string projRoot = "/this/is/";
 	this->config->setProjectRoot(projRoot);
 	string token = "./my/test/relative-path";

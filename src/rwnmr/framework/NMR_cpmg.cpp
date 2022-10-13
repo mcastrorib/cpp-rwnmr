@@ -1,8 +1,8 @@
 #include "NMR_cpmg.h"
 
 NMR_cpmg::NMR_cpmg( Model &_model,  
-                    cpmg_config _cpmgConfig) : model(_model), 
-                                               CPMG_config(_cpmgConfig), 
+                    CpmgConfig _CpmgConfig) : model(_model), 
+                                               CPMG_config(_CpmgConfig), 
                                                penalties(NULL), 
                                                internalField(NULL)
 {
@@ -108,12 +108,12 @@ void NMR_cpmg::buildModelTimeFramework(bool _map)
     if(_map) this->model.mapSimulation();
 
     // Update xi_rate and relaxivity of walkers
-    vector<double> rho = this->model.getRWNMRConfig().getRho();
-    if(this->model.getRWNMRConfig().getRhoType() == "uniform")    
+    vector<double> rho = this->model.getRwnmrConfig().getRho();
+    if(this->model.getRwnmrConfig().getRhoType() == "uniform")    
     {
         this->model.updateWalkersRelaxativity(rho[0]);
     } 
-    else if(this->model.getRWNMRConfig().getRhoType() == "sigmoid")
+    else if(this->model.getRwnmrConfig().getRhoType() == "sigmoid")
     {
         this->model.updateWalkersRelaxativity(rho);
     }
@@ -132,9 +132,9 @@ void NMR_cpmg::run_simulation()
     if((*this).getMethod() == "histogram")
     {
         vector<double> rho;
-        rho = this->model.getRWNMRConfig().getRho();
-        if(this->model.getRWNMRConfig().getRhoType() == "uniform") (*this).createPenaltiesVector(rho[0]);
-        else if(this->model.getRWNMRConfig().getRhoType() == "sigmoid") (*this).createPenaltiesVector(rho);
+        rho = this->model.getRwnmrConfig().getRho();
+        if(this->model.getRwnmrConfig().getRhoType() == "uniform") (*this).createPenaltiesVector(rho[0]);
+        else if(this->model.getRwnmrConfig().getRhoType() == "sigmoid") (*this).createPenaltiesVector(rho);
         (*this).histogram_simulation();
     }
 

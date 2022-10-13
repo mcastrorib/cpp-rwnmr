@@ -6,7 +6,7 @@
 
 using namespace std;
 
-class cpmg_config : public BaseConfig
+class CpmgConfig : public BaseConfig
 {
 private:
     // --- Physical attributes.
@@ -42,14 +42,14 @@ private:
     
 public:
     // default constructors
-    cpmg_config():BaseConfig(), APPLY_BULK(false), TIME_VERBOSE(false), USE_T2_LOGSPACE(false), SAVE_MODE(false){};
-    cpmg_config(const string configFile, const string croot);
+    CpmgConfig():BaseConfig(), APPLY_BULK(false), TIME_VERBOSE(false), USE_T2_LOGSPACE(false), SAVE_MODE(false){};
+    CpmgConfig(const string configFile, const string croot);
 
     //copy constructors
-    cpmg_config(const cpmg_config &otherConfig);
+    CpmgConfig(const CpmgConfig &otherConfig);
 
     // default destructor
-    virtual ~cpmg_config()
+    virtual ~CpmgConfig()
     {
         // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
     } 

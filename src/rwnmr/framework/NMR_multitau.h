@@ -11,8 +11,8 @@ class NMR_multitau
 private:
 	Model &model;
 	NMR_cpmg *cpmg;
-	multitau_config MultiTau_config;
-	cpmg_config CPMG_config;
+	MultitauConfig MultiTau_config;
+	CpmgConfig CPMG_config;
 	string name;
 	string dir;
 	vector<uint> requiredSteps;
@@ -20,7 +20,7 @@ private:
     vector<double> signalAmps;
 
 public:
-	NMR_multitau(Model &_model, multitau_config _multitauConfig, cpmg_config _cpmgConfig);	
+	NMR_multitau(Model &_model, MultitauConfig _multitauConfig, CpmgConfig _CpmgConfig);	
 
 	virtual ~NMR_multitau()
 	{
@@ -33,8 +33,8 @@ public:
 
 	void setModel(Model &_model){ this->model = _model; }
 	void setCPMG(NMR_cpmg *_cpmg){ this->cpmg = _cpmg; }
-	void setMultitauConfig(multitau_config _config){ this->MultiTau_config = _config; }
-	void setCPMGConfig(cpmg_config _config){ this->CPMG_config = _config; }
+	void setMultitauConfig(MultitauConfig _config){ this->MultiTau_config = _config; }
+	void setCpmgConfig(CpmgConfig _config){ this->CPMG_config = _config; }
 	void setName(string _name){ this->name = _name; }
 	void setDir(string _dir){ this->dir = _dir; }
 	void setRequiredSteps(vector<uint> _vec){ this->requiredSteps = _vec; }
@@ -52,8 +52,8 @@ public:
 
 	Model &getModel(){return this->model;}
 	NMR_cpmg *getCPMG(){ return this->cpmg; }
-	multitau_config getMultitauConfig(){ return this->MultiTau_config; }
-	cpmg_config getCPMGConfig(){ return this->CPMG_config; }
+	MultitauConfig getMultitauConfig(){ return this->MultiTau_config; }
+	CpmgConfig getCpmgConfig(){ return this->CPMG_config; }
 	string getName(){ return this->name; }
 	string getDir(){ return this->dir; }
 	vector<uint> getRequiredSteps(){ return this->requiredSteps; }

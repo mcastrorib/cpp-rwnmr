@@ -4,7 +4,7 @@
 #include "configFiles_defs.h"
 #include "BaseConfig.h"
 
-class multitau_config : public BaseConfig
+class MultitauConfig : public BaseConfig
 {
 private:
     double TAU_MIN;
@@ -23,14 +23,14 @@ private:
 
 public:   
     // default constructors
-    multitau_config():BaseConfig(){};
-    multitau_config(const string configFile, const string croot);
+    MultitauConfig():BaseConfig(){};
+    MultitauConfig(const string configFile, const string croot);
 
     //copy constructors
-    multitau_config(const multitau_config &otherConfig);
+    MultitauConfig(const MultitauConfig &otherConfig);
 
     // default destructor
-    virtual ~multitau_config(){} 
+    virtual ~MultitauConfig(){} 
 
     vector<string> checkConfig();
     void readConfigFile(const string configFile);

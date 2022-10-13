@@ -16,8 +16,8 @@ public:
 private:    
     // Class attributes:
     // Config attributes
-    rwnmr_config rwNMR_config;
-    uct_config uCT_config;
+    RwnmrConfig rwNMR_config;
+    UctConfig uCT_config;
 
     // RW simulation parameters
     string name;
@@ -69,7 +69,7 @@ private:
 public:
     // NMR_3D methods:
     // default constructors
-    Model(rwnmr_config _rwNMR_config, uct_config _uCT_config, string _project_root);
+    Model(RwnmrConfig _rwNMR_config, UctConfig _uCT_config, string _project_root);
 
     //copy constructors
     // copy constructor
@@ -142,8 +142,8 @@ public:
     }
 
     // Set methods
-    void setRWNMRConfig(rwnmr_config _config){ this->rwNMR_config = _config; }
-    void setUCTConfig(uct_config _config){ this->uCT_config = _config; }
+    void setRwnmrConfig(RwnmrConfig _config){ this->rwNMR_config = _config; }
+    void setUctConfig(UctConfig _config){ this->uCT_config = _config; }
     void setName(string _n){ this->name = _n; }
     void setDir(string _d){ this->dir = _d; }
     void setDbPath(string _p){ this->dbPath = _p; }
@@ -199,8 +199,8 @@ public:
     
 
     // Get methods
-    rwnmr_config getRWNMRConfig(){ return this->rwNMR_config; }
-    uct_config getUCTConfig(){ return this->uCT_config; }
+    RwnmrConfig getRwnmrConfig(){ return this->rwNMR_config; }
+    UctConfig getUctConfig(){ return this->uCT_config; }
     string getName(){ return this->name; }
     string getDir(){ return this->dir; }
     string getDbPath(){ return this->dbPath; }

@@ -6,7 +6,7 @@
 
 using namespace std;
 
-class rwnmr_config : public BaseConfig
+class RwnmrConfig : public BaseConfig
 {
 private:
     string NAME;
@@ -48,14 +48,14 @@ private:
     
 public:
     // default constructors
-    rwnmr_config():BaseConfig(){};
-    rwnmr_config(const string configFile, const string croot);
+    RwnmrConfig():BaseConfig(){};
+    RwnmrConfig(const string configFile, const string croot);
 
     //copy constructors
-    rwnmr_config(const rwnmr_config &otherConfig);    
+    RwnmrConfig(const RwnmrConfig &otherConfig);    
 
     // default destructor
-    virtual ~rwnmr_config()
+    virtual ~RwnmrConfig()
     {
         // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
     } 

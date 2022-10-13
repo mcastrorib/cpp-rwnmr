@@ -7,12 +7,12 @@
 #include <string>
 #include <stdint.h>
 
-#include "cpmg_config.h"
+#include "CpmgConfig.h"
 
 using namespace std;
 
 // default constructors
-cpmg_config::cpmg_config(const string configFile, 
+CpmgConfig::CpmgConfig(const string configFile, 
                          const string croot) : BaseConfig(croot, configFile),
                                                APPLY_BULK(false), 
                                                TIME_VERBOSE(false), 
@@ -25,7 +25,7 @@ cpmg_config::cpmg_config(const string configFile,
 }
 
 //copy constructors
-cpmg_config::cpmg_config(const cpmg_config &otherConfig) 
+CpmgConfig::CpmgConfig(const CpmgConfig &otherConfig) 
 {
     // --- Physical attributes
     this->APPLY_BULK = otherConfig.APPLY_BULK;
@@ -57,7 +57,7 @@ cpmg_config::cpmg_config(const cpmg_config &otherConfig)
     this->SAVE_HISTOGRAM_LIST = otherConfig.SAVE_HISTOGRAM_LIST;
 }
 
-vector<string> cpmg_config::checkConfig()
+vector<string> CpmgConfig::checkConfig()
 {
     vector<string> missingParameters;
     bool validState = true;
@@ -86,7 +86,7 @@ vector<string> cpmg_config::checkConfig()
 }
 
 // read config file
-void cpmg_config::readConfigFile(const string configFile)
+void CpmgConfig::readConfigFile(const string configFile)
 {
 	ifstream fileObject;
     fileObject.open(configFile, ios::in);
@@ -143,130 +143,130 @@ void cpmg_config::readConfigFile(const string configFile)
     fileObject.close();
 }
 
-void cpmg_config::readApplyBulk(string s)
+void CpmgConfig::readApplyBulk(string s)
 {
     if(s == "true") (*this).setApplyBulk(true);
     else (*this).setApplyBulk(false);
 }
 
-void cpmg_config::readTimeVerbose(string s)
+void CpmgConfig::readTimeVerbose(string s)
 {
     if(s == "true") (*this).setTimeVerbose(true);
     else (*this).setTimeVerbose(false);
 }
 
-void cpmg_config::readObservationTime(string s)
+void CpmgConfig::readObservationTime(string s)
 {
     (*this).setObservationTime(std::stod(s));
 }
 
-void cpmg_config::readMethod(string s)
+void CpmgConfig::readMethod(string s)
 {
     if(s == "histogram") (*this).setMethod(s);
     else (*this).setMethod("image-based");
 }
 
-void cpmg_config::readResidualField(string s)
+void CpmgConfig::readResidualField(string s)
 {
     if(s == "uniform" or s == "import") (*this).setResidualField(s);
     else (*this).setResidualField("none");
 }
 
-void cpmg_config::readGradientValue(string s)
+void CpmgConfig::readGradientValue(string s)
 {
     (*this).setGradientValue(std::stod(s));
 }
 
-void cpmg_config::readGradientDirection(string s)
+void CpmgConfig::readGradientDirection(string s)
 {
     if(s == "0" or s == "x")  (*this).setGradientDirection(0);
     else if(s == "1" or s == "y") (*this).setGradientDirection(1);
     else (*this).setGradientDirection(2);
 }
 
-void cpmg_config::readPathToField(string s)
+void CpmgConfig::readPathToField(string s)
 {
     if(s.length() > 2 and s.substr(0,2) == "./") (*this).setPathToField((*this).getProjectRoot() + s);
 	else (*this).setPathToField(s);
 }
 
-void cpmg_config::readMinT2(string s)
+void CpmgConfig::readMinT2(string s)
 {
     (*this).setMinT2(std::stod(s));
 }
 
-void cpmg_config::readMaxT2(string s)
+void CpmgConfig::readMaxT2(string s)
 {
     (*this).setMaxT2(std::stod(s));
 }
 
-void cpmg_config::readUseT2Logspace(string s)
+void CpmgConfig::readUseT2Logspace(string s)
 {
     if(s == "true") (*this).setUseT2Logspace(true);
     else (*this).setUseT2Logspace(false);
 }
 
-void cpmg_config::readNumT2Bins(string s)
+void CpmgConfig::readNumT2Bins(string s)
 {
     (*this).setNumT2Bins(std::stoi(s));
 }
 
-void cpmg_config::readMinLambda(string s)
+void CpmgConfig::readMinLambda(string s)
 {
     (*this).setMinLambda(std::stod(s));
 }
 
-void cpmg_config::readMaxLambda(string s)
+void CpmgConfig::readMaxLambda(string s)
 {
     (*this).setMaxLambda(std::stod(s));
 }
 
-void cpmg_config::readNumLambdas(string s)
+void CpmgConfig::readNumLambdas(string s)
 {   
     (*this).setNumLambdas(std::stoi(s));
 }
 
-void cpmg_config::readPruneNum(string s)
+void CpmgConfig::readPruneNum(string s)
 {
     (*this).setPruneNum(std::stoi(s));
 }
 
-void cpmg_config::readNoiseAmp(string s)
+void CpmgConfig::readNoiseAmp(string s)
 {
     (*this).setNoiseAmp(std::stod(s));
 }
 
-void cpmg_config::readSaveMode(string s)
+void CpmgConfig::readSaveMode(string s)
 {
     if(s == "true") (*this).setSaveMode(true);
     else (*this).setSaveMode(false);
 }
 
-void cpmg_config::readSaveWalkers(string s)
+void CpmgConfig::readSaveWalkers(string s)
 {
     if(s == "true") (*this).setSaveWalkers(true);
     else (*this).setSaveWalkers(false);
 }
 
-void cpmg_config::readSaveDecay(string s)
+void CpmgConfig::readSaveDecay(string s)
 {
     if(s == "true") (*this).setSaveDecay(true);
     else (*this).setSaveDecay(false);
 }
 
-void cpmg_config::readSaveHistogram(string s)
+void CpmgConfig::readSaveHistogram(string s)
 {
     if(s == "true") (*this).setSaveHistogram(true);
     else (*this).setSaveHistogram(false);
 }
 
-void cpmg_config::readSaveHistogramList(string s)
+void CpmgConfig::readSaveHistogramList(string s)
 {
     if(s == "true") (*this).setSaveHistogramList(true);
     else (*this).setSaveHistogramList(false);
 }
 
-void cpmg_config::readSaveT2(string s)
+void CpmgConfig::readSaveT2(string s)
 {
     if(s == "true") (*this).setSaveT2(true);
     else (*this).setSaveT2(false);

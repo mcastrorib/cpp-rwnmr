@@ -1,9 +1,9 @@
-#include "uct_config.h"
+#include "UctConfig.h"
 
 using namespace std;
 
 // default constructors
-uct_config::uct_config(const string configFile, const string croot) : BaseConfig(croot, configFile)
+UctConfig::UctConfig(const string configFile, const string croot) : BaseConfig(croot, configFile)
 {
 	(*this).setImgFilesList("Empty");
 	vector<string> IMG_FILES();
@@ -16,7 +16,7 @@ uct_config::uct_config(const string configFile, const string croot) : BaseConfig
 }
 
 //copy constructors
-uct_config::uct_config(const uct_config &otherConfig)
+UctConfig::UctConfig(const UctConfig &otherConfig)
 {
 	this->DIR_PATH = otherConfig.DIR_PATH;
     this->FILENAME = otherConfig.FILENAME;
@@ -30,7 +30,7 @@ uct_config::uct_config(const uct_config &otherConfig)
 	this->IMG_FILES = otherConfig.IMG_FILES;
 }
 
-vector<string> uct_config::checkConfig()
+vector<string> UctConfig::checkConfig()
 {
     vector<string> missingParameters;
     bool validState = true;
@@ -46,7 +46,7 @@ vector<string> uct_config::checkConfig()
 }
 
 // read config file
-void uct_config::readConfigFile(const string configFile)
+void UctConfig::readConfigFile(const string configFile)
 {
     ifstream fileObject;
     fileObject.open(configFile, ios::in);
@@ -87,53 +87,53 @@ void uct_config::readConfigFile(const string configFile)
     fileObject.close();
 }
 
-void uct_config::readDirPath(string s)
+void UctConfig::readDirPath(string s)
 {
     if(s.length() > 2 and s.substr(0,2) == "./") (*this).setDirPath((*this).getProjectRoot() + s);
 	else (*this).setDirPath(s);
 }
 
-void uct_config::readFilename(string s)
+void UctConfig::readFilename(string s)
 {
 	this->FILENAME = s;
 }
 
-void uct_config::readFirstIdx(string s)
+void UctConfig::readFirstIdx(string s)
 {
 	this->FIRST_IDX = std::stoi(s);
 }
 
-void uct_config::readDigits(string s)
+void UctConfig::readDigits(string s)
 {
 	this->DIGITS = std::stoi(s);
 }
 
-void uct_config::readExtension(string s)
+void UctConfig::readExtension(string s)
 {
 	this->EXTENSION = s;
 }
 
-void uct_config::readSlices(string s)
+void UctConfig::readSlices(string s)
 {
 	this->SLICES = std::stoi(s);
 }
 
-void uct_config::readResolution(string s)
+void UctConfig::readResolution(string s)
 {
 	this->RESOLUTION = std::stod(s);
 }
 
-void uct_config::readVoxelDivision(string s)
+void UctConfig::readVoxelDivision(string s)
 {
 	this->VOXEL_DIVISION = std::stoi(s);
 }
 
-void uct_config::readImgFilesList(string s)
+void UctConfig::readImgFilesList(string s)
 {
 	this->IMG_FILES_LIST = s;
 }
 
-void uct_config::readImgFiles()
+void UctConfig::readImgFiles()
 {
 	const string filepath = (*this).getImgFilesList();
 	
@@ -162,7 +162,7 @@ void uct_config::readImgFiles()
     fileObject.close();
 }
 
-void uct_config::createImgFileList()
+void UctConfig::createImgFileList()
 {
     string dirpath = (*this).getProjectRoot() + CONFIG_ROOT;
 	string filepath = dirpath + ".ImagesList.txt";

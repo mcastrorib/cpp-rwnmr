@@ -1,9 +1,9 @@
-#include "rwnmr_config.h"
+#include "RwnmrConfig.h"
 
 using namespace std;
 
 // default constructors
-rwnmr_config::rwnmr_config(const string configFile, const string croot) : BaseConfig(croot, configFile), WALKER_SAMPLES(1)
+RwnmrConfig::RwnmrConfig(const string configFile, const string croot) : BaseConfig(croot, configFile), WALKER_SAMPLES(1)
 {
 	vector<double> RHO();
 	string defaultFile = (*this).getProjectRoot() + RWNMR_CONFIG_DEFAULT;
@@ -12,7 +12,7 @@ rwnmr_config::rwnmr_config(const string configFile, const string croot) : BaseCo
 }
 
 //copy constructors
-rwnmr_config::rwnmr_config(const rwnmr_config &otherConfig)
+RwnmrConfig::RwnmrConfig(const RwnmrConfig &otherConfig)
 {
     this->NAME = otherConfig.NAME;
     this->WALKERS = otherConfig.WALKERS;
@@ -53,7 +53,7 @@ rwnmr_config::rwnmr_config(const rwnmr_config &otherConfig)
 }
 
 // read config file
-void rwnmr_config::readConfigFile(const string configFile)
+void RwnmrConfig::readConfigFile(const string configFile)
 {
     ifstream fileObject;
     fileObject.open(configFile, ios::in);
@@ -112,39 +112,39 @@ void rwnmr_config::readConfigFile(const string configFile)
     fileObject.close();
 }
 
-void rwnmr_config::readName(string s)
+void RwnmrConfig::readName(string s)
 {
 	this->NAME = s;
 }
 
-void rwnmr_config::readWalkers(string s)
+void RwnmrConfig::readWalkers(string s)
 {
 	this->WALKERS = std::stoi(s);
 }
 
-void rwnmr_config::readWalkerSamples(string s)
+void RwnmrConfig::readWalkerSamples(string s)
 {
 	this->WALKER_SAMPLES = std::stoi(s);
 }
 
-void rwnmr_config::readWalkersPlacement(string s)
+void RwnmrConfig::readWalkersPlacement(string s)
 {
 	this->WALKERS_PLACEMENT = s;
 }
 
-void rwnmr_config::readPlacementDeviation(string s)
+void RwnmrConfig::readPlacementDeviation(string s)
 {
 	this->PLACEMENT_DEVIATION = std::stoi(s);
 }
 
-void rwnmr_config::readRhoType(string s)
+void RwnmrConfig::readRhoType(string s)
 {
 	if(s == "uniform") this->RHO_TYPE = "uniform";
 	else if(s == "sigmoid") this->RHO_TYPE = "sigmoid";
 	else this->RHO_TYPE = "undefined";
 }
 
-void rwnmr_config::readRho(string s) // vector?
+void RwnmrConfig::readRho(string s) // vector?
 {
 		// parse vector
 		if(s.compare(0, 1, "{") == 0 and s.compare(s.length() - 1, 1, "}") == 0)
@@ -170,38 +170,38 @@ void rwnmr_config::readRho(string s) // vector?
 		}		
 }
 
-void rwnmr_config::readGiromagneticRatio(string s)
+void RwnmrConfig::readGiromagneticRatio(string s)
 {
 	this->GIROMAGNETIC_RATIO = std::stod(s);
 }
 
-void rwnmr_config::readGiromagneticUnit(string s)
+void RwnmrConfig::readGiromagneticUnit(string s)
 {
 	if(s == "MHertz" or s == "mhertz") this->GIROMAGNETIC_UNIT = "mhertz";
 	else this->GIROMAGNETIC_UNIT = "rad";
 }
 
-void rwnmr_config::readD0(string s)
+void RwnmrConfig::readD0(string s)
 {
 	this->D0 = std::stod(s);
 }
 
-void rwnmr_config::readBulkTime(string s)
+void RwnmrConfig::readBulkTime(string s)
 {
 	this->BULK_TIME = std::stod(s);
 }
 
-void rwnmr_config::readStepsPerEcho(string s)
+void RwnmrConfig::readStepsPerEcho(string s)
 {
 	this->STEPS_PER_ECHO = std::stoi(s);
 }
 
-void rwnmr_config::readSeed(string s)
+void RwnmrConfig::readSeed(string s)
 {
 	this->SEED = std::stol(s);
 }
 
-void rwnmr_config::readBC(string s)
+void RwnmrConfig::readBC(string s)
 {
 	if(s == "periodic") 
 	{
@@ -216,81 +216,81 @@ void rwnmr_config::readBC(string s)
 }
 
 // -- Saving
-void rwnmr_config::readSaveImgInfo(string s)
+void RwnmrConfig::readSaveImgInfo(string s)
 {
 	if(s == "true") this->SAVE_IMG_INFO = true;
 	else this->SAVE_IMG_INFO = false;
 }
 
-void rwnmr_config::readSaveBinImg(string s)
+void RwnmrConfig::readSaveBinImg(string s)
 {
 	if(s == "true") this->SAVE_BINIMG = true;
 	else this->SAVE_BINIMG = false;
 }
 
-void rwnmr_config::readSaveWalkers(string s)
+void RwnmrConfig::readSaveWalkers(string s)
 {
 	if(s == "true") this->SAVE_WALKERS = true;
 	else this->SAVE_WALKERS = false;
 }
 
 // Histograms
-void rwnmr_config::readHistograms(string s)
+void RwnmrConfig::readHistograms(string s)
 {
 	this->HISTOGRAMS = std::stoi(s);
 }
 
-void rwnmr_config::readHistogramSize(string s)
+void RwnmrConfig::readHistogramSize(string s)
 {
 	this->HISTOGRAM_SIZE = std::stoi(s);
 }
 
-void rwnmr_config::readHistogramScale(string s)
+void RwnmrConfig::readHistogramScale(string s)
 {
 	if(s == "log") this->HISTOGRAM_SCALE = "log";
 	else this->HISTOGRAM_SCALE = "linear";
 }
 
 // -- OpenMP
-void rwnmr_config::readOpenMPUsage(string s)
+void RwnmrConfig::readOpenMPUsage(string s)
 {
 	if(s == "true") this->OPENMP_USAGE = true;
 	else this->OPENMP_USAGE = false;
 }
 
-void rwnmr_config::readOpenMPThreads(string s)
+void RwnmrConfig::readOpenMPThreads(string s)
 {
 	this->OPENMP_THREADS = std::stoi(s);
 }
 
 // -- CUDA/GPU Params
-void rwnmr_config::readGPUUsage(string s)
+void RwnmrConfig::readGPUUsage(string s)
 {
 	if(s == "true") this->GPU_USAGE = true;
 	else this->GPU_USAGE = false;
 }
 
-void rwnmr_config::readBlocks(string s)
+void RwnmrConfig::readBlocks(string s)
 {
 	this->BLOCKS = std::stoi(s);
 }
 
-void rwnmr_config::readThreadsPerBlock(string s)
+void RwnmrConfig::readThreadsPerBlock(string s)
 {
 	this->THREADSPERBLOCK = std::stoi(s);
 }
 
-void rwnmr_config::readEchoesPerKernel(string s)
+void RwnmrConfig::readEchoesPerKernel(string s)
 {
 	this->ECHOESPERKERNEL = std::stoi(s);
 }
 
-void rwnmr_config::readMaxRWSteps(string s)
+void RwnmrConfig::readMaxRWSteps(string s)
 {
 	this->MAX_RWSTEPS = std::stoi(s);
 }
 
-void rwnmr_config::readReduceInGPU(string s)
+void RwnmrConfig::readReduceInGPU(string s)
 {
 	if(s == "true") this->REDUCE_IN_GPU = true;
 	else this->REDUCE_IN_GPU = false;

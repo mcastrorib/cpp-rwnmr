@@ -1,58 +1,58 @@
-#include "cpmg_configTest.h"
+#include "CpmgConfigTest.h"
 
-cpmg_configTest::cpmg_configTest(string proot) : TestSuite(proot), config(NULL)
+CpmgConfigTest::CpmgConfigTest(string proot) : TestSuite(proot), config(NULL)
 {
 	// add test cases to suite vector
-	(*this).addTest(&cpmg_configTest::readConfigFileTest);
-	(*this).addTest(&cpmg_configTest::checkConfigTest_True);
-	(*this).addTest(&cpmg_configTest::checkConfigTest_False);
-	(*this).addTest(&cpmg_configTest::readApplyBulkTest_True);
-	(*this).addTest(&cpmg_configTest::readApplyBulkTest_False);
-	(*this).addTest(&cpmg_configTest::readApplyBulkTest_Unknown);
-	(*this).addTest(&cpmg_configTest::readTimeVerboseTest);
-	(*this).addTest(&cpmg_configTest::readApplyBulkTest_Unknown);		
-	(*this).addTest(&cpmg_configTest::readObservationTimeTest);
-	(*this).addTest(&cpmg_configTest::readMethodTest_ImageBased);
-	(*this).addTest(&cpmg_configTest::readMethodTest_Histogram);
-	(*this).addTest(&cpmg_configTest::readMethodTest_Unknown);
-	(*this).addTest(&cpmg_configTest::readResidualFieldTest_None);
-	(*this).addTest(&cpmg_configTest::readResidualFieldTest_Uniform);
-	(*this).addTest(&cpmg_configTest::readResidualFieldTest_Import);
-	(*this).addTest(&cpmg_configTest::readResidualFieldTest_Unknown);
-	(*this).addTest(&cpmg_configTest::readGradientValueTest);
-	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_0);
-	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_1);
-	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_2);
-	(*this).addTest(&cpmg_configTest::readGradientDirectionTest_Unknown);
-	(*this).addTest(&cpmg_configTest::readPathToFieldTest_AbsolutePath);
-	(*this).addTest(&cpmg_configTest::readPathToFieldTest_RelativePath);
-	(*this).addTest(&cpmg_configTest::readMinT2Test);
-	(*this).addTest(&cpmg_configTest::readMaxT2Test);
-	(*this).addTest(&cpmg_configTest::readUseT2LogspaceTest_True);
-	(*this).addTest(&cpmg_configTest::readUseT2LogspaceTest_False);
-	(*this).addTest(&cpmg_configTest::readUseT2LogspaceTest_Unknown);
-	(*this).addTest(&cpmg_configTest::readNumT2BinsTest);
-	(*this).addTest(&cpmg_configTest::readMinLambdaTest);
-	(*this).addTest(&cpmg_configTest::readMaxLambdaTest);
-	(*this).addTest(&cpmg_configTest::readNumLambdasTest);
-	(*this).addTest(&cpmg_configTest::readPruneNumTest);
-	(*this).addTest(&cpmg_configTest::readNoiseAmpTest); 
-	(*this).addTest(&cpmg_configTest::readSaveModeTest_True);
-	(*this).addTest(&cpmg_configTest::readSaveModeTest_False);
-	(*this).addTest(&cpmg_configTest::readSaveModeTest_Unknown);
-	(*this).addTest(&cpmg_configTest::readSaveWalkersTest_True);
-	(*this).addTest(&cpmg_configTest::readSaveWalkersTest_False);
-	(*this).addTest(&cpmg_configTest::readSaveWalkersTest_Unknown);
-	(*this).addTest(&cpmg_configTest::readSaveDecayTest_True);
-	(*this).addTest(&cpmg_configTest::readSaveDecayTest_False);
-	(*this).addTest(&cpmg_configTest::readSaveHistogramTest_True);
-	(*this).addTest(&cpmg_configTest::readSaveHistogramTest_False);
-	(*this).addTest(&cpmg_configTest::readSaveHistogramListTest_True);
-	(*this).addTest(&cpmg_configTest::readSaveT2Test_True);
-	(*this).addTest(&cpmg_configTest::readSaveT2Test_False);	
+	(*this).addTest(&CpmgConfigTest::readConfigFileTest);
+	(*this).addTest(&CpmgConfigTest::checkConfigTest_True);
+	(*this).addTest(&CpmgConfigTest::checkConfigTest_False);
+	(*this).addTest(&CpmgConfigTest::readApplyBulkTest_True);
+	(*this).addTest(&CpmgConfigTest::readApplyBulkTest_False);
+	(*this).addTest(&CpmgConfigTest::readApplyBulkTest_Unknown);
+	(*this).addTest(&CpmgConfigTest::readTimeVerboseTest);
+	(*this).addTest(&CpmgConfigTest::readApplyBulkTest_Unknown);		
+	(*this).addTest(&CpmgConfigTest::readObservationTimeTest);
+	(*this).addTest(&CpmgConfigTest::readMethodTest_ImageBased);
+	(*this).addTest(&CpmgConfigTest::readMethodTest_Histogram);
+	(*this).addTest(&CpmgConfigTest::readMethodTest_Unknown);
+	(*this).addTest(&CpmgConfigTest::readResidualFieldTest_None);
+	(*this).addTest(&CpmgConfigTest::readResidualFieldTest_Uniform);
+	(*this).addTest(&CpmgConfigTest::readResidualFieldTest_Import);
+	(*this).addTest(&CpmgConfigTest::readResidualFieldTest_Unknown);
+	(*this).addTest(&CpmgConfigTest::readGradientValueTest);
+	(*this).addTest(&CpmgConfigTest::readGradientDirectionTest_0);
+	(*this).addTest(&CpmgConfigTest::readGradientDirectionTest_1);
+	(*this).addTest(&CpmgConfigTest::readGradientDirectionTest_2);
+	(*this).addTest(&CpmgConfigTest::readGradientDirectionTest_Unknown);
+	(*this).addTest(&CpmgConfigTest::readPathToFieldTest_AbsolutePath);
+	(*this).addTest(&CpmgConfigTest::readPathToFieldTest_RelativePath);
+	(*this).addTest(&CpmgConfigTest::readMinT2Test);
+	(*this).addTest(&CpmgConfigTest::readMaxT2Test);
+	(*this).addTest(&CpmgConfigTest::readUseT2LogspaceTest_True);
+	(*this).addTest(&CpmgConfigTest::readUseT2LogspaceTest_False);
+	(*this).addTest(&CpmgConfigTest::readUseT2LogspaceTest_Unknown);
+	(*this).addTest(&CpmgConfigTest::readNumT2BinsTest);
+	(*this).addTest(&CpmgConfigTest::readMinLambdaTest);
+	(*this).addTest(&CpmgConfigTest::readMaxLambdaTest);
+	(*this).addTest(&CpmgConfigTest::readNumLambdasTest);
+	(*this).addTest(&CpmgConfigTest::readPruneNumTest);
+	(*this).addTest(&CpmgConfigTest::readNoiseAmpTest); 
+	(*this).addTest(&CpmgConfigTest::readSaveModeTest_True);
+	(*this).addTest(&CpmgConfigTest::readSaveModeTest_False);
+	(*this).addTest(&CpmgConfigTest::readSaveModeTest_Unknown);
+	(*this).addTest(&CpmgConfigTest::readSaveWalkersTest_True);
+	(*this).addTest(&CpmgConfigTest::readSaveWalkersTest_False);
+	(*this).addTest(&CpmgConfigTest::readSaveWalkersTest_Unknown);
+	(*this).addTest(&CpmgConfigTest::readSaveDecayTest_True);
+	(*this).addTest(&CpmgConfigTest::readSaveDecayTest_False);
+	(*this).addTest(&CpmgConfigTest::readSaveHistogramTest_True);
+	(*this).addTest(&CpmgConfigTest::readSaveHistogramTest_False);
+	(*this).addTest(&CpmgConfigTest::readSaveHistogramListTest_True);
+	(*this).addTest(&CpmgConfigTest::readSaveT2Test_True);
+	(*this).addTest(&CpmgConfigTest::readSaveT2Test_False);	
 }
 
-vector<TestResult> cpmg_configTest::run()
+vector<TestResult> CpmgConfigTest::run()
 {
 	vector<TestResult> results;
 	
@@ -66,17 +66,17 @@ vector<TestResult> cpmg_configTest::run()
 	return results;
 }
 
-TestResult cpmg_configTest::readConfigFileTest()
+TestResult CpmgConfigTest::readConfigFileTest()
 {	
 	TestResult result;
-	result.setMessage("cpmg_config::readConfigFile()");
+	result.setMessage("CpmgConfig::readConfigFile()");
 
 	string config_path = "tcpmg.config";	
 	this->config->readConfigFile((*this).getInputDir() + config_path);	
 	if(Assert::assertEquals(this->config->getMethod(), (string)"image-based") and
-	   Assert::assertEquals(this->config->getObservationTime(), (double) 1000.0) and
+	   Assert::assertEquals(this->config->getObservationTime(), (double) 500.0) and
 	   Assert::assertEquals(this->config->getApplyBulk(), (bool) false) and 
-	   Assert::assertEquals(this->config->getTimeVerbose(), (bool) false) and 
+	   Assert::assertEquals(this->config->getTimeVerbose(), (bool) false) and
 	   Assert::assertEquals(this->config->getResidualField(), (string)"uniform") and 
 	   Assert::assertEquals(this->config->getGradientValue(), (double) 1.0) and
 	   Assert::assertEquals(this->config->getGradientDirection(), (int) 2) and 
@@ -101,10 +101,10 @@ TestResult cpmg_configTest::readConfigFileTest()
 	return result;
 }
 
-TestResult cpmg_configTest::checkConfigTest_True()
+TestResult CpmgConfigTest::checkConfigTest_True()
 {	
 	TestResult result;
-	result.setMessage("cpmg_config::checkConfig(true)");
+	result.setMessage("CpmgConfig::checkConfig(true)");
 
 	string config_path = "tcpmg.config";	
 	this->config->readConfigFile((*this).getInputDir() + config_path);
@@ -120,10 +120,10 @@ TestResult cpmg_configTest::checkConfigTest_True()
 	return result;
 }
 
-TestResult cpmg_configTest::checkConfigTest_False()
+TestResult CpmgConfigTest::checkConfigTest_False()
 {	
 	TestResult result;
-	result.setMessage("cpmg_config::checkConfig(false)");
+	result.setMessage("CpmgConfig::checkConfig(false)");
 
 	string config_path = "tcpmg.config";	
 	this->config->readConfigFile((*this).getInputDir() + config_path);
@@ -154,160 +154,160 @@ TestResult cpmg_configTest::checkConfigTest_False()
 	return result;
 }
 
-TestResult cpmg_configTest::readApplyBulkTest_True()
+TestResult CpmgConfigTest::readApplyBulkTest_True()
 {
-	TestResult result("cpmg_config::readApplyBulk(true)");
+	TestResult result("CpmgConfig::readApplyBulk(true)");
 	string token = "true";
 	this->config->readApplyBulk(token);
 	result.setSuccess(Assert::assertTrue(this->config->getApplyBulk()));
 	return result;
 }
 
-TestResult cpmg_configTest::readApplyBulkTest_False()
+TestResult CpmgConfigTest::readApplyBulkTest_False()
 {
-	TestResult result("cpmg_config::readApplyBulk(false)");
+	TestResult result("CpmgConfig::readApplyBulk(false)");
 	string token = "false";
 	this->config->readApplyBulk(token);
 	result.setSuccess(Assert::assertFalse(this->config->getApplyBulk()));
 	return result;
 }
 
-TestResult cpmg_configTest::readApplyBulkTest_Unknown()
+TestResult CpmgConfigTest::readApplyBulkTest_Unknown()
 {
-	TestResult result("cpmg_config::Testing readApplyBulk(unknown)");
+	TestResult result("CpmgConfig::Testing readApplyBulk(unknown)");
 	string token = "da5s1d6";
 	this->config->readApplyBulk(token);
 	result.setSuccess(Assert::assertFalse(this->config->getApplyBulk()));
 	return result;
 }
 
-TestResult cpmg_configTest::readTimeVerboseTest()
+TestResult CpmgConfigTest::readTimeVerboseTest()
 {
-	TestResult result("cpmg_config::readApplyBulk()");
+	TestResult result("CpmgConfig::readApplyBulk()");
 	string token = "true";
 	this->config->readTimeVerbose(token);
 	result.setSuccess(Assert::assertEquals(this->config->getTimeVerbose(), (bool) true));
 	return result;
 }
 
-TestResult cpmg_configTest::cpmg_configTest::readObservationTimeTest()
+TestResult CpmgConfigTest::CpmgConfigTest::readObservationTimeTest()
 {
-	TestResult result("cpmg_config::readObservationTime()");
+	TestResult result("CpmgConfig::readObservationTime()");
 	string token = "1000.0";
 	this->config->readObservationTime(token);
 	result.setSuccess(Assert::assertEquals(this->config->getObservationTime(), (double) 1000.0));
 	return result;
 }
 
-TestResult cpmg_configTest::readMethodTest_ImageBased()
+TestResult CpmgConfigTest::readMethodTest_ImageBased()
 {
-	TestResult result("cpmg_config::readMethod(image-based)");
+	TestResult result("CpmgConfig::readMethod(image-based)");
 	string token = "image-based";
 	this->config->readMethod(token);
 	result.setSuccess(Assert::assertEquals(this->config->getMethod(), (string) "image-based"));
 	return result;
 }
 
-TestResult cpmg_configTest::readMethodTest_Histogram()
+TestResult CpmgConfigTest::readMethodTest_Histogram()
 {
-	TestResult result("cpmg_config::readMethod(histogram)");
+	TestResult result("CpmgConfig::readMethod(histogram)");
 	string token = "histogram";
 	this->config->readMethod(token);
 	result.setSuccess(Assert::assertEquals(this->config->getMethod(), (string) "histogram"));
 	return result;
 }
 
-TestResult cpmg_configTest::readMethodTest_Unknown()
+TestResult CpmgConfigTest::readMethodTest_Unknown()
 {
-	TestResult result("cpmg_config::readMethod(unknown)");
+	TestResult result("CpmgConfig::readMethod(unknown)");
 	string token = "xxx";
 	this->config->readMethod(token);
 	result.setSuccess(Assert::assertEquals(this->config->getMethod(), (string) "image-based"));
 	return result;
 }
 
-TestResult cpmg_configTest::readResidualFieldTest_None()
+TestResult CpmgConfigTest::readResidualFieldTest_None()
 {
-	TestResult result("cpmg_config::readResidualField(none)");
+	TestResult result("CpmgConfig::readResidualField(none)");
 	string token = "none";
 	this->config->readResidualField(token);
 	result.setSuccess(Assert::assertEquals(this->config->getResidualField(), (string) "none"));
 	return result;
 }
 
-TestResult cpmg_configTest::readResidualFieldTest_Uniform()
+TestResult CpmgConfigTest::readResidualFieldTest_Uniform()
 {
-	TestResult result("cpmg_config::readResidualField(uniform)");
+	TestResult result("CpmgConfig::readResidualField(uniform)");
 	string token = "uniform";
 	this->config->readResidualField(token);
 	result.setSuccess(Assert::assertEquals(this->config->getResidualField(), (string) "uniform"));
 	return result;
 }
 
-TestResult cpmg_configTest::readResidualFieldTest_Import()
+TestResult CpmgConfigTest::readResidualFieldTest_Import()
 {
-	TestResult result("cpmg_config::readResidualField(import)");
+	TestResult result("CpmgConfig::readResidualField(import)");
 	string token = "import";
 	this->config->readResidualField(token);
 	result.setSuccess(Assert::assertEquals(this->config->getResidualField(), (string) "import"));
 	return result;
 }
 
-TestResult cpmg_configTest::readResidualFieldTest_Unknown()
+TestResult CpmgConfigTest::readResidualFieldTest_Unknown()
 {
-	TestResult result("cpmg_config::readResidualField(unknown)");
+	TestResult result("CpmgConfig::readResidualField(unknown)");
 	string token = "dsasd";
 	this->config->readResidualField(token);
 	result.setSuccess(Assert::assertEquals(this->config->getResidualField(), (string) "none"));
 	return result;
 }
 
-TestResult cpmg_configTest::readGradientValueTest()
+TestResult CpmgConfigTest::readGradientValueTest()
 {
-	TestResult result("cpmg_config::readGradientValue()");
+	TestResult result("CpmgConfig::readGradientValue()");
 	string token = "1.0";
 	this->config->readGradientValue(token);
 	result.setSuccess(Assert::assertEquals(this->config->getGradientValue(), (double) 1.0));
 	return result;
 }
 
-TestResult cpmg_configTest::readGradientDirectionTest_0()
+TestResult CpmgConfigTest::readGradientDirectionTest_0()
 {
-	TestResult result("cpmg_config::readGradientDirection(0)");
+	TestResult result("CpmgConfig::readGradientDirection(0)");
 	string token = "0";
 	this->config->readGradientDirection(token);
 	result.setSuccess(Assert::assertEquals(this->config->getGradientDirection(), (int) 0));
 	return result;	
 }
 
-TestResult cpmg_configTest::readGradientDirectionTest_1()
+TestResult CpmgConfigTest::readGradientDirectionTest_1()
 {
-	TestResult result("cpmg_config::readGradientDirection(1)");
+	TestResult result("CpmgConfig::readGradientDirection(1)");
 	string token = "1";
 	this->config->readGradientDirection(token);
 	result.setSuccess(Assert::assertEquals(this->config->getGradientDirection(), (int) 1));
 	return result;
 }
 
-TestResult cpmg_configTest::readGradientDirectionTest_2()
+TestResult CpmgConfigTest::readGradientDirectionTest_2()
 {
-	TestResult result("cpmg_config::readGradientDirection(2)");
+	TestResult result("CpmgConfig::readGradientDirection(2)");
 	string token = "2";
 	this->config->readGradientDirection(token);
 	result.setSuccess(Assert::assertEquals(this->config->getGradientDirection(), (int) 2));
 	return result;	
 }
 
-TestResult cpmg_configTest::readGradientDirectionTest_Unknown()
+TestResult CpmgConfigTest::readGradientDirectionTest_Unknown()
 {
-	TestResult result("cpmg_config::readGradientDirection(Unknown)");
+	TestResult result("CpmgConfig::readGradientDirection(Unknown)");
 	string token = "xx x";
 	this->config->readGradientDirection(token);
 	result.setSuccess(Assert::assertEquals(this->config->getGradientDirection(), (int) 2));
 	return result;	
 }
 
-TestResult cpmg_configTest::readPathToFieldTest_AbsolutePath()
+TestResult CpmgConfigTest::readPathToFieldTest_AbsolutePath()
 {
 	TestResult result("uct_config::readPathToField(absolute)");
 	string token = "/this/is/my/test/absolute-path";
@@ -316,7 +316,7 @@ TestResult cpmg_configTest::readPathToFieldTest_AbsolutePath()
 	return result;
 }
 
-TestResult cpmg_configTest::readPathToFieldTest_RelativePath()
+TestResult CpmgConfigTest::readPathToFieldTest_RelativePath()
 {
 	TestResult result("uct_config::readPathToField(relative)");
 	string projRoot = "/this/is/";
@@ -328,171 +328,171 @@ TestResult cpmg_configTest::readPathToFieldTest_RelativePath()
 	return result;
 }
 
-TestResult cpmg_configTest::readMinT2Test()
+TestResult CpmgConfigTest::readMinT2Test()
 {
-	TestResult result("cpmg_config::readMinT2()");
+	TestResult result("CpmgConfig::readMinT2()");
 	string token = "0.1";
 	this->config->readMinT2(token);
 	result.setSuccess(Assert::assertEquals(this->config->getMinT2(), (double) 0.1));
 	return result;		
 }
 
-TestResult cpmg_configTest::readMaxT2Test()
+TestResult CpmgConfigTest::readMaxT2Test()
 {
-	TestResult result("cpmg_config::readMaxT2()");
+	TestResult result("CpmgConfig::readMaxT2()");
 	string token = "10";
 	this->config->readMaxT2(token);
 	result.setSuccess(Assert::assertEquals(this->config->getMaxT2(), (double) 10.0));
 	return result;			
 }
 
-TestResult cpmg_configTest::readUseT2LogspaceTest_True()
+TestResult CpmgConfigTest::readUseT2LogspaceTest_True()
 {
-	TestResult result("cpmg_config::readUseT2Logspace(true)");
+	TestResult result("CpmgConfig::readUseT2Logspace(true)");
 	string token = "true";
 	this->config->readUseT2Logspace(token);
 	result.setSuccess(Assert::assertTrue(this->config->getUseT2Logspace()));
 	return result;		
 }
 
-TestResult cpmg_configTest::readUseT2LogspaceTest_False()
+TestResult CpmgConfigTest::readUseT2LogspaceTest_False()
 {
-	TestResult result("cpmg_config::readUseT2Logspace(false)");
+	TestResult result("CpmgConfig::readUseT2Logspace(false)");
 	string token = "false";
 	this->config->readUseT2Logspace(token);
 	result.setSuccess(Assert::assertFalse(this->config->getUseT2Logspace()));
 	return result;		
 }
 
-TestResult cpmg_configTest::readUseT2LogspaceTest_Unknown()
+TestResult CpmgConfigTest::readUseT2LogspaceTest_Unknown()
 {
-	TestResult result("cpmg_config::readUseT2Logspace(true)");
+	TestResult result("CpmgConfig::readUseT2Logspace(true)");
 	string token = "nnn";
 	this->config->readUseT2Logspace(token);
 	result.setSuccess(Assert::assertFalse(this->config->getUseT2Logspace()));
 	return result;		
 }
 
-TestResult cpmg_configTest::readNumT2BinsTest()
+TestResult CpmgConfigTest::readNumT2BinsTest()
 {
-	TestResult result("cpmg_config::readNumT2Bins()");
+	TestResult result("CpmgConfig::readNumT2Bins()");
 	string token = "10";
 	this->config->readNumT2Bins(token);
 	result.setSuccess(Assert::assertEquals(this->config->getNumT2Bins(), (int) 10));
 	return result;
 }
 
-TestResult cpmg_configTest::readMinLambdaTest()
+TestResult CpmgConfigTest::readMinLambdaTest()
 {
-	TestResult result("cpmg_config::readMinLambda()");
+	TestResult result("CpmgConfig::readMinLambda()");
 	string token = "1e-3";
 	this->config->readMinLambda(token);
 	result.setSuccess(Assert::assertEquals(this->config->getMinLambda(), (double) 0.001));
 	return result;		
 }
 
-TestResult cpmg_configTest::readMaxLambdaTest()
+TestResult CpmgConfigTest::readMaxLambdaTest()
 {
-	TestResult result("cpmg_config::readMinLambda()");
+	TestResult result("CpmgConfig::readMinLambda()");
 	string token = "10";
 	this->config->readMaxLambda(token);
 	result.setSuccess(Assert::assertEquals(this->config->getMaxLambda(), (double) 1e1));
 	return result;			
 }
 
-TestResult cpmg_configTest::readNumLambdasTest()
+TestResult CpmgConfigTest::readNumLambdasTest()
 {
-	TestResult result("cpmg_config::readNumLambdas()");
+	TestResult result("CpmgConfig::readNumLambdas()");
 	string token = "256.0";
 	this->config->readNumLambdas(token);
 	result.setSuccess(Assert::assertEquals(this->config->getNumLambdas(), (int) 256));
 	return result;
 }
 
-TestResult cpmg_configTest::readPruneNumTest()
+TestResult CpmgConfigTest::readPruneNumTest()
 {
-	TestResult result("cpmg_config::readPruneNum()");
+	TestResult result("CpmgConfig::readPruneNum()");
 	string token = "111.02";
 	this->config->readPruneNum(token);
 	result.setSuccess(Assert::assertEquals(this->config->getPruneNum(), (int) 111));
 	return result;
 }
 
-TestResult cpmg_configTest::readNoiseAmpTest()
+TestResult CpmgConfigTest::readNoiseAmpTest()
 {
-	TestResult result("cpmg_config::readNoiseAmp()");
+	TestResult result("CpmgConfig::readNoiseAmp()");
 	string token = "0.05";
 	this->config->readNoiseAmp(token);
 	result.setSuccess(Assert::assertEquals(this->config->getNoiseAmp(), (double) 0.05));
 	return result;
 }
 
-TestResult cpmg_configTest::readSaveModeTest_True()
+TestResult CpmgConfigTest::readSaveModeTest_True()
 {
-	TestResult result("cpmg_config::readSaveMode(true)");
+	TestResult result("CpmgConfig::readSaveMode(true)");
 	string token = "true";
 	this->config->readSaveMode(token);
 	result.setSuccess(Assert::assertTrue(this->config->getSaveMode()));
 	return result;	
 }
 
-TestResult cpmg_configTest::readSaveModeTest_False()
+TestResult CpmgConfigTest::readSaveModeTest_False()
 {
-	TestResult result("cpmg_config::readSaveMode(false)");
+	TestResult result("CpmgConfig::readSaveMode(false)");
 	string token = "false";
 	this->config->readSaveMode(token);
 	result.setSuccess(Assert::assertFalse(this->config->getSaveMode()));
 	return result;	
 }
 
-TestResult cpmg_configTest::readSaveModeTest_Unknown()
+TestResult CpmgConfigTest::readSaveModeTest_Unknown()
 {
-	TestResult result("cpmg_config::readSaveMode(unknown)");
+	TestResult result("CpmgConfig::readSaveMode(unknown)");
 	string token = "ttt";
 	this->config->readSaveMode(token);
 	result.setSuccess(Assert::assertFalse(this->config->getSaveMode()));
 	return result;	
 }
 
-TestResult cpmg_configTest::readSaveWalkersTest_True()
+TestResult CpmgConfigTest::readSaveWalkersTest_True()
 {
-	TestResult result("cpmg_config::readSaveWalkers(true)");
+	TestResult result("CpmgConfig::readSaveWalkers(true)");
 	string token = "true";
 	this->config->readSaveWalkers(token);
 	result.setSuccess(Assert::assertTrue(this->config->getSaveWalkers()));
 	return result;
 }
 
-TestResult cpmg_configTest::readSaveWalkersTest_False()
+TestResult CpmgConfigTest::readSaveWalkersTest_False()
 {
-	TestResult result("cpmg_config::readSaveWalkers(false)");
+	TestResult result("CpmgConfig::readSaveWalkers(false)");
 	string token = "false";
 	this->config->readSaveWalkers(token);
 	result.setSuccess(Assert::assertFalse(this->config->getSaveWalkers()));
 	return result;
 }
 
-TestResult cpmg_configTest::readSaveWalkersTest_Unknown()
+TestResult CpmgConfigTest::readSaveWalkersTest_Unknown()
 {
-	TestResult result("cpmg_config::readSaveWalkers(unknown)");
+	TestResult result("CpmgConfig::readSaveWalkers(unknown)");
 	string token = "bbb";
 	this->config->readSaveWalkers(token);
 	result.setSuccess(Assert::assertFalse(this->config->getSaveWalkers()));
 	return result;
 }
 
-TestResult cpmg_configTest::readSaveDecayTest_True()
+TestResult CpmgConfigTest::readSaveDecayTest_True()
 {
-	TestResult result("cpmg_config::readSaveDecay(true)");
+	TestResult result("CpmgConfig::readSaveDecay(true)");
 	string token = "true";
 	this->config->readSaveDecay(token);
 	result.setSuccess(Assert::assertTrue(this->config->getSaveDecay()));
 	return result;
 }
 
-TestResult cpmg_configTest::readSaveDecayTest_False()
+TestResult CpmgConfigTest::readSaveDecayTest_False()
 {
-	TestResult result("cpmg_config::readSaveDecay(false)");
+	TestResult result("CpmgConfig::readSaveDecay(false)");
 	string token = "das";
 	this->config->readSaveDecay(token);
 	result.setSuccess(Assert::assertFalse(this->config->getSaveDecay()));
@@ -500,45 +500,45 @@ TestResult cpmg_configTest::readSaveDecayTest_False()
 }
 
 
-TestResult cpmg_configTest::readSaveHistogramTest_True()
+TestResult CpmgConfigTest::readSaveHistogramTest_True()
 {
-	TestResult result("cpmg_config::readSaveHistogram(true)");
+	TestResult result("CpmgConfig::readSaveHistogram(true)");
 	string token = "true";
 	this->config->readSaveHistogram(token);
 	result.setSuccess(Assert::assertTrue(this->config->getSaveHistogram()));
 	return result;
 }
 
-TestResult cpmg_configTest::readSaveHistogramTest_False()
+TestResult CpmgConfigTest::readSaveHistogramTest_False()
 {
-	TestResult result("cpmg_config::readSaveHistogram(false)");
+	TestResult result("CpmgConfig::readSaveHistogram(false)");
 	string token = "FFF";
 	this->config->readSaveHistogram(token);
 	result.setSuccess(Assert::assertFalse(this->config->getSaveHistogram()));
 	return result;
 }
 
-TestResult cpmg_configTest::readSaveHistogramListTest_True()
+TestResult CpmgConfigTest::readSaveHistogramListTest_True()
 {
-	TestResult result("cpmg_config::readSaveHistogramList(true)");
+	TestResult result("CpmgConfig::readSaveHistogramList(true)");
 	string token = "true";
 	this->config->readSaveHistogramList(token);
 	result.setSuccess(Assert::assertTrue(this->config->getSaveHistogramList()));
 	return result;
 }   
 
-TestResult cpmg_configTest::readSaveT2Test_True()
+TestResult CpmgConfigTest::readSaveT2Test_True()
 {
-	TestResult result("cpmg_config::readSaveT2(true)");
+	TestResult result("CpmgConfig::readSaveT2(true)");
 	string token = "true";
 	this->config->readSaveT2(token);
 	result.setSuccess(Assert::assertTrue(this->config->getSaveT2()));
 	return result;
 }
 
-TestResult cpmg_configTest::readSaveT2Test_False()
+TestResult CpmgConfigTest::readSaveT2Test_False()
 {
-	TestResult result("cpmg_config::readSaveHistogram(true)");
+	TestResult result("CpmgConfig::readSaveHistogram(true)");
 	string token = "jae";
 	this->config->readSaveT2(token);
 	result.setSuccess(Assert::assertFalse(this->config->getSaveT2()));

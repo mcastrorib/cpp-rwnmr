@@ -6,7 +6,7 @@
 
 using namespace std;
 
-class uct_config : public BaseConfig
+class UctConfig : public BaseConfig
 {
 private:
     string DIR_PATH;
@@ -23,14 +23,14 @@ private:
 
 public:
     // default constructors
-    uct_config():BaseConfig(){};
-    uct_config(const string configFile, const string croot);
+    UctConfig():BaseConfig(){};
+    UctConfig(const string configFile, const string croot);
 
     //copy constructors
-    uct_config(const uct_config &otherConfig);
+    UctConfig(const UctConfig &otherConfig);
 
     // default destructor
-    virtual ~uct_config()
+    virtual ~UctConfig()
     {
         // cout << "OMPLoopEnabler object destroyed succesfully" << endl;
     } 

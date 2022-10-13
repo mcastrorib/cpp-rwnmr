@@ -1,9 +1,9 @@
-#include "multitau_config.h"
+#include "MultitauConfig.h"
 
 using namespace std;
 
 // default constructors
-multitau_config::multitau_config(const string configFile, const string croot) : BaseConfig(croot,configFile)
+MultitauConfig::MultitauConfig(const string configFile, const string croot) : BaseConfig(croot,configFile)
 {
     vector<double> TAU_VALUES();
     string defaultFile = (*this).getProjectRoot() + MULTITAU_CONFIG_DEFAULT;
@@ -12,7 +12,7 @@ multitau_config::multitau_config(const string configFile, const string croot) : 
 }
 
 //copy constructors
-multitau_config::multitau_config(const multitau_config &otherConfig) 
+MultitauConfig::MultitauConfig(const MultitauConfig &otherConfig) 
 {
     // --- Physical attributes.
     this->TAU_MIN = otherConfig.TAU_MIN;
@@ -31,7 +31,7 @@ multitau_config::multitau_config(const multitau_config &otherConfig)
 }
 
 // read config file
-void multitau_config::readConfigFile(const string configFile)
+void MultitauConfig::readConfigFile(const string configFile)
 {
 	ifstream fileObject;
     fileObject.open(configFile, ios::in);
@@ -76,22 +76,22 @@ void multitau_config::readConfigFile(const string configFile)
     fileObject.close();
 }
 
-void multitau_config::readTauMin(string s)
+void MultitauConfig::readTauMin(string s)
 {
 	this->TAU_MIN = std::stod(s);
 }
 
-void multitau_config::readTauMax(string s)
+void MultitauConfig::readTauMax(string s)
 {
     this->TAU_MAX = std::stod(s);
 }
 
-void multitau_config::readTauPoints(string s)
+void MultitauConfig::readTauPoints(string s)
 {
     this->TAU_POINTS = std::stoi(s);
 }
 
-void multitau_config::readTauValues(string s)
+void MultitauConfig::readTauValues(string s)
 {
     if(this->TAU_VALUES.size() > 0) this->TAU_VALUES.clear();
 
@@ -118,44 +118,44 @@ void multitau_config::readTauValues(string s)
     std::sort(this->TAU_VALUES.begin(), this->TAU_VALUES.end());
 }
 
-void multitau_config::readTauScale(string s)
+void MultitauConfig::readTauScale(string s)
 {
     if(s == "log") this->TAU_SCALE = s;
     else if(s == "linear") this->TAU_SCALE = "linear";
     else this->TAU_SCALE = "manual";
 }
 
-void multitau_config::readCompleteDecay(string s)
+void MultitauConfig::readCompleteDecay(string s)
 {
     if(s == "true" or s == "True" or s == "TRUE") this->COMPLETE_DECAY = true;
     else this->COMPLETE_DECAY = false;
 }
 
-void multitau_config::readSaveMode(string s)
+void MultitauConfig::readSaveMode(string s)
 {
     if(s == "true") this->SAVE_MODE = true;
     else this->SAVE_MODE = false;
 }
 
-void multitau_config::readSaveWalkers(string s)
+void MultitauConfig::readSaveWalkers(string s)
 {
     if(s == "true") this->SAVE_WALKERS = true;
     else this->SAVE_WALKERS = false;
 }
 
-void multitau_config::readSaveDecay(string s)
+void MultitauConfig::readSaveDecay(string s)
 {
     if(s == "true") this->SAVE_DECAY = true;
     else this->SAVE_DECAY = false;
 }
 
-void multitau_config::readSaveHistogram(string s)
+void MultitauConfig::readSaveHistogram(string s)
 {
     if(s == "true") this->SAVE_HISTOGRAM = true;
     else this->SAVE_HISTOGRAM = false;
 }
 
-void multitau_config::readSaveHistogramList(string s)
+void MultitauConfig::readSaveHistogramList(string s)
 {
     if(s == "true") this->SAVE_HISTOGRAM_LIST = true;
     else this->SAVE_HISTOGRAM_LIST = false;

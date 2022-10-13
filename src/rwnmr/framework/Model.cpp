@@ -2,8 +2,8 @@
 
 std::mt19937 Model::_rng;
 
-Model::Model(rwnmr_config _rwNMR_config, 
-                               uct_config _uCT_config,
+Model::Model(RwnmrConfig _rwNMR_config, 
+                               UctConfig _uCT_config,
                                string _project_root) :   rwNMR_config(_rwNMR_config),
                                                          uCT_config(_uCT_config),
                                                          simulationSteps(0),

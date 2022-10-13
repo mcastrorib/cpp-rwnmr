@@ -910,7 +910,7 @@ void NMR_cpmg::image_simulation_cuda()
     double reduce_time = 0.0;
     
     double tick = omp_get_wtime();
-    if(this->model.getRWNMRConfig().getOpenMPUsage())
+    if(this->model.getRwnmrConfig().getOpenMPUsage())
     {
         // set omp variables for parallel loop throughout walker list
         const int num_cpu_threads = omp_get_max_threads();
@@ -971,7 +971,7 @@ void NMR_cpmg::image_simulation_cuda()
 
     uint numberOfEchoes = this->model.getNumberOfEchoes();
     uint stepsPerEcho = this->model.getStepsPerEcho();
-    uint echoesPerKernel = this->model.getRWNMRConfig().getEchoesPerKernel();
+    uint echoesPerKernel = this->model.getRwnmrConfig().getEchoesPerKernel();
     uint kernelCalls = (uint) ceil(numberOfEchoes / (double) echoesPerKernel);
 
 
@@ -983,8 +983,8 @@ void NMR_cpmg::image_simulation_cuda()
     double gamma = 1.0e+06 * this->model.getGiromagneticRatio();
     
     // define parameters for CUDA kernel launch: blockDim, gridDim etc
-    uint threadsPerBlock = this->model.getRWNMRConfig().getThreadsPerBlock();
-    uint blocksPerKernel = this->model.getRWNMRConfig().getBlocks();
+    uint threadsPerBlock = this->model.getRwnmrConfig().getThreadsPerBlock();
+    uint blocksPerKernel = this->model.getRwnmrConfig().getBlocks();
     uint walkersPerKernel = threadsPerBlock * blocksPerKernel;
 
     // treat case when only one kernel is needed
@@ -1086,7 +1086,7 @@ void NMR_cpmg::image_simulation_cuda()
         // Host data copy
         // copy original walkers' data to temporary host arrays
         tick = omp_get_wtime();
-        if(this->model.getRWNMRConfig().getOpenMPUsage())
+        if(this->model.getRwnmrConfig().getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -1334,7 +1334,7 @@ void NMR_cpmg::image_simulation_cuda()
             copy_time = omp_get_wtime() - tick;
 
             tick = omp_get_wtime();
-            if(this->model.getRWNMRConfig().getOpenMPUsage())
+            if(this->model.getRwnmrConfig().getOpenMPUsage())
             {
                 // set omp variables for parallel loop throughout walker list
                 const int num_cpu_threads = omp_get_max_threads();
@@ -1377,7 +1377,7 @@ void NMR_cpmg::image_simulation_cuda()
         // Host data copy
         // copy original walkers' data to temporary host arrays
         tick = omp_get_wtime();
-        if(this->model.getRWNMRConfig().getOpenMPUsage())
+        if(this->model.getRwnmrConfig().getOpenMPUsage())
         {
             // set omp variables for parallel loop throughout walker list
             const int num_cpu_threads = omp_get_max_threads();
@@ -1638,7 +1638,7 @@ void NMR_cpmg::image_simulation_cuda()
             copy_time += omp_get_wtime() - tick;
 
             tick = omp_get_wtime();
-            if(this->model.getRWNMRConfig().getOpenMPUsage())
+            if(this->model.getRwnmrConfig().getOpenMPUsage())
             {
                 // set omp variables for parallel loop throughout walker list
                 const int num_cpu_threads = omp_get_max_threads();

@@ -2,11 +2,11 @@
 #define CONFIGFILES_TEST_H_
 
 #include "Includes.h"
-#include "rwnmr_configTest.h"
-#include "uct_configTest.h"
-#include "cpmg_configTest.h"
-#include "pfgse_configTest.h"
-#include "multitau_configTest.h"
+#include "RwnmrConfigTest.h"
+#include "UctConfigTest.h"
+#include "CpmgConfigTest.h"
+#include "PfgseConfigTest.h"
+#include "MultitauConfigTest.h"
 
 // class ConfigFilesTest
 // {

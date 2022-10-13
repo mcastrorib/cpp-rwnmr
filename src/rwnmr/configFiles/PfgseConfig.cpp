@@ -1,9 +1,9 @@
-#include "pfgse_config.h"
+#include "PfgseConfig.h"
 
 using namespace std;
 
 // default constructors
-pfgse_config::pfgse_config(const string configFile, const string croot) : BaseConfig(croot, configFile), THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0)
+PfgseConfig::PfgseConfig(const string configFile, const string croot) : BaseConfig(croot, configFile), THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0)
 {
     vector<double> TIME_VALUES();
     string defaultFile = (*this).getProjectRoot() + PFGSE_CONFIG_DEFAULT;
@@ -13,7 +13,7 @@ pfgse_config::pfgse_config(const string configFile, const string croot) : BaseCo
 }
 
 //copy constructors
-pfgse_config::pfgse_config(const pfgse_config &otherConfig)
+PfgseConfig::PfgseConfig(const PfgseConfig &otherConfig)
 {
     // --- Physical attributes.
     this->PULSE_WIDTH = otherConfig.PULSE_WIDTH;
@@ -51,7 +51,7 @@ pfgse_config::pfgse_config(const pfgse_config &otherConfig)
 }
 
 // read config file
-void pfgse_config::readConfigFile(const string configFile)
+void PfgseConfig::readConfigFile(const string configFile)
 {
     ifstream fileObject;
     fileObject.open(configFile, ios::in);
@@ -105,18 +105,18 @@ void pfgse_config::readConfigFile(const string configFile)
     fileObject.close();
 }
 
-void pfgse_config::readApplyBulk(string s)
+void PfgseConfig::readApplyBulk(string s)
 {
     if(s == "true") this->APPLY_BULK = true;
     else this->APPLY_BULK = false;
 }
 
-void pfgse_config::readPulseWidth(string s)
+void PfgseConfig::readPulseWidth(string s)
 {
 	this->PULSE_WIDTH = std::stod(s);
 }
 
-void pfgse_config::readMaxGradient(string s)
+void PfgseConfig::readMaxGradient(string s)
 {
     vector<double> buffer;
     if(s.compare(0, 1, "{") == 0 and s.compare(s.length() - 1, 1, "}") == 0)
@@ -146,22 +146,22 @@ void pfgse_config::readMaxGradient(string s)
     }
 }
 
-void pfgse_config::readGradientSamples(string s)
+void PfgseConfig::readGradientSamples(string s)
 {
     this->GRADIENT_SAMPLES = std::stoi(s);
 }
 
-void pfgse_config::readTimeSequence(string s)
+void PfgseConfig::readTimeSequence(string s)
 {
     this->TIME_SEQ = s;
 }
 
-void pfgse_config::readTimeSamples(string s)
+void PfgseConfig::readTimeSamples(string s)
 {
     this->TIME_SAMPLES = std::stoi(s);
 }
 
-void pfgse_config::readTimeValues(string s)
+void PfgseConfig::readTimeValues(string s)
 {
     if(this->TIME_VALUES.size() > 0) this->TIME_VALUES.clear();
     if(this->TIME_SEQ == "manual")
@@ -188,7 +188,7 @@ void pfgse_config::readTimeValues(string s)
     } 
 }
 
-void pfgse_config::createTimeSamples()
+void PfgseConfig::createTimeSamples()
 {
     if(this->TIME_SEQ == "log")
     {
@@ -212,98 +212,98 @@ void pfgse_config::createTimeSamples()
 }
 
 
-void pfgse_config::readTimeMin(string s)
+void PfgseConfig::readTimeMin(string s)
 {
     this->TIME_MIN = std::stod(s);
 }
 
-void pfgse_config::readTimeMax(string s)
+void PfgseConfig::readTimeMax(string s)
 {
     this->TIME_MAX = std::stod(s);
 }
 
-void pfgse_config::readApplyScaleFactor(string s)
+void PfgseConfig::readApplyScaleFactor(string s)
 {
     if(s == "true") this->APPLY_SCALE_FACTOR = true;
     else this->APPLY_SCALE_FACTOR = false;
 }
 
-void pfgse_config::readInspectionLength(string s)
+void PfgseConfig::readInspectionLength(string s)
 {
     this->INSPECTION_LENGTH = std::stod(s);
 }
 
-void pfgse_config::readNoiseAmp(string s)
+void PfgseConfig::readNoiseAmp(string s)
 {
     double amp = std::stod(s);
     if(amp > 0.0) this->NOISE_AMP = amp;
 }
 
-void pfgse_config::readTargetSNR(string s)
+void PfgseConfig::readTargetSNR(string s)
 {
     double snr = std::stod(s);
     if(snr > 0.0) this->TARGET_SNR = snr;
 }
 
-void pfgse_config::readThresholdType(string s)
+void PfgseConfig::readThresholdType(string s)
 {
     this->THRESHOLD_TYPE = s;
 }
 
-void pfgse_config::readThresholdValue(string s)
+void PfgseConfig::readThresholdValue(string s)
 {
     this->THRESHOLD_VALUE = std::stod(s);
 }
 
-void pfgse_config::readThresholdWindow(string s)
+void PfgseConfig::readThresholdWindow(string s)
 {
     this->THRESHOLD_WINDOW = std::stoi(s);
 }
 
-void pfgse_config::readAllowWalkerSampling(string s)
+void PfgseConfig::readAllowWalkerSampling(string s)
 {
     if(s == "true") this->ALLOW_WALKER_SAMPLING = true;
     else this->ALLOW_WALKER_SAMPLING = false;
 }
 
-void pfgse_config::readApplyAbsorption(string s)
+void PfgseConfig::readApplyAbsorption(string s)
 {
     if(s == "true") this->APPLY_ABSORPTION = true;
     else this->APPLY_ABSORPTION = false;
 }
 
-void pfgse_config::readSaveMode(string s)
+void PfgseConfig::readSaveMode(string s)
 {
     if(s == "true") this->SAVE_MODE = true;
     else this->SAVE_MODE = false;
 }
 
-void pfgse_config::readSavePFGSE(string s)
+void PfgseConfig::readSavePFGSE(string s)
 {
     if(s == "true") this->SAVE_PFGSE = true;
     else this->SAVE_PFGSE = false;
 }
 
-void pfgse_config::readSaveWalkers(string s)
+void PfgseConfig::readSaveWalkers(string s)
 {
     if(s == "true") this->SAVE_WALKERS = true;
     else this->SAVE_WALKERS = false;
 }
 
-void pfgse_config::readSaveHistogram(string s)
+void PfgseConfig::readSaveHistogram(string s)
 {
     if(s == "true") this->SAVE_HISTOGRAM = true;
     else this->SAVE_HISTOGRAM = false;
 }
 
-void pfgse_config::readSaveHistogramList(string s)
+void PfgseConfig::readSaveHistogramList(string s)
 {
     if(s == "true") this->SAVE_HISTOGRAM_LIST = true;
     else this->SAVE_HISTOGRAM_LIST = false;
 }
 
 // Returns a vector<double> linearly space from @start to @end with @points
-vector<double> pfgse_config::linspace(double start, double end, uint points)
+vector<double> PfgseConfig::linspace(double start, double end, uint points)
 {
     vector<double> vec(points);
     double step = (end - start) / ((double) points - 1.0);
@@ -318,7 +318,7 @@ vector<double> pfgse_config::linspace(double start, double end, uint points)
 }
 
 // Returns a vector<double> logarithmly space from 10^@exp_start to 10^@end with @points
-vector<double> pfgse_config::logspace(double exp_start, double exp_end, uint points, double base)
+vector<double> PfgseConfig::logspace(double exp_start, double exp_end, uint points, double base)
 {
     vector<double> vec(points);
     double step = (exp_end - exp_start) / ((double) points - 1.0);

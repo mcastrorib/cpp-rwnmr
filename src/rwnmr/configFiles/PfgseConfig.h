@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class pfgse_config : public BaseConfig
+class PfgseConfig : public BaseConfig
 {
 private:
     // --- Physical attributes.
@@ -46,14 +46,14 @@ private:
 
 public:
     // default constructors
-    pfgse_config():BaseConfig(),THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0){};
-    pfgse_config(const string configFile, const string croot);
+    PfgseConfig():BaseConfig(),THRESHOLD_WINDOW(1), NOISE_AMP(0.0), TARGET_SNR(-1.0){};
+    PfgseConfig(const string configFile, const string croot);
 
     //copy constructors
-    pfgse_config(const pfgse_config &otherConfig);
+    PfgseConfig(const PfgseConfig &otherConfig);
 
     // default destructor
-    virtual ~pfgse_config(){} 
+    virtual ~PfgseConfig(){} 
 
     vector<string> checkConfig();
     void readConfigFile(const string configFile);
