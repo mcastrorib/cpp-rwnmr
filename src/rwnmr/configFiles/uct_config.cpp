@@ -164,7 +164,7 @@ void uct_config::readImgFiles()
 
 void uct_config::createImgFileList()
 {
-    string dirpath = (*this).getProjectRoot();
+    string dirpath = (*this).getProjectRoot() + CONFIG_ROOT;
 	string filepath = dirpath + ".ImagesList.txt";
 
     ofstream fileObject;
