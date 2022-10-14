@@ -75,19 +75,7 @@ public:
 	void writeDecay();
 	void writeWalkers();
 	void writeHistogram();
-	void writeHistogramList();
-
-private:
-	// Returns a vector<double> linearly space from @start to @end with @points
-    vector<double> linspace(double start, double end, uint points);
-
-    // Returns a vector<double> logarithmly space from 10^@exp_start to 10^@end with @points
-    vector<double> logspace(double exp_start, double exp_end, uint points, double base=10.0);
-
-    // Returns the sum of elements of a vector
-    int sum(vector<int> _vec);
-    uint sum(vector<uint> _vec);
-    double sum(vector<double> _vec);
+	void writeHistogramList();	
 };
 
 #endif

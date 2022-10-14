@@ -78,7 +78,7 @@ TestResult ArgsParserTest::testArgsCPMG_Default()
 	int argc = 2;
 	char *argv[] = {(char*)"rwnmr", (char*)"cpmg", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "cpmg", "default", "default", "default"};
 
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
@@ -93,7 +93,7 @@ TestResult ArgsParserTest::testArgsCPMG_Complete()
 	int argc = 8;
 	char *argv[] = {(char*)"rwnmr", (char*)"cpmg", (char*)"-config", (char*)"cpmg_path", (char*)"-rwconfig", (char*)"rw_path", (char*)"-uctconfig", (char*)"uct_path", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "cpmg", "rw_path", "uct_path", "cpmg_path"};
 	
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
@@ -108,7 +108,7 @@ TestResult ArgsParserTest::testArgsPFGSE_Default()
 	int argc = 2;
 	char *argv[] = {(char*)"rwnmr", (char*)"pfgse", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "pfgse", "default", "default", "default"};
 	
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
@@ -123,7 +123,7 @@ TestResult ArgsParserTest::testArgsPFGSE_Complete()
 	int argc = 8;
 	char *argv[] = {(char*)"rwnmr", (char*)"pfgse", (char*)"-config", (char*)"pfgse_path", (char*)"-rwconfig", (char*)"rw_path", (char*)"-uctconfig", (char*)"uct_path", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "pfgse", "rw_path", "uct_path", "pfgse_path"};
 	
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
@@ -140,7 +140,7 @@ TestResult ArgsParserTest::testArgsMultiTau_Default()
 					 (char*)"multitau", 
 					 NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "multitau", "mtoff", "default", "default", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -162,7 +162,7 @@ TestResult ArgsParserTest::testArgsMultiTau_Complete1()
 					 (char*)"uct_path", 
 					 NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "multitau", "mtoff", "rw_path", "uct_path", "mt_path", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -183,7 +183,7 @@ TestResult ArgsParserTest::testArgsMultiTau_Complete2()
 					 (char*)"-uctconfig", 
 					 (char*)"uct_path", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "multitau", "mtoff", "rw_path", "uct_path", "default", "cpmg_path"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -206,7 +206,7 @@ TestResult ArgsParserTest::testArgsMultiTau_Complete3()
 					 (char*)"uct_path", 
 					 NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "multitau", "mtoff", "rw_path", "uct_path", "mt_path", "cpmg_path"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -220,7 +220,7 @@ TestResult ArgsParserTest::testUnknownArgs_1()
 	int argc = 2;
 	char *argv[] = {(char*)"rwnmr", (char*)"unknown", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -234,7 +234,7 @@ TestResult ArgsParserTest::testUnknownArgs_2()
 	int argc = 3;
 	char *argv[] = {(char*)"rwnmr", (char*)"unknown", (char*)"cpmg", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "cpmg", "default", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -248,7 +248,7 @@ TestResult ArgsParserTest::testMissingArgs_1()
 	int argc = 2;
 	char *argv[] = {(char*)"rwnmr", (char*)"-rwconfig", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -262,7 +262,7 @@ TestResult ArgsParserTest::testMissingArgs_2()
 	int argc = 2;
 	char *argv[] = {(char*)"rwnmr", (char*)"-uctconfig", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -276,7 +276,7 @@ TestResult ArgsParserTest::testMissingArgs_3()
 	int argc = 3;
 	char *argv[] = {(char*)"rwnmr", (char*)"cpmg", (char*)"-config", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "cpmg", "default", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -291,7 +291,7 @@ TestResult ArgsParserTest::testMissingArgs_4()
 	int argc = 3;
 	char *argv[] = {(char*)"rwnmr", (char*)"pfgse", (char*)"-config", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "pfgse", "default", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -305,7 +305,7 @@ TestResult ArgsParserTest::testMissingArgs_5()
 	int argc = 3;
 	char *argv[] = {(char*)"rwnmr", (char*)"multitau", (char*)"-config", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "multitau", "mtoff","default", "default", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -319,7 +319,7 @@ TestResult ArgsParserTest::testMissingArgs_6()
 	int argc = 3;
 	char *argv[] = {(char*)"rwnmr", (char*)"multitau", (char*)"-mtconfig", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "multitau", "mtoff","default", "default", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -333,7 +333,7 @@ TestResult ArgsParserTest::testMissingArgs_7()
 	int argc = 3;
 	char *argv[] = {(char*)"rwnmr", (char*)"multitau", (char*)"-cpmgconfig", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "multitau", "mtoff","default", "default", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -349,7 +349,7 @@ TestResult ArgsParserTest::testAllKnownArgs_1()
 	int argc = 4;
 	char *argv[] = {(char*)"rwnmr", (char*)"cpmg", (char*)"pfgse", (char*)"multitau", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "cpmg", "pfgse", "multitau", "mtoff", "default", "default", "default", "default", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -366,7 +366,7 @@ TestResult ArgsParserTest::testAllKnownArgs_2()
 	int argc = 4;
 	char *argv[] = {(char*)"rwnmr", (char*)"multitau", (char*)"cpmg", (char*)"pfgse", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "multitau", "mtoff", "cpmg", "pfgse", "default", "default", "default", "default", "default", "default"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -387,7 +387,7 @@ TestResult ArgsParserTest::testAllKnownArgs_3()
 					 (char*)"pfgse", (char*)"-config", (char*)"pfgse_path",
 					 (char*)"multitau", (char*)"-config", (char*)"mt_path", (char*)"mt_cpmg_path", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "cpmg", "pfgse", "multitau", "mtoff", "rw_path", "uct_path", "cpmg_path", "pfgse_path", "mt_path", "mt_cpmg_path"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -408,7 +408,7 @@ TestResult ArgsParserTest::testAllKnownArgs_4()
 					 (char*)"multitau", (char*)"-config", (char*)"mt_path", (char*)"mt_cpmg_path",
 					 (char*)"pfgse", (char*)"-config", (char*)"pfgse_path", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "cpmg", "multitau", "mtoff", "pfgse", "rw_path", "uct_path", "cpmg_path", "mt_path", "mt_cpmg_path", "pfgse_path"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -429,7 +429,7 @@ TestResult ArgsParserTest::testAllKnownArgs_5()
 					 (char*)"cpmg", (char*)"-config", (char*)"cpmg_path",
 					 (char*)"pfgse", (char*)"-config", (char*)"pfgse_path", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "multitau", "mtoff", "cpmg", "pfgse", "rw_path", "uct_path", "default", "mt_cpmg_path", "cpmg_path", "pfgse_path"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	
@@ -450,7 +450,7 @@ TestResult ArgsParserTest::testAllKnownArgs_6()
 					 (char*)"multitau", (char*)"-mtconfig", (char*)"mt_path",
 					 (char*)"pfgse", (char*)"-config", (char*)"pfgse_path", NULL};
 	this->parser = new ArgsParser(argc, argv);
-	vector<string> out = (*this).concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
+	vector<string> out = BaseFunctions::concatenateVectors(this->parser->getCommands(), this->parser->getPaths());
 	vector<string> expected = {"rwnmr", "uct", "cpmg", "multitau", "mtoff", "pfgse", "rw_path", "uct_path", "cpmg_path", "mt_path", "default", "pfgse_path"};
 	result.setSuccess(Assert::assertVectorEquals(out, expected));
 	return result;	

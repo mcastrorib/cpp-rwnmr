@@ -10,8 +10,8 @@ class TestResult
     bool success;
     string message;
 public:    
-    TestResult(){}
-    TestResult(string msg):message(msg){}
+    TestResult():success(false){}
+    TestResult(string msg):message(msg),success(false){}
     
     TestResult(const TestResult &other)
     {

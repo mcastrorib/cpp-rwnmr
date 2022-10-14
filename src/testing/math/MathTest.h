@@ -2,5 +2,6 @@
 #define MATH_TEST_H_
 
 // Header files
+#include "MathFunctionsTest.h"
 
 #endif
