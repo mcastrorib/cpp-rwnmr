@@ -10,15 +10,15 @@ using namespace std;
 class ThreadsBalancer
 {
 private:
-    double start;
-    double finish;
+    int start;
+    int finish;
 
 public:
-    ThreadsBalancer(const int thread_id, const int num_threads, const int num_loops)
+    ThreadsBalancer(const int thread_id, const int num_threads, const int loop_size)
     {
-        const int loops_per_thread = num_loops / num_threads;
+        const int loops_per_thread = loop_size / num_threads;
         (*this).setStart(thread_id * loops_per_thread);
-        if (thread_id == (num_threads - 1)) { (*this).setFinish(num_loops); }
+        if (thread_id == (num_threads - 1)) { (*this).setFinish(loop_size); }
         else { (*this).setFinish((*this).getStart() + loops_per_thread); }
     }
     ThreadsBalancer(const ThreadsBalancer &other)
