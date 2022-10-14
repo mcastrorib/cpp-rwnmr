@@ -690,7 +690,7 @@ void NMR_PFGSE::simulation_cuda()
             #pragma omp parallel shared(packOffset, h_walker_x0, h_walker_y0, h_walker_z0, h_walker_px, h_walker_py, h_walker_pz, h_collisions, h_penalty, h_seed, h_energy, h_phase) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -831,7 +831,7 @@ void NMR_PFGSE::simulation_cuda()
             #pragma omp parallel shared(h_walker_px, h_walker_py, h_walker_pz, h_collisions, h_energy, h_seed, packOffset) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -966,7 +966,7 @@ void NMR_PFGSE::simulation_cuda()
             #pragma omp parallel shared(packOffset, h_walker_x0, h_walker_y0, h_walker_z0, h_walker_px, h_walker_py, h_walker_pz, h_collisions, h_penalty, h_seed, h_energy, h_phase) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -1119,7 +1119,7 @@ void NMR_PFGSE::simulation_cuda()
             #pragma omp parallel shared(h_walker_px, h_walker_py, h_walker_pz, h_collisions, h_energy, h_seed, packOffset) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 

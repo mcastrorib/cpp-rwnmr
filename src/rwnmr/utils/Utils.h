@@ -5,7 +5,7 @@
 #include "ArgsParser.h"
 #include "ImagePath.h"
 #include "MemAllocator.h"
-#include "OMPLoopEnabler.h"
+#include "ThreadsBalancer.h"
 #include "ProgressBar.h"
 
 #endif

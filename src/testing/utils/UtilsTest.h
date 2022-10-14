@@ -4,5 +4,6 @@
 #include "ArgsParserTest.h"
 #include "BaseFunctionsTest.h"
 #include "MemAllocatorTest.h"
+#include "ThreadsBalancerTest.h"
 
 #endif

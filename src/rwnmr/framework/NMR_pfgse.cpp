@@ -122,7 +122,7 @@ void NMR_PFGSE::resetModel()
         #pragma omp parallel private(loop_start, loop_finish) 
         {
             const int thread_id = omp_get_thread_num();
-            OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+            ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
             loop_start = looper.getStart();
             loop_finish = looper.getFinish(); 
 
@@ -160,7 +160,7 @@ void NMR_PFGSE::updateWalkersXiRate(uint _rwsteps)
         #pragma omp parallel private(loop_start, loop_finish) 
         {
             const int thread_id = omp_get_thread_num();
-            OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+            ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
             loop_start = looper.getStart();
             loop_finish = looper.getFinish(); 
 
@@ -714,7 +714,7 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 	#pragma omp parallel shared(Mkt_samples, resolution) private(loop_start, loop_finish, phase, dX, dY, dZ) 
     {
         const int thread_id = omp_get_thread_num();
-        OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+        ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
         loop_start = looper.getStart();
         loop_finish = looper.getFinish(); 
 
@@ -1654,7 +1654,7 @@ void NMR_PFGSE::simulation_omp()
 		#pragma omp parallel shared(gamma, globalPhase, globalEnergy, resolution) private(loop_start, loop_finish) 
         {
             const int thread_id = omp_get_thread_num();
-            OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+            ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
             loop_start = looper.getStart();
             loop_finish = looper.getFinish(); 
 

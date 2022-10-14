@@ -1184,7 +1184,7 @@ void Model::placeWalkersUniformly()
     #pragma omp parallel shared(walkers, walkersIdxList, pores, pBar) private(loop_start, loop_finish) 
     {
         const int thread_id = omp_get_thread_num();
-        OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+        ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
         loop_start = looper.getStart();
         loop_finish = looper.getFinish();   
 

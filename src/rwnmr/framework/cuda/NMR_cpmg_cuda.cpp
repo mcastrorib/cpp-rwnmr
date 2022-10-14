@@ -920,7 +920,7 @@ void NMR_cpmg::image_simulation_cuda()
         #pragma omp parallel private(loop_start, loop_finish) 
         {
             const int thread_id = omp_get_thread_num();
-            OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+            ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
             loop_start = looper.getStart();
             loop_finish = looper.getFinish(); 
 
@@ -1095,7 +1095,7 @@ void NMR_cpmg::image_simulation_cuda()
             #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, penalty, energy, seed) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -1343,7 +1343,7 @@ void NMR_cpmg::image_simulation_cuda()
                 #pragma omp parallel shared(walker_px, walker_py, walker_pz, packOffset) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
@@ -1386,7 +1386,7 @@ void NMR_cpmg::image_simulation_cuda()
             #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, penalty, energy, seed) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -1647,7 +1647,7 @@ void NMR_cpmg::image_simulation_cuda()
                 #pragma omp parallel shared(walker_px, walker_py, walker_pz, packOffset) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
