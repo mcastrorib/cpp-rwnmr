@@ -261,18 +261,8 @@ public:
 	void incrementCurrentTime() { this->currentTime++; }
 
 private:
-	static std::mt19937 _rng;
-	
 	void simulation_cuda();
 	void simulation_omp();
-	double sum(vector<double> &_vec);
-	double sum(double *_vec, int _size);
-	double mean(vector<double> &_vec);
-	double mean(double *_vec, int _size);
-	double stdDev(vector<double> &_vec);
-	double stdDev(vector<double> &_vec, double mean);
-	double stdDev(double *_vec, int _size);
-	double stdDev(double *_vec, int _size, double mean);
 	vector<double> getNormalDistributionSamples(const double loc, const double std, const int size);
 };
 
