@@ -27,11 +27,11 @@ NMR_PFGSE::NMR_PFGSE(Model &_model,
 	vector<double> mktStdev();
 	vector<double> lhs();
 	vector<double> lhsStdev();
-	vector<Vector3D> vecGradient();
-	vector<Vector3D> vecK();
+	vector<Vector3d> vecGradient();
+	vector<Vector3d> vecK();
 
 	// read config file
-	Vector3D gradientMax = this->PFGSE_config.getMaxGradient();
+	Vector3d gradientMax = this->PFGSE_config.getMaxGradient();
 	this->gradientX = gradientMax.getX();
 	this->gradientY = gradientMax.getY();
 	this->gradientZ = gradientMax.getZ();	
@@ -252,7 +252,7 @@ void NMR_PFGSE::buildGradientVector()
 
 	for(uint index = 0; index < this->gradientPoints; index++)
 	{
-		Vector3D newGradient(gvalueX, gvalueY, gvalueZ);
+		Vector3d newGradient(gvalueX, gvalueY, gvalueZ);
 		this->vecGradient.push_back(newGradient);
 		this->gradient.push_back(newGradient.getNorm());
 		gvalueX += gapX;
@@ -272,7 +272,7 @@ void NMR_PFGSE::buildVectorK()
 		Kx = (*this).computeWaveVectorK(this->vecGradient[index].getX(), (*this).getPulseWidth(), (*this).getModel().getGiromagneticRatio());
 		Ky = (*this).computeWaveVectorK(this->vecGradient[index].getY(), (*this).getPulseWidth(), (*this).getModel().getGiromagneticRatio());
 		Kz = (*this).computeWaveVectorK(this->vecGradient[index].getZ(), (*this).getPulseWidth(), (*this).getModel().getGiromagneticRatio());
-		Vector3D Knew(Kx, Ky, Kz);
+		Vector3d Knew(Kx, Ky, Kz);
 		this->vecK.push_back(Knew);
 	}
 }
@@ -729,7 +729,7 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 				dX = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionX() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionX());
 				dY = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionY() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionY());
 				dZ = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionZ() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionZ());
-				Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
+				Vector3d dR(resolution * dX, resolution * dY, resolution * dZ);
 					
 				for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 				{
@@ -782,7 +782,7 @@ double ** NMR_PFGSE::computeSamplesMagnitude()
 			dX = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionX() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionX());
 			dY = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionY() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionY());
 			dZ = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionZ() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionZ());
-			Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
+			Vector3d dR(resolution * dX, resolution * dY, resolution * dZ);
 			
 			for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 			{
@@ -1333,7 +1333,7 @@ void NMR_PFGSE::writeParameters()
         exit(1);
     }
 
-    Vector3D maxGradient(this->vecGradient[this->vecGradient.size() - 1]);
+    Vector3d maxGradient(this->vecGradient[this->vecGradient.size() - 1]);
     const int precision = std::numeric_limits<double>::max_digits10;  
 	file << "RWNMR-PFGSE Parameters" << endl; 
 	file << setprecision(precision) << "D_0: " << this->model.getDiffusionCoefficient() << endl;  
@@ -1687,8 +1687,8 @@ void NMR_PFGSE::simulation_omp()
 				double dY = ((double) (*this->model.getWalkers())[id].getCurrentPositionY()) - ((double) (*this->model.getWalkers())[id].getInitialPositionY());
 				double dZ = ((double) (*this->model.getWalkers())[id].getCurrentPositionZ()) - ((double) (*this->model.getWalkers())[id].getInitialPositionZ());
 
-				Vector3D dR(dX,dY,dZ);
-				Vector3D wavevector_k;
+				Vector3d dR(dX,dY,dZ);
+				Vector3d wavevector_k;
 				for(int point = 0; point < this->gradientPoints; point++)
 				{ 
 					double kx = computeWaveVectorK(this->vecGradient[point].getX(), (*this).getPulseWidth(), gamma);
@@ -1733,8 +1733,8 @@ void NMR_PFGSE::simulation_omp()
 			double dY = ((double) (*this->model.getWalkers())[id].getCurrentPositionY()) - ((double) (*this->model.getWalkers())[id].getInitialPositionY());
 			double dZ = ((double) (*this->model.getWalkers())[id].getCurrentPositionZ()) - ((double) (*this->model.getWalkers())[id].getInitialPositionZ());
 
-			Vector3D dR(dX,dY,dZ);
-			Vector3D wavevector_k;
+			Vector3d dR(dX,dY,dZ);
+			Vector3d wavevector_k;
 			for(int point = 0; point < this->gradientPoints; point++)
 			{ 
 				double kx = computeWaveVectorK(this->vecGradient[point].getX(), (*this).getPulseWidth(), gamma);

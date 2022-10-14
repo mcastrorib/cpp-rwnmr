@@ -67,7 +67,7 @@ add_test(NAME PFGSE-smooth-run COMMAND rwnmr-app pfgse -config ./input/testing/t
 add_test(NAME MultiTau-smooth-run COMMAND rwnmr-app multitau -config ./input/testing/tmultitau.config ./input/testing/tcpmg_uniform_field.config)
 add_test(NAME ArgsParser-test COMMAND rwnmr-test ArgsParser)
 add_test(NAME MathFunctions-test COMMAND rwnmr-test MathFunctions)
-add_test(NAME Vector3D-test COMMAND rwnmr-test Vector3D)
+add_test(NAME Vector3d-test COMMAND rwnmr-test Vector3d)
 add_test(NAME RwnmrConfig-test COMMAND rwnmr-test RwnmrConfig)
 add_test(NAME UctConfig-test COMMAND rwnmr-test UctConfig)
 add_test(NAME CpmgConfig-test COMMAND rwnmr-test CpmgConfig)

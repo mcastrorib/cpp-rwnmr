@@ -3,22 +3,22 @@
 
 #include "Includes.h"
 
-class Vector3DTest : public TestSuite
+class Vector3dTest : public TestSuite
 {
 public:
-	typedef TestResult (Vector3DTest::*mptr)();
+	typedef TestResult (Vector3dTest::*mptr)();
 
 private:
 	vector<mptr> testCases;
 
 public:
-	Vector3DTest(string proot);
-	Vector3DTest(const Vector3DTest& otherTest) : TestSuite(otherTest.projectRoot)
+	Vector3dTest(string proot);
+	Vector3dTest(const Vector3dTest& otherTest) : TestSuite(otherTest.projectRoot)
 	{
 		this->testCases = otherTest.testCases;
 	}
 
-	virtual ~Vector3DTest(){}
+	virtual ~Vector3dTest(){}
 
 	void beforeEach(){}
 
@@ -27,6 +27,16 @@ public:
 	virtual vector<TestResult> run();
 
 	TestResult initVecTest();
+	TestResult operatorEqualsTest_True();
+	TestResult operatorEqualsTest_False();
+	TestResult operatorNotEqualsTest_True();
+	TestResult operatorNotEqualsTest_False();
+	TestResult getNormTest();
+	TestResult addVectorTest();
+	TestResult subtractVectorTest();
+	TestResult multiplyVectorTest();
+	TestResult dotProductTest();
+	TestResult crossProductTest();	
 
 	void setTestCases(vector<mptr> _tc){ this->testCases = _tc; }
 	void setTestCases(mptr _t, int i){ this->testCases[i] = _t; }

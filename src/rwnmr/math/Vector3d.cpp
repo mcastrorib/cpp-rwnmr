@@ -5,20 +5,20 @@
 #include <cmath>
 
 // include header file
-#include "Vector3D.h"
+#include "Vector3d.h"
 
 using namespace std;
 
-// Vector3D methods
+// Vector3d methods
 // default constructor
-Vector3D::Vector3D() : x(0.0), y(0.0), z(0.0)
+Vector3d::Vector3d() : x(0.0), y(0.0), z(0.0)
 {}
 
-Vector3D::Vector3D(double _x, double _y, double _z) : x(_x), y(_y), z(_z)
+Vector3d::Vector3d(double _x, double _y, double _z) : x(_x), y(_y), z(_z)
 {}
 
 // copy constructor
-Vector3D::Vector3D(const Vector3D &_otherVec3)
+Vector3d::Vector3d(const Vector3d &_otherVec3)
 {
     // image attributes
     (*this).setX(_otherVec3.getX());
@@ -26,7 +26,7 @@ Vector3D::Vector3D(const Vector3D &_otherVec3)
     (*this).setZ(_otherVec3.getZ());
 }
 
-void Vector3D::printInfo()
+void Vector3d::printInfo()
 {
     cout << "{" << (*this).getX();
     cout << ", " << (*this).getY();
@@ -34,7 +34,7 @@ void Vector3D::printInfo()
     cout << "}" << endl;
 }
 
-string Vector3D::getInfo()
+string Vector3d::getInfo()
 {
     string info;
     info = "{";
@@ -47,7 +47,7 @@ string Vector3D::getInfo()
 
 // LA methods
 
-void Vector3D::addVector(Vector3D _vec)
+void Vector3d::addVector(Vector3d _vec)
 {
     (*this).setX((*this).getX() + _vec.getX());
     (*this).setY((*this).getY() + _vec.getY());
@@ -56,7 +56,7 @@ void Vector3D::addVector(Vector3D _vec)
     return;
 }
 
-void Vector3D::subtractVector(Vector3D _vec)
+void Vector3d::subtractVector(Vector3d _vec)
 {
 
     (*this).setX((*this).getX() - _vec.getX());
@@ -66,16 +66,26 @@ void Vector3D::subtractVector(Vector3D _vec)
     return;
 }
 
-double Vector3D::dotProduct(Vector3D _vec)
+void Vector3d::multiplyVector(double _a)
+{
+
+    (*this).setX(_a*(*this).getX());
+    (*this).setY(_a*(*this).getY());
+    (*this).setZ(_a*(*this).getZ());
+    
+    return;
+}
+
+double Vector3d::dotProduct(Vector3d _vec)
 {
     return ((*this).getX() * _vec.getX() + 
             (*this).getY() * _vec.getY() + 
             (*this).getZ() * _vec.getZ());
 }
 
-void Vector3D::crossProduct(Vector3D _vec)
+void Vector3d::crossProduct(Vector3d _vec)
 {
-    Vector3D tempVec;
+    Vector3d tempVec;
     tempVec.setX((*this).getY()*_vec.getZ() - (*this).getZ()*_vec.getY());
     tempVec.setY((*this).getZ()*_vec.getX() - (*this).getX()*_vec.getZ());
     tempVec.setZ((*this).getX()*_vec.getY() - (*this).getY()*_vec.getX());

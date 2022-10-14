@@ -3,6 +3,6 @@
 
 // Header files
 #include "MathFunctionsTest.h"
-#include "Vector3DTest.h"
+#include "Vector3dTest.h"
 
 #endif

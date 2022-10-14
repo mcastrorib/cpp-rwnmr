@@ -14,7 +14,7 @@ void TestApp::select(string tag)
 {
 	if(tag == "ArgsParser") this->test = new ArgsParserTest((*this).getProjectRoot());
 	else if(tag == "MathFunctions") this->test = new MathFunctionsTest((*this).getProjectRoot());
-	else if(tag == "Vector3D") this->test = new Vector3DTest((*this).getProjectRoot());
+	else if(tag == "Vector3d") this->test = new Vector3dTest((*this).getProjectRoot());
 	else if(tag == "RwnmrConfig") this->test = new RwnmrConfigTest((*this).getProjectRoot());
 	else if(tag == "UctConfig") this->test = new UctConfigTest((*this).getProjectRoot());
 	else if(tag == "CpmgConfig") this->test = new CpmgConfigTest((*this).getProjectRoot());
