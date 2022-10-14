@@ -117,11 +117,10 @@ void Model::mapSimulation_CUDA_2D_histograms(bool reset)
     cudaMemcpy(d_bitBlock, bitBlock, numberOfBitBlocks * sizeof(uint64_t), cudaMemcpyHostToDevice);
 
     // pointers used in array conversion and their host memory allocation
-    myAllocator arrayFactory;
-    int *walker_px = arrayFactory.getIntArray(numberOfWalkers);
-    int *walker_py = arrayFactory.getIntArray(numberOfWalkers);
-    uint *collisions = arrayFactory.getUIntArray(numberOfWalkers);
-    uint64_t *seed = arrayFactory.getUInt64Array(numberOfWalkers);
+    int *walker_px = MemAllocator::mallocIntArray(numberOfWalkers);
+    int *walker_py = MemAllocator::mallocIntArray(numberOfWalkers);
+    uint *collisions = MemAllocator::mallocUIntArray(numberOfWalkers);
+    uint64_t *seed = MemAllocator::mallocUInt64Array(numberOfWalkers);
 
     // Device memory allocation
     // Declaration of device data arrays
@@ -716,7 +715,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
             #pragma omp parallel shared(walkers) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -780,12 +779,11 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
 
     // Device memory allocation
     // pointers used in array conversion and their host memory allocation
-    myAllocator arrayFactory;
-    int *walker_px = arrayFactory.getIntArray(walkersPerKernel);
-    int *walker_py = arrayFactory.getIntArray(walkersPerKernel);
-    int *walker_pz = arrayFactory.getIntArray(walkersPerKernel);
-    uint *collisions = arrayFactory.getUIntArray(walkersPerKernel);
-    uint64_t *seed = arrayFactory.getUInt64Array(walkersPerKernel);
+    int *walker_px = MemAllocator::mallocIntArray(walkersPerKernel);
+    int *walker_py = MemAllocator::mallocIntArray(walkersPerKernel);
+    int *walker_pz = MemAllocator::mallocIntArray(walkersPerKernel);
+    uint *collisions = MemAllocator::mallocUIntArray(walkersPerKernel);
+    uint64_t *seed = MemAllocator::mallocUInt64Array(walkersPerKernel);
 
     // Device memory allocation
     // Declaration of device data arrays
@@ -845,7 +843,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                 #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, collisions, seed, walkers) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
@@ -957,7 +955,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                 #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, collisions, seed, walkers) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
@@ -1004,7 +1002,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                 #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, collisions, seed, walkers) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
@@ -1116,7 +1114,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                 #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, collisions, seed, walkers) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
@@ -1157,7 +1155,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
             #pragma omp parallel shared(walkers) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -1189,7 +1187,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
         #pragma omp parallel shared(walkers) private(loop_start, loop_finish) 
         {
             const int thread_id = omp_get_thread_num();
-            OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+            ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
             loop_start = looper.getStart();
             loop_finish = looper.getFinish(); 
 

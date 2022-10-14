@@ -65,26 +65,17 @@ public:
 	TestResult testAllKnownArgs_3();
 	TestResult testAllKnownArgs_4();
 	TestResult testAllKnownArgs_5();
-	TestResult testAllKnownArgs_6();
-
-	template <typename T>
-	vector<T> concatenateVectors(vector<T> v1, vector<T> v2)
-	{
-		vector<T> concat;
-		for(int i = 0; i < v1.size(); i++) concat.push_back(v1[i]);
-		for(int i = 0; i < v2.size(); i++) concat.push_back(v2[i]);
-		return concat;
-	}
+	TestResult testAllKnownArgs_6();	
 
 	void setTestCases(vector<mptr> _tc){ this->testCases = _tc; }
 	void setTestCases(mptr _t, int i){ this->testCases[i] = _t; }
 	void addTest(mptr _t){ this->testCases.push_back(_t); }
 	void clearTestCases(){ this->testCases.clear(); }
-	void setConfig(ArgsParser *_conf){ this->parser = _conf; }
+	void setParser(ArgsParser *_conf){ this->parser = _conf; }
 
 	vector<mptr> getTestCases(){ return this->testCases; }
 	mptr getTestCase(int i){ return this->testCases[i]; }
-	ArgsParser *getConfig(){ return this->parser; }
+	ArgsParser *getParser(){ return this->parser; }
 };
 
 #endif

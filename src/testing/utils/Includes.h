@@ -7,6 +7,7 @@
 #include <cstring>
 
 #include "utils/Utils.h"
+#include "math/Math.h"
 #include "../utest/Utest.h"
 
 using namespace std;

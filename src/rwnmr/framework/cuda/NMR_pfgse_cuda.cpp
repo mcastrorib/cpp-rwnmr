@@ -592,24 +592,23 @@ void NMR_PFGSE::simulation_cuda()
 
     // Host and Device memory data allocation
     // pointers used in host array conversion
-    myAllocator arrayFactory;
-    int *h_walker_x0 = arrayFactory.getIntArray(walkersPerKernel);
-    int *h_walker_y0 = arrayFactory.getIntArray(walkersPerKernel);
-    int *h_walker_z0 = arrayFactory.getIntArray(walkersPerKernel);
-    int *h_walker_px = arrayFactory.getIntArray(walkersPerKernel);
-    int *h_walker_py = arrayFactory.getIntArray(walkersPerKernel);
-    int *h_walker_pz = arrayFactory.getIntArray(walkersPerKernel);
-    uint *h_collisions = arrayFactory.getUIntArray(walkersPerKernel);
-    double *h_penalty = arrayFactory.getDoubleArray(walkersPerKernel);
-    uint64_t *h_seed = arrayFactory.getUInt64Array(walkersPerKernel);
+    int *h_walker_x0 = MemAllocator::mallocIntArray(walkersPerKernel);
+    int *h_walker_y0 = MemAllocator::mallocIntArray(walkersPerKernel);
+    int *h_walker_z0 = MemAllocator::mallocIntArray(walkersPerKernel);
+    int *h_walker_px = MemAllocator::mallocIntArray(walkersPerKernel);
+    int *h_walker_py = MemAllocator::mallocIntArray(walkersPerKernel);
+    int *h_walker_pz = MemAllocator::mallocIntArray(walkersPerKernel);
+    uint *h_collisions = MemAllocator::mallocUIntArray(walkersPerKernel);
+    double *h_penalty = MemAllocator::mallocDoubleArray(walkersPerKernel);
+    uint64_t *h_seed = MemAllocator::mallocUInt64Array(walkersPerKernel);
 
     // magnetization and phase
-    double *h_energy = arrayFactory.getDoubleArray(walkersPerKernel);
-    double *h_energyCollector = arrayFactory.getDoubleArray(energyCollectorSize);
+    double *h_energy = MemAllocator::mallocDoubleArray(walkersPerKernel);
+    double *h_energyCollector = MemAllocator::mallocDoubleArray(energyCollectorSize);
     double h_globalEnergy = 0.0;
-    double *h_phase = arrayFactory.getDoubleArray(walkersPerKernel);
-    double *h_phaseCollector = arrayFactory.getDoubleArray(phaseCollectorSize);
-    double *h_globalPhase = arrayFactory.getDoubleArray(gradientPoints);
+    double *h_phase = MemAllocator::mallocDoubleArray(walkersPerKernel);
+    double *h_phaseCollector = MemAllocator::mallocDoubleArray(phaseCollectorSize);
+    double *h_globalPhase = MemAllocator::mallocDoubleArray(gradientPoints);
 
     double tick = omp_get_wtime();
     for (uint point = 0; point < gradientPoints; point++)
@@ -691,7 +690,7 @@ void NMR_PFGSE::simulation_cuda()
             #pragma omp parallel shared(packOffset, h_walker_x0, h_walker_y0, h_walker_z0, h_walker_px, h_walker_py, h_walker_pz, h_collisions, h_penalty, h_seed, h_energy, h_phase) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -832,7 +831,7 @@ void NMR_PFGSE::simulation_cuda()
             #pragma omp parallel shared(h_walker_px, h_walker_py, h_walker_pz, h_collisions, h_energy, h_seed, packOffset) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -967,7 +966,7 @@ void NMR_PFGSE::simulation_cuda()
             #pragma omp parallel shared(packOffset, h_walker_x0, h_walker_y0, h_walker_z0, h_walker_px, h_walker_py, h_walker_pz, h_collisions, h_penalty, h_seed, h_energy, h_phase) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -1120,7 +1119,7 @@ void NMR_PFGSE::simulation_cuda()
             #pragma omp parallel shared(h_walker_px, h_walker_py, h_walker_pz, h_collisions, h_energy, h_seed, packOffset) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -1439,16 +1438,15 @@ void NMR_PFGSE::computeMktSmallPopulation(double **Mkt_samples, bool time_verbos
     tick = omp_get_wtime();
     uint bytesNeeded = 0;
     uint sharedMem = blocksPerKernel * (threadsPerBlock/2) * sizeof(double);
-    myAllocator arrayFactory;
-    int *h_walker_x0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_y0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_z0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_xF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_yF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_zF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    double *h_energy = arrayFactory.getDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
-    double *h_phase = arrayFactory.getDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
-    double *h_MktCollector = arrayFactory.getDoubleArray(walkerSamples * MktCollectorSize);  bytesNeeded += (walkerSamples * MktCollectorSize * sizeof(double));
+    int *h_walker_x0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_y0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_z0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_xF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_yF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_zF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    double *h_energy = MemAllocator::mallocDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
+    double *h_phase = MemAllocator::mallocDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
+    double *h_MktCollector = MemAllocator::mallocDoubleArray(walkerSamples * MktCollectorSize);  bytesNeeded += (walkerSamples * MktCollectorSize * sizeof(double));
     alloc_time += omp_get_wtime() - tick;  
 
     /*
@@ -1710,19 +1708,18 @@ void NMR_PFGSE::computeMktSmallPopulation2(double **Mkt_samples, bool time_verbo
     tick = omp_get_wtime();
     uint bytesNeeded = 0;
     uint sharedMem = (blocksPerKernel * this->gradientPoints) * (threadsPerBlock/2) * sizeof(double);
-    myAllocator arrayFactory;
-    int *h_walker_x0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_y0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_z0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_xF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_yF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_zF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    double *h_energy = arrayFactory.getDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
-    double *h_phase = arrayFactory.getDoubleArray(this->gradientPoints * walkersPerKernel); bytesNeeded += (this->gradientPoints * walkersPerKernel * sizeof(double));
-    double *h_kX = arrayFactory.getDoubleArray(this->gradientPoints); bytesNeeded += (this->gradientPoints * sizeof(double));
-    double *h_kY = arrayFactory.getDoubleArray(this->gradientPoints); bytesNeeded += (this->gradientPoints * sizeof(double));
-    double *h_kZ = arrayFactory.getDoubleArray(this->gradientPoints); bytesNeeded += (this->gradientPoints * sizeof(double));
-    double *h_MktCollector = arrayFactory.getDoubleArray(this->gradientPoints * walkerSamples * MktCollectorSize);  bytesNeeded += (this->gradientPoints * walkersPerKernel * MktCollectorSize * sizeof(double));
+    int *h_walker_x0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_y0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_z0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_xF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_yF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_zF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    double *h_energy = MemAllocator::mallocDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
+    double *h_phase = MemAllocator::mallocDoubleArray(this->gradientPoints * walkersPerKernel); bytesNeeded += (this->gradientPoints * walkersPerKernel * sizeof(double));
+    double *h_kX = MemAllocator::mallocDoubleArray(this->gradientPoints); bytesNeeded += (this->gradientPoints * sizeof(double));
+    double *h_kY = MemAllocator::mallocDoubleArray(this->gradientPoints); bytesNeeded += (this->gradientPoints * sizeof(double));
+    double *h_kZ = MemAllocator::mallocDoubleArray(this->gradientPoints); bytesNeeded += (this->gradientPoints * sizeof(double));
+    double *h_MktCollector = MemAllocator::mallocDoubleArray(this->gradientPoints * walkerSamples * MktCollectorSize);  bytesNeeded += (this->gradientPoints * walkersPerKernel * MktCollectorSize * sizeof(double));
     alloc_time += omp_get_wtime() - tick;
 
     /*
@@ -2039,16 +2036,15 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
     tick = omp_get_wtime();
     uint bytesNeeded = 0;
     uint sharedMem = blocksPerKernel * (threadsPerBlock/2) * sizeof(double);
-    myAllocator arrayFactory;
-    int *h_walker_x0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_y0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_z0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_xF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_yF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_zF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    double *h_energy = arrayFactory.getDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
-    double *h_phase = arrayFactory.getDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
-    double *h_MktCollector = arrayFactory.getDoubleArray(samplesPerKernel * MktCollectorSize);  bytesNeeded += (samplesPerKernel * MktCollectorSize * sizeof(int));
+    int *h_walker_x0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_y0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_z0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_xF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_yF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_zF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    double *h_energy = MemAllocator::mallocDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
+    double *h_phase = MemAllocator::mallocDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
+    double *h_MktCollector = MemAllocator::mallocDoubleArray(samplesPerKernel * MktCollectorSize);  bytesNeeded += (samplesPerKernel * MktCollectorSize * sizeof(int));
     alloc_time += omp_get_wtime() - tick;
 
     /*
@@ -2488,16 +2484,15 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
     tick = omp_get_wtime();
     uint bytesNeeded = 0;
     uint sharedMem = blocksPerKernel * (threadsPerBlock/2) * sizeof(double);
-    myAllocator arrayFactory;
-    int *h_walker_x0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_y0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_z0 = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_xF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_yF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    int *h_walker_zF = arrayFactory.getIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
-    double *h_energy = arrayFactory.getDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
-    double *h_phase = arrayFactory.getDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
-    double *h_MktCollector = arrayFactory.getDoubleArray(MktCollectorSize);  bytesNeeded += (MktCollectorSize * sizeof(int));
+    int *h_walker_x0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_y0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_z0 = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_xF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_yF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    int *h_walker_zF = MemAllocator::mallocIntArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(int));
+    double *h_energy = MemAllocator::mallocDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
+    double *h_phase = MemAllocator::mallocDoubleArray(walkersPerKernel); bytesNeeded += (walkersPerKernel * sizeof(double));
+    double *h_MktCollector = MemAllocator::mallocDoubleArray(MktCollectorSize);  bytesNeeded += (MktCollectorSize * sizeof(int));
     alloc_time += omp_get_wtime() - tick;
 
     /*

@@ -1,5 +1,5 @@
-#ifndef VEC3_H_
-#define VEC3_H_
+#ifndef VECTOR_3D_H_
+#define VECTOR_3D_H_
 
 // include C++ standard libraries
 #include <iostream>
@@ -9,7 +9,7 @@
 
 using namespace std;
 
-class Vector3D
+class Vector3d
 {
 private:
     double x;
@@ -20,23 +20,34 @@ public:
 
     // Pore methods:
     // default constructors
-    Vector3D();
-    Vector3D(double _x, double _y, double _z);
+    Vector3d();
+    Vector3d(double _x, double _y, double _z);
 
     //copy constructors
-    Vector3D(const Vector3D &_otherVec3);
+    Vector3d(const Vector3d &_otherVec3);
 
     // default destructor
-    virtual ~Vector3D()
-    {
-        // cout << "Vector3D object destroyed succesfully" << endl;
-    }
+    virtual ~Vector3d(){}
 
     // set methods
     void setX(double _x) { this->x = _x; }
     void setY(double _y) { this->y = _y; }
     void setZ(double _z) { this->z = _z; }
     
+    bool operator==(const Vector3d other){
+        if(this->x!=other.x || this->y!=other.y || this->z!=other.z){
+            return false;
+        }
+        else return true;
+    }
+
+    bool operator!=(const Vector3d other){
+        if(this->x!=other.x || this->y!=other.y || this->z!=other.z){
+            return true;
+        }
+        else return false;
+    }
+
     // get methods
     double getX() const { return this->x; }
     double getY() const { return this->y; }
@@ -52,10 +63,13 @@ public:
     string getInfo();
 
     // LA methods
-    void addVector(Vector3D _vec);
-    void subtractVector(Vector3D _vec);
-    double dotProduct(Vector3D _vec);
-    void crossProduct(Vector3D _vec);
+    void addVector(Vector3d _vec);
+    void subtractVector(Vector3d _vec);
+    void multiplyVector(double _a);
+    double dotProduct(Vector3d _vec);
+    void crossProduct(Vector3d _vec);
+
+
 
 };
 

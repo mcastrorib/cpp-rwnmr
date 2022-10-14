@@ -4,8 +4,8 @@
 #include "BaseFunctions.h"
 #include "ArgsParser.h"
 #include "ImagePath.h"
-#include "myAllocator.h"
-#include "OMPLoopEnabler.h"
+#include "MemAllocator.h"
+#include "ThreadsBalancer.h"
 #include "ProgressBar.h"
 
 #endif

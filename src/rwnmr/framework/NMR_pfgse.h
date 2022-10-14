@@ -20,8 +20,8 @@ private:
 	double gradientX;
 	double gradientY;
 	double gradientZ;
-	vector<Vector3D> vecGradient;
-	vector<Vector3D> vecK;
+	vector<Vector3d> vecGradient;
+	vector<Vector3d> vecK;
 	vector<double> rhs;	
 	int gradientPoints;
 	vector<double> exposureTimes;
@@ -40,10 +40,10 @@ private:
 	double DmsdStdev;
 	double msd;
 	double msdStdev;
-	Vector3D vecMsd;
-	Vector3D vecMsdStdev;	
-	Vector3D vecDmsd;
-	Vector3D vecDmsdStdev;
+	Vector3d vecMsd;
+	Vector3d vecMsdStdev;	
+	Vector3d vecDmsd;
+	Vector3d vecDmsdStdev;
 	uint stepsTaken;
 	int currentTime;	
 
@@ -65,8 +65,8 @@ public:
 	double getGradientX(){ return this->gradientX; }
 	double getGradientY(){ return this->gradientY; }
 	double getGradientZ(){ return this->gradientZ; }	
-	vector<Vector3D> getVecGradient(){ return this->vecGradient; }
-	vector<Vector3D> getVecK(){ return this->vecK; }
+	vector<Vector3d> getVecGradient(){ return this->vecGradient; }
+	vector<Vector3d> getVecK(){ return this->vecK; }
 	vector<double> getRhs() {return this->rhs; }
 	double getRhs(uint idx){ return this->rhs[idx];}
 	int getGradientPoints() { return this->gradientPoints; }
@@ -91,10 +91,10 @@ public:
 	double getDmsdStdev() { return this->DmsdStdev; }
 	double getMsd() { return this->msd; }
 	double getMsdStdev() { return this->msdStdev; }
-	Vector3D getVecMsd() { return this->vecMsd; }
-	Vector3D getVecMsdStdev() { return this->vecMsdStdev; }
-	Vector3D getVecDmsd() { return this->vecDmsd; }
-	Vector3D getVecDmsdStdev() { return this->vecDmsdStdev; }
+	Vector3d getVecMsd() { return this->vecMsd; }
+	Vector3d getVecMsdStdev() { return this->vecMsdStdev; }
+	Vector3d getVecDmsd() { return this->vecDmsd; }
+	Vector3d getVecDmsdStdev() { return this->vecDmsdStdev; }
 	int getCurrentTime() { return this->currentTime; }
 
 	// Set methods
@@ -116,13 +116,13 @@ public:
 	void setGradientX(double _v){ this->gradientX = _v; }
 	void setGradientY(double _v){ this->gradientY = _v; }
 	void setGradientZ(double _v){ this->gradientZ = _v; }
-	void setVecGradient(vector<Vector3D> _vec){ this->vecGradient = _vec; }
-	void setVecGradient(Vector3D _vec, uint idx){ this->vecGradient[idx] = _vec; }
-	void addVecGradient(Vector3D _vec){ this->vecGradient.push_back(_vec); }
+	void setVecGradient(vector<Vector3d> _vec){ this->vecGradient = _vec; }
+	void setVecGradient(Vector3d _vec, uint idx){ this->vecGradient[idx] = _vec; }
+	void addVecGradient(Vector3d _vec){ this->vecGradient.push_back(_vec); }
 	void clearVecGradient(){ this->vecGradient.clear(); }
-	void setVecK(vector<Vector3D> _vec){ this->vecK = _vec; }
-	void setVecK(Vector3D _vec, uint idx){ this->vecK[idx] = _vec; }
-	void addVecK(Vector3D _vec){ this->vecK.push_back(_vec); }
+	void setVecK(vector<Vector3d> _vec){ this->vecK = _vec; }
+	void setVecK(Vector3d _vec, uint idx){ this->vecK[idx] = _vec; }
+	void addVecK(Vector3d _vec){ this->vecK.push_back(_vec); }
 	void clearVecK(){ this->vecK.clear(); }
 	void setRhs(vector<double> _vec){ this->rhs = _vec; }
 	void setRhs(double _val, uint idx){ this->rhs[idx] = _val; }
@@ -160,28 +160,28 @@ public:
 	void setDmsdStdev(double _value) { this->DmsdStdev = _value; }	
 	void setMsd(double _value) { this->msd = _value; }
 	void setMsdStdev(double _value) { this->msdStdev = _value; }
-	void setVecMsd(Vector3D _vec){ this->vecMsd = _vec; }	
+	void setVecMsd(Vector3d _vec){ this->vecMsd = _vec; }	
 	void setVecMsd(double msdX, double msdY, double msdZ) 
 	{
 		this->vecMsd.setX(msdX);
 		this->vecMsd.setY(msdY);
 		this->vecMsd.setZ(msdZ);
 	}
-	void setVecMsdStdev(Vector3D _vec){ this->vecMsdStdev = _vec; }
+	void setVecMsdStdev(Vector3d _vec){ this->vecMsdStdev = _vec; }
 	void setVecMsdStdev(double msdX_stdev, double msdY_stdev, double msdZ_stdev) 
 	{
 		this->vecMsdStdev.setX(msdX_stdev);
 		this->vecMsdStdev.setY(msdY_stdev);
 		this->vecMsdStdev.setZ(msdZ_stdev);
 	}
-	void setVecDmsd(Vector3D _vec){ this->vecDmsd = _vec; }
+	void setVecDmsd(Vector3d _vec){ this->vecDmsd = _vec; }
 	void setVecDmsd(double DmsdX, double DmsdY, double DmsdZ) 
 	{
 		this->vecDmsd.setX(DmsdX);
 		this->vecDmsd.setY(DmsdY);
 		this->vecDmsd.setZ(DmsdZ);
 	}
-	void setVecDmsdStdev(Vector3D _vec){ this->vecDmsdStdev = _vec; }
+	void setVecDmsdStdev(Vector3d _vec){ this->vecDmsdStdev = _vec; }
 	void setVecDmsdStdev(double DmsdX_stdev, double DmsdY_stdev, double DmsdZ_stdev) 
 	{
 		this->vecDmsdStdev.setX(DmsdX_stdev);
@@ -261,18 +261,8 @@ public:
 	void incrementCurrentTime() { this->currentTime++; }
 
 private:
-	static std::mt19937 _rng;
-	
 	void simulation_cuda();
 	void simulation_omp();
-	double sum(vector<double> &_vec);
-	double sum(double *_vec, int _size);
-	double mean(vector<double> &_vec);
-	double mean(double *_vec, int _size);
-	double stdDev(vector<double> &_vec);
-	double stdDev(vector<double> &_vec, double mean);
-	double stdDev(double *_vec, int _size);
-	double stdDev(double *_vec, int _size, double mean);
 	vector<double> getNormalDistributionSamples(const double loc, const double std, const int size);
 };
 

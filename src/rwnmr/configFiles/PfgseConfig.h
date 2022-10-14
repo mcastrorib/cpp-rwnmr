@@ -14,7 +14,7 @@ private:
     // --- Physical attributes.
     bool APPLY_BULK;
     double PULSE_WIDTH;
-    Vector3D MAX_GRADIENT;
+    Vector3d MAX_GRADIENT;
     uint GRADIENT_SAMPLES;
 
     // --- Time sequence 
@@ -95,7 +95,7 @@ public:
     // -- Read methods
     void setApplyBulk(bool s){this->APPLY_BULK = s;}
     void setPulseWidth(double s){this->PULSE_WIDTH = s;}
-    void setMaxGradient(Vector3D s){this->MAX_GRADIENT = s;}
+    void setMaxGradient(Vector3d s){this->MAX_GRADIENT = s;}
     void setGradientSamples(uint s){this->GRADIENT_SAMPLES = s;}
     void setTimeSequence(string s){this->TIME_SEQ = s;}
     void setTimeSamples(uint s){this->TIME_SAMPLES = s;}
@@ -120,7 +120,7 @@ public:
     // -- Get methods
     bool getApplyBulk(){ return this->APPLY_BULK; }
     double getPulseWidth() { return this->PULSE_WIDTH ; }
-    Vector3D getMaxGradient() { return this->MAX_GRADIENT ; }
+    Vector3d getMaxGradient() { return this->MAX_GRADIENT ; }
     uint getGradientSamples() { return this->GRADIENT_SAMPLES ; }
     string getTimeSequence() { return this->TIME_SEQ ; }
     uint getTimeSamples() { return this->TIME_SAMPLES ; } 

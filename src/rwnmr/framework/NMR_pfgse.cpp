@@ -1,7 +1,5 @@
 #include "NMR_pfgse.h"
 
-std::mt19937 NMR_PFGSE::_rng;
-
 NMR_PFGSE::NMR_PFGSE(Model &_model,  
 				     PfgseConfig _pfgseConfig) : model(_model),
 												  PFGSE_config(_pfgseConfig),
@@ -20,10 +18,6 @@ NMR_PFGSE::NMR_PFGSE(Model &_model,
 												  currentTime(0),
 												  DsatAdjustSamples(0)
 {
-	// Initialize random state
-	NMR_PFGSE::_rng.seed(this->model.getInitialSeed());
-	NMR_PFGSE::_rng.discard(4096);
-
 	// vectors object init
 	vector<double> exposureTimes();
 	vector<double> gradient();
@@ -32,12 +26,12 @@ NMR_PFGSE::NMR_PFGSE(Model &_model,
 	vector<double> mkt();
 	vector<double> mktStdev();
 	vector<double> lhs();
-	vector<double> lhs_stdev();
-	vector<Vector3D> vecGradient();
-	vector<Vector3D> vecK();
+	vector<double> lhsStdev();
+	vector<Vector3d> vecGradient();
+	vector<Vector3d> vecK();
 
 	// read config file
-	Vector3D gradientMax = this->PFGSE_config.getMaxGradient();
+	Vector3d gradientMax = this->PFGSE_config.getMaxGradient();
 	this->gradientX = gradientMax.getX();
 	this->gradientY = gradientMax.getY();
 	this->gradientZ = gradientMax.getZ();	
@@ -128,7 +122,7 @@ void NMR_PFGSE::resetModel()
         #pragma omp parallel private(loop_start, loop_finish) 
         {
             const int thread_id = omp_get_thread_num();
-            OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+            ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
             loop_start = looper.getStart();
             loop_finish = looper.getFinish(); 
 
@@ -166,7 +160,7 @@ void NMR_PFGSE::updateWalkersXiRate(uint _rwsteps)
         #pragma omp parallel private(loop_start, loop_finish) 
         {
             const int thread_id = omp_get_thread_num();
-            OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+            ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
             loop_start = looper.getStart();
             loop_finish = looper.getFinish(); 
 
@@ -258,7 +252,7 @@ void NMR_PFGSE::buildGradientVector()
 
 	for(uint index = 0; index < this->gradientPoints; index++)
 	{
-		Vector3D newGradient(gvalueX, gvalueY, gvalueZ);
+		Vector3d newGradient(gvalueX, gvalueY, gvalueZ);
 		this->vecGradient.push_back(newGradient);
 		this->gradient.push_back(newGradient.getNorm());
 		gvalueX += gapX;
@@ -278,7 +272,7 @@ void NMR_PFGSE::buildVectorK()
 		Kx = (*this).computeWaveVectorK(this->vecGradient[index].getX(), (*this).getPulseWidth(), (*this).getModel().getGiromagneticRatio());
 		Ky = (*this).computeWaveVectorK(this->vecGradient[index].getY(), (*this).getPulseWidth(), (*this).getModel().getGiromagneticRatio());
 		Kz = (*this).computeWaveVectorK(this->vecGradient[index].getZ(), (*this).getPulseWidth(), (*this).getModel().getGiromagneticRatio());
-		Vector3D Knew(Kx, Ky, Kz);
+		Vector3d Knew(Kx, Ky, Kz);
 		this->vecK.push_back(Knew);
 	}
 }
@@ -385,7 +379,7 @@ void NMR_PFGSE::buildThresholdFromLHSWindow(double _value, uint _window)
 	bool isGreater = true;
 	double logValue = log(_value);
 
-	if((*this).mean(windowValues) < logValue)
+	if(MathFunctions::mean(windowValues) < logValue)
 	{
 		isGreater = false;
 	}
@@ -395,7 +389,7 @@ void NMR_PFGSE::buildThresholdFromLHSWindow(double _value, uint _window)
 		uint currentIdx = idx % _window;
 		windowValues[currentIdx] = this->lhs[idx];
 
-		if((*this).mean(windowValues) < logValue)
+		if(MathFunctions::mean(windowValues) < logValue)
 		{
 			isGreater = false;
 		}
@@ -720,7 +714,7 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 	#pragma omp parallel shared(Mkt_samples, resolution) private(loop_start, loop_finish, phase, dX, dY, dZ) 
     {
         const int thread_id = omp_get_thread_num();
-        OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+        ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
         loop_start = looper.getStart();
         loop_finish = looper.getFinish(); 
 
@@ -735,7 +729,7 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 				dX = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionX() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionX());
 				dY = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionY() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionY());
 				dZ = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionZ() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionZ());
-				Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
+				Vector3d dR(resolution * dX, resolution * dY, resolution * dZ);
 					
 				for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 				{
@@ -788,7 +782,7 @@ double ** NMR_PFGSE::computeSamplesMagnitude()
 			dX = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionX() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionX());
 			dY = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionY() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionY());
 			dZ = ((double) (*this->model.getWalkers())[offset + idx].getInitialPositionZ() - (double) (*this->model.getWalkers())[offset + idx].getCurrentPositionZ());
-			Vector3D dR(resolution * dX, resolution * dY, resolution * dZ);
+			Vector3d dR(resolution * dX, resolution * dY, resolution * dZ);
 			
 			for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 			{
@@ -947,11 +941,11 @@ void NMR_PFGSE::recoverDsatWithSampling()
 	vector<double> stDevLHS; stDevLHS.reserve(this->gradientPoints);
 	for(uint kIdx = 0; kIdx < this->gradientPoints; kIdx++)
 	{
-		meanMkt.push_back((*this).mean(Mkt_samples[kIdx], this->model.getWalkerSamples()));
-		stDevMkt.push_back((*this).stdDev(Mkt_samples[kIdx], this->model.getWalkerSamples(), meanMkt[kIdx]));
-		meanNoise.push_back((*this).mean(Mkt_noise[kIdx], this->model.getWalkerSamples()));
-		meanLHS.push_back((*this).mean(LHS_samples[kIdx], this->model.getWalkerSamples()));
-		stDevLHS.push_back((*this).stdDev(LHS_samples[kIdx], this->model.getWalkerSamples(), meanLHS[kIdx]));
+		meanMkt.push_back(MathFunctions::mean(Mkt_samples[kIdx], this->model.getWalkerSamples()));
+		stDevMkt.push_back(MathFunctions::stdDev(Mkt_samples[kIdx], this->model.getWalkerSamples()));
+		meanNoise.push_back(MathFunctions::mean(Mkt_noise[kIdx], this->model.getWalkerSamples()));
+		meanLHS.push_back(MathFunctions::mean(LHS_samples[kIdx], this->model.getWalkerSamples()));
+		stDevLHS.push_back(MathFunctions::stdDev(LHS_samples[kIdx], this->model.getWalkerSamples()));
 	}
 	statTime = omp_get_wtime() - tick;
 
@@ -1004,11 +998,11 @@ void NMR_PFGSE::recoverDsatWithSampling()
 	lsTime = omp_get_wtime() - tick;	
 
 	// 
-	double meanDsat = (*this).mean(Dsat);
-	double meanDsatError = (*this).mean(DsatError);
+	double meanDsat = MathFunctions::mean(Dsat);
+	double meanDsatError = MathFunctions::mean(DsatError);
 	(*this).setDsat(meanDsat);
 	(*this).setDsatError(meanDsatError);
-	(*this).setDsatStdev(((*this).stdDev(Dsat, meanDsat)));
+	(*this).setDsatStdev((MathFunctions::stdDev(Dsat)));
 
 	// log results	
 	cout << "D(" << (*this).getExposureTime((*this).getCurrentTime()) << " ms) {s&t} = " << (*this).getDsat();
@@ -1232,14 +1226,14 @@ void NMR_PFGSE::recoverDmsdWithSampling()
 	}
 
 	// measure mean value among all the samples
-	double meanDmsd = (*this).mean(Dmsd);
-	double meanDmsdX = (*this).mean(DmsdX);
-	double meanDmsdY = (*this).mean(DmsdY);
-	double meanDmsdZ = (*this).mean(DmsdZ);
-	double meanMsd = (*this).mean(msd);
-	double meanMsdX = (*this).mean(msdX);
-	double meanMsdY = (*this).mean(msdY);
-	double meanMsdZ = (*this).mean(msdZ);
+	double meanDmsd = MathFunctions::mean(Dmsd);
+	double meanDmsdX = MathFunctions::mean(DmsdX);
+	double meanDmsdY = MathFunctions::mean(DmsdY);
+	double meanDmsdZ = MathFunctions::mean(DmsdZ);
+	double meanMsd = MathFunctions::mean(msd);
+	double meanMsdX = MathFunctions::mean(msdX);
+	double meanMsdY = MathFunctions::mean(msdY);
+	double meanMsdZ = MathFunctions::mean(msdZ);
 	
 	// set mean value among all the samples
 	(*this).setMsd(meanMsd);
@@ -1248,10 +1242,10 @@ void NMR_PFGSE::recoverDmsdWithSampling()
 	(*this).setVecDmsd(meanDmsdX, meanDmsdY, meanDmsdZ);
 
 	// set std deviation among all the samples
-	(*this).setDmsdStdev((*this).stdDev(Dmsd, meanDmsd));
-	(*this).setMsdStdev((*this).stdDev(msd, meanMsd));
-	(*this).setVecDmsdStdev((*this).stdDev(DmsdX, meanDmsdX), (*this).stdDev(DmsdY, meanDmsdY), (*this).stdDev(DmsdZ, meanDmsdZ));
-	(*this).setVecMsdStdev((*this).stdDev(msdX, meanMsdX), (*this).stdDev(msdY, meanMsdY), (*this).stdDev(msdZ, meanMsdZ));
+	(*this).setDmsdStdev(MathFunctions::stdDev(Dmsd));
+	(*this).setMsdStdev(MathFunctions::stdDev(msd));
+	(*this).setVecDmsdStdev(MathFunctions::stdDev(DmsdX), MathFunctions::stdDev(DmsdY), MathFunctions::stdDev(DmsdZ));
+	(*this).setVecMsdStdev(MathFunctions::stdDev(msdX), MathFunctions::stdDev(msdY), MathFunctions::stdDev(msdZ));
 	
 	// print results
 	cout << "D(" << (*this).getExposureTime((*this).getCurrentTime()) << " ms) {msd} = " << (*this).getDmsd();
@@ -1339,7 +1333,7 @@ void NMR_PFGSE::writeParameters()
         exit(1);
     }
 
-    Vector3D maxGradient(this->vecGradient[this->vecGradient.size() - 1]);
+    Vector3d maxGradient(this->vecGradient[this->vecGradient.size() - 1]);
     const int precision = std::numeric_limits<double>::max_digits10;  
 	file << "RWNMR-PFGSE Parameters" << endl; 
 	file << setprecision(precision) << "D_0: " << this->model.getDiffusionCoefficient() << endl;  
@@ -1644,8 +1638,7 @@ void NMR_PFGSE::simulation_omp()
     // set derivables
     double gamma = (*this).getModel().getGiromagneticRatio();
     
-	myAllocator arrayFactory; 
-	double *globalPhase = arrayFactory.getDoubleArray(this->gradientPoints);
+	double *globalPhase = MemAllocator::mallocDoubleArray(this->gradientPoints);
     double globalEnergy = 0.0;
     double resolution = this->model.getImageVoxelResolution();
     
@@ -1661,7 +1654,7 @@ void NMR_PFGSE::simulation_omp()
 		#pragma omp parallel shared(gamma, globalPhase, globalEnergy, resolution) private(loop_start, loop_finish) 
         {
             const int thread_id = omp_get_thread_num();
-            OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+            ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
             loop_start = looper.getStart();
             loop_finish = looper.getFinish(); 
 
@@ -1693,8 +1686,8 @@ void NMR_PFGSE::simulation_omp()
 				double dY = ((double) (*this->model.getWalkers())[id].getCurrentPositionY()) - ((double) (*this->model.getWalkers())[id].getInitialPositionY());
 				double dZ = ((double) (*this->model.getWalkers())[id].getCurrentPositionZ()) - ((double) (*this->model.getWalkers())[id].getInitialPositionZ());
 
-				Vector3D dR(dX,dY,dZ);
-				Vector3D wavevector_k;
+				Vector3d dR(dX,dY,dZ);
+				Vector3d wavevector_k;
 				for(int point = 0; point < this->gradientPoints; point++)
 				{ 
 					double kx = computeWaveVectorK(this->vecGradient[point].getX(), (*this).getPulseWidth(), gamma);
@@ -1739,8 +1732,8 @@ void NMR_PFGSE::simulation_omp()
 			double dY = ((double) (*this->model.getWalkers())[id].getCurrentPositionY()) - ((double) (*this->model.getWalkers())[id].getInitialPositionY());
 			double dZ = ((double) (*this->model.getWalkers())[id].getCurrentPositionZ()) - ((double) (*this->model.getWalkers())[id].getInitialPositionZ());
 
-			Vector3D dR(dX,dY,dZ);
-			Vector3D wavevector_k;
+			Vector3d dR(dX,dY,dZ);
+			Vector3d wavevector_k;
 			for(int point = 0; point < this->gradientPoints; point++)
 			{ 
 				double kx = computeWaveVectorK(this->vecGradient[point].getX(), (*this).getPulseWidth(), gamma);
@@ -1772,91 +1765,6 @@ void NMR_PFGSE::simulation_omp()
     double finish_time = omp_get_wtime();
     cout << "Completed."; BaseFunctions::printElapsedTime(begin_time, finish_time);
     return;
-}
-
-double NMR_PFGSE::sum(vector<double> &_vec)
-{
-	double sum = 0;
-	double size = (double) _vec.size();
-
-    for (uint id = 0; id < _vec.size(); id++)
-    {
-        sum += _vec[id];
-    }
-
-    return sum;
-}
-
-double NMR_PFGSE::sum(double *_vec, int _size)
-{
-	double sum = 0;
-
-    for (uint id = 0; id < _size; id++)
-    {
-        sum += _vec[id];
-    }
-
-    return sum;
-}
-
-double NMR_PFGSE::mean(vector<double> &_vec)
-{
-	double sum = 0;
-	double size = (double) _vec.size();
-
-    for (uint id = 0; id < _vec.size(); id++)
-    {
-        sum += _vec[id];
-    }
-
-    return (sum / size);
-}
-
-double NMR_PFGSE::mean(double *_vec, int _size)
-{
-	double sum = 0;
-
-    for (uint id = 0; id < _size; id++)
-    {
-        sum += _vec[id];
-    }
-
-    return (sum / (double) _size);
-}
-
-double NMR_PFGSE::stdDev(vector<double> &_vec)
-{
-    return (*this).stdDev(_vec, (*this).mean(_vec));
-}
-
-double NMR_PFGSE::stdDev(vector<double> &_vec, double mean)
-{
-	double sum = 0.0;
-    int size = _vec.size();
-
-    for(uint idx = 0; idx < _vec.size(); idx++)
-    {
-        sum += (_vec[idx] - mean) * (_vec[idx] - mean); 
-    }
-
-    return sqrt(sum/((double) size));
-}
-
-double NMR_PFGSE::stdDev(double *_vec, int _size)
-{
-    return (*this).stdDev(_vec, _size, (*this).mean(_vec, _size));
-}
-
-double NMR_PFGSE::stdDev(double *_vec, int _size, double mean)
-{
-	double sum = 0.0;
-
-    for(uint idx = 0; idx < _size; idx++)
-    {
-        sum += (_vec[idx] - mean) * (_vec[idx] - mean); 
-    }
-
-    return sqrt(sum/((double) _size));
 }
 
 vector<double> NMR_PFGSE::getNormalDistributionSamples(const double loc, const double std, const int size)

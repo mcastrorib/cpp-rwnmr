@@ -920,7 +920,7 @@ void NMR_cpmg::image_simulation_cuda()
         #pragma omp parallel private(loop_start, loop_finish) 
         {
             const int thread_id = omp_get_thread_num();
-            OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+            ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
             loop_start = looper.getStart();
             loop_finish = looper.getFinish(); 
 
@@ -1020,20 +1020,19 @@ void NMR_cpmg::image_simulation_cuda()
 
     // Host and Device memory data allocation
     // pointers used in host array conversion
-    myAllocator arrayFactory;
-    int *walker_px = arrayFactory.getIntArray(walkersPerKernel);
-    int *walker_py = arrayFactory.getIntArray(walkersPerKernel);
-    int *walker_pz = arrayFactory.getIntArray(walkersPerKernel);
-    double *penalty = arrayFactory.getDoubleArray(walkersPerKernel);
-    double *pAlive = arrayFactory.getDoubleArray(walkersPerKernel);
-    double *phase = arrayFactory.getDoubleArray(walkersPerKernel);
-    double *energy = arrayFactory.getDoubleArray(echoesPerKernel * energyArraySize);
-    double *energyCollector = arrayFactory.getDoubleArray(echoesPerKernel * energyCollectorSize);
-    uint64_t *seed = arrayFactory.getUInt64Array(walkersPerKernel);
+    int *walker_px = MemAllocator::mallocIntArray(walkersPerKernel);
+    int *walker_py = MemAllocator::mallocIntArray(walkersPerKernel);
+    int *walker_pz = MemAllocator::mallocIntArray(walkersPerKernel);
+    double *penalty = MemAllocator::mallocDoubleArray(walkersPerKernel);
+    double *pAlive = MemAllocator::mallocDoubleArray(walkersPerKernel);
+    double *phase = MemAllocator::mallocDoubleArray(walkersPerKernel);
+    double *energy = MemAllocator::mallocDoubleArray(echoesPerKernel * energyArraySize);
+    double *energyCollector = MemAllocator::mallocDoubleArray(echoesPerKernel * energyCollectorSize);
+    uint64_t *seed = MemAllocator::mallocUInt64Array(walkersPerKernel);
     
     // temporary array to collect energy contributions for each echo in a kernel
-    double *temp_globalEnergy = arrayFactory.getDoubleArray((uint)echoesPerKernel);
-    double *h_globalEnergy = arrayFactory.getDoubleArray(kernelCalls * echoesPerKernel);
+    double *temp_globalEnergy = MemAllocator::mallocDoubleArray((uint)echoesPerKernel);
+    double *h_globalEnergy = MemAllocator::mallocDoubleArray(kernelCalls * echoesPerKernel);
 
     tick = omp_get_wtime();
     for (uint echo = 0; echo < numberOfEchoes; echo++)
@@ -1096,7 +1095,7 @@ void NMR_cpmg::image_simulation_cuda()
             #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, penalty, energy, seed) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -1344,7 +1343,7 @@ void NMR_cpmg::image_simulation_cuda()
                 #pragma omp parallel shared(walker_px, walker_py, walker_pz, packOffset) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
@@ -1387,7 +1386,7 @@ void NMR_cpmg::image_simulation_cuda()
             #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, penalty, energy, seed) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -1648,7 +1647,7 @@ void NMR_cpmg::image_simulation_cuda()
                 #pragma omp parallel shared(walker_px, walker_py, walker_pz, packOffset) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
