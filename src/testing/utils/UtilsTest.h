@@ -2,5 +2,6 @@
 #define UTILS_TEST_H_
 
 #include "ArgsParserTest.h"
+#include "BaseFunctionsTest.h"
 
 #endif
