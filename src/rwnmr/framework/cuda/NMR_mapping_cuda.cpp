@@ -715,7 +715,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
             #pragma omp parallel shared(walkers) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -843,7 +843,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                 #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, collisions, seed, walkers) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
@@ -955,7 +955,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                 #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, collisions, seed, walkers) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
@@ -1002,7 +1002,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                 #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, collisions, seed, walkers) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
@@ -1114,7 +1114,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                 #pragma omp parallel shared(packOffset, walker_px, walker_py, walker_pz, collisions, seed, walkers) private(loop_start, loop_finish) 
                 {
                     const int thread_id = omp_get_thread_num();
-                    OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                    ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                     loop_start = looper.getStart();
                     loop_finish = looper.getFinish(); 
 
@@ -1155,7 +1155,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
             #pragma omp parallel shared(walkers) private(loop_start, loop_finish) 
             {
                 const int thread_id = omp_get_thread_num();
-                OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+                ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
                 loop_start = looper.getStart();
                 loop_finish = looper.getFinish(); 
 
@@ -1187,7 +1187,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
         #pragma omp parallel shared(walkers) private(loop_start, loop_finish) 
         {
             const int thread_id = omp_get_thread_num();
-            OMPLoopEnabler looper(thread_id, num_cpu_threads, loop_size);
+            ThreadsBalancer looper(thread_id, num_cpu_threads, loop_size);
             loop_start = looper.getStart();
             loop_finish = looper.getFinish(); 
 
