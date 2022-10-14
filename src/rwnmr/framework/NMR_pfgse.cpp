@@ -1638,8 +1638,7 @@ void NMR_PFGSE::simulation_omp()
     // set derivables
     double gamma = (*this).getModel().getGiromagneticRatio();
     
-	myAllocator arrayFactory; 
-	double *globalPhase = arrayFactory.getDoubleArray(this->gradientPoints);
+	double *globalPhase = MemAllocator::mallocDoubleArray(this->gradientPoints);
     double globalEnergy = 0.0;
     double resolution = this->model.getImageVoxelResolution();
     

@@ -3,5 +3,6 @@
 
 #include "ArgsParserTest.h"
 #include "BaseFunctionsTest.h"
+#include "MemAllocatorTest.h"
 
 #endif
