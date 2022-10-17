@@ -13,6 +13,7 @@ void TestApp::exec(string tag)
 void TestApp::select(string tag)
 {
 	if(tag == "ArgsParser") this->test = new ArgsParserTest((*this).getProjectRoot());
+	else if(tag == "ImagePath") this->test = new ImagePathTest((*this).getProjectRoot());
 	else if(tag == "MemAllocator") this->test = new MemAllocatorTest((*this).getProjectRoot());
 	else if(tag == "ThreadsBalancer") this->test = new ThreadsBalancerTest((*this).getProjectRoot());
 	else if(tag == "BaseFunctions") this->test = new BaseFunctionsTest((*this).getProjectRoot());

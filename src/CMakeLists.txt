@@ -66,6 +66,7 @@ add_test(NAME CPMG_uniform_gradient-smooth-run COMMAND rwnmr-app cpmg -config ./
 add_test(NAME PFGSE-smooth-run COMMAND rwnmr-app pfgse -config ./input/testing/tpfgse.config)
 add_test(NAME MultiTau-smooth-run COMMAND rwnmr-app multitau -config ./input/testing/tmultitau.config ./input/testing/tcpmg_uniform_field.config)
 add_test(NAME ArgsParser-test COMMAND rwnmr-test ArgsParser)
+add_test(NAME ImagePath-test COMMAND rwnmr-test ImagePath)
 add_test(NAME MemAllocator-test COMMAND rwnmr-test MemAllocator)
 add_test(NAME ThreadsBalancer-test COMMAND rwnmr-test ThreadsBalancer)
 add_test(NAME BaseFunctions-test COMMAND rwnmr-test BaseFunctions)
