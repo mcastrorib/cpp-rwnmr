@@ -4,5 +4,6 @@
 // Header files
 #include "MathFunctionsTest.h"
 #include "Vector3dTest.h"
+#include "LeastSquareAdjustTest.h"
 
 #endif
