@@ -78,7 +78,7 @@ add_test(NAME UctConfig-test COMMAND rwnmr-test UctConfig)
 add_test(NAME CpmgConfig-test COMMAND rwnmr-test CpmgConfig)
 add_test(NAME PfgseConfig-test COMMAND rwnmr-test PfgseConfig)
 add_test(NAME MultitauConfig-test COMMAND rwnmr-test MultitauConfig)
-# add_test(NAME ConfigFilesTest COMMAND rwnmr-test configfiles)
+add_test(NAME Pos3d-test COMMAND rwnmr-test Pos3d)
 
 ## Installation
 install(TARGETS rwnmr-app DESTINATION bin)

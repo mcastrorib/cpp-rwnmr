@@ -2,15 +2,15 @@
 #define WALKER_H_
 
 #include "Defs.h"
-#include "Point3D.h"
+#include "Pos3d.h"
 #include "BitBlock.h"
 
 class Walker
 {
 private:
     // Object attributes:
-    Point3D initialPosition;
-    Point3D currentPosition;
+    Pos3d initialPosition;
+    Pos3d currentPosition;
     direction nextDirection;
     uint64_t initialSeed;
     uint64_t currentSeed;
@@ -34,7 +34,7 @@ public:
     virtual ~Walker(){};
 
     // Set methods:
-    void setInitialPosition(Point3D _pos){ this->initialPosition = _pos;}
+    void setInitialPosition(Pos3d _pos){ this->initialPosition = _pos;}
     void setInitialPosition(int _x, int _y, int _z){ 
         this->initialPosition.setX(_x);
         this->initialPosition.setY(_y);
@@ -44,7 +44,7 @@ public:
     void setInitialPositionY(int _y){this->initialPosition.setY(_y);}
     void setInitialPositionZ(int _z){this->initialPosition.setZ(_z);}
 
-    void setCurrentPosition(Point3D _pos){ this->currentPosition = _pos;}
+    void setCurrentPosition(Pos3d _pos){ this->currentPosition = _pos;}
     void setCurrentPosition(int _x, int _y, int _z){ 
         this->currentPosition.setX(_x);
         this->currentPosition.setY(_y);
@@ -89,11 +89,11 @@ public:
     void setEnergy(double _v){ this->energy = _v; }
 
     // Get methods
-    Point3D getInitialPosition(){ return this->initialPosition;}
+    Pos3d getInitialPosition(){ return this->initialPosition;}
     int getInitialPositionX(){ return this->initialPosition.getX(); }
     int getInitialPositionY(){ return this->initialPosition.getY(); }
     int getInitialPositionZ(){ return this->initialPosition.getZ(); }
-    Point3D getCurrentPosition(){ return this->currentPosition;}
+    Pos3d getCurrentPosition(){ return this->currentPosition;}
     int getCurrentPositionX(){ return this->currentPosition.getX(); }
     int getCurrentPositionY(){ return this->currentPosition.getY(); }
     int getCurrentPositionZ(){ return this->currentPosition.getZ(); }
@@ -202,9 +202,9 @@ public:
         this->nextDirection = (direction)(rand + 1);
     };
 
-    inline Point3D computeNextPosition_2D()
+    inline Pos3d computeNextPosition_2D()
     {
-        Point3D nextPosition = {this->currentPosition.getX(), 
+        Pos3d nextPosition = {this->currentPosition.getX(), 
                                 this->currentPosition.getY(), 
                                 this->currentPosition.getZ()};
         switch (nextDirection)
@@ -299,12 +299,12 @@ public:
         }
     };
 
-    inline bool checkNextPosition_2D(Point3D _nextPosition, Mat &_binaryMap)
+    inline bool checkNextPosition_2D(Pos3d _nextPosition, Mat &_binaryMap)
     {
         return (_nextPosition.isPore(_binaryMap));
     };
 
-    inline bool checkNextPosition_2D(Point3D _nextPosition, BitBlock *_bitBlock)
+    inline bool checkNextPosition_2D(Pos3d _nextPosition, BitBlock *_bitBlock)
     {
         int next_x = _nextPosition.getX();
         int next_y = _nextPosition.getY();
@@ -331,9 +331,9 @@ public:
         this->nextDirection = (direction)(rand + 1);
     };
 
-    inline Point3D computeNextPosition_3D()
+    inline Pos3d computeNextPosition_3D()
     {
-        Point3D nextPosition = {this->currentPosition.getX(), 
+        Pos3d nextPosition = {this->currentPosition.getX(), 
                                 this->currentPosition.getY(), 
                                 this->currentPosition.getZ()};
         switch (nextDirection)
@@ -466,12 +466,12 @@ public:
         }
     };
 
-    inline bool checkNextPosition_3D(Point3D _nextPosition, vector<Mat> &_binaryMap)
+    inline bool checkNextPosition_3D(Pos3d _nextPosition, vector<Mat> &_binaryMap)
     {
         return (_nextPosition.isPore(_binaryMap));
     };
 
-    inline bool checkNextPosition_3D(Point3D _nextPosition, BitBlock *_bitBlock)
+    inline bool checkNextPosition_3D(Pos3d _nextPosition, BitBlock *_bitBlock)
     {
         int next_x = _nextPosition.getX();
         int next_y = _nextPosition.getY();
@@ -482,7 +482,7 @@ public:
         return (!_bitBlock->checkIfBitIsWall(nextBlock, nextBit));
     };
 
-    inline void moveWalker(Point3D _nextPosition)
+    inline void moveWalker(Pos3d _nextPosition)
     {
         this->currentPosition.setX(_nextPosition.getX());
         this->currentPosition.setY(_nextPosition.getY());
@@ -504,7 +504,7 @@ public:
         << ", " << currentPosition.getZ() << "}" << endl;
     };
 
-    inline void printPosition(Point3D position)
+    inline void printPosition(Pos3d position)
     {
         cout << "{" << position.getX() << ", " << position.getY() << ", " << position.getZ() << "}" << endl;
     };

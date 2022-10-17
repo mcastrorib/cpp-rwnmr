@@ -698,7 +698,7 @@ double ** NMR_PFGSE::computeSamplesMagnitudeWithOmp()
 		}
 	}	
 
-	double resolution = this->model.getImageVoxelResolution();
+	double resolution = this->model.getStepLength();
 	double phase;
 	double dX, dY, dZ;
 
@@ -768,7 +768,7 @@ double ** NMR_PFGSE::computeSamplesMagnitude()
 		}
 	}	
 
-	double resolution = this->model.getImageVoxelResolution();
+	double resolution = this->model.getStepLength();
 	double phase;
 	double dX, dY, dZ;
 
@@ -1068,7 +1068,7 @@ void NMR_PFGSE::recoverDmsdWithoutSampling()
 	double XF, YF, ZF;
 	double normalizedDisplacement;
 	double nDx = 0.0; double nDy = 0.0; double nDz = 0.0;
-	double resolution = this->model.getImageVoxelResolution();
+	double resolution = this->model.getStepLength();
 	double aliveWalkerFraction = 0.0;
 	
 	// Relaxation / Absorption equivalence
@@ -1145,7 +1145,7 @@ void NMR_PFGSE::recoverDmsdWithSampling()
 	double XF, YF, ZF;
 	double normalizedDisplacement;
 	double nDx, nDy, nDz;
-	double resolution = this->model.getImageVoxelResolution();
+	double resolution = this->model.getStepLength();
 	double aliveWalkerFraction;
 
 	// Relaxation / Absorption equivalence
@@ -1640,7 +1640,7 @@ void NMR_PFGSE::simulation_omp()
     
 	double *globalPhase = MemAllocator::mallocDoubleArray(this->gradientPoints);
     double globalEnergy = 0.0;
-    double resolution = this->model.getImageVoxelResolution();
+    double resolution = this->model.getStepLength();
     
     // main loop
 	// reset walker's initial state with omp parallel for

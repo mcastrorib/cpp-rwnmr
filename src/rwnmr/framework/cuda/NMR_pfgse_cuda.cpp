@@ -335,7 +335,7 @@ __global__ void PFG_measure(int *walker_x0,
                             double *energy,
                             double *phase,
                             const uint numberOfWalkers,
-                            const double voxelResolution,
+                            const double stepLength,
                             const double k_X,
                             const double k_Y,
                             const double k_Z)
@@ -350,7 +350,7 @@ __global__ void PFG_measure(int *walker_x0,
         double dY = (walker_yF[walkerId] - walker_y0[walkerId]);
         double dZ = (walker_zF[walkerId] - walker_z0[walkerId]);
 
-        double local_phase = dotProduct(k_X, k_Y, k_Z, dX, dY, dZ) * voxelResolution; 
+        double local_phase = dotProduct(k_X, k_Y, k_Z, dX, dY, dZ) * stepLength; 
         double magnitude_real_value = cos(local_phase);
         // double magnitude_imag_value = sin(local_phase);
     
@@ -372,7 +372,7 @@ __global__ void PFG_measure_with_sampling(int *walker_x0,
                                           const uint blocksPerSample,
                                           const uint trueWalkersPerSample,
                                           const uint fakeWalkersPerSample,
-                                          const double voxelResolution,
+                                          const double stepLength,
                                           const double k_X,
                                           const double k_Y,
                                           const double k_Z)
@@ -389,7 +389,7 @@ __global__ void PFG_measure_with_sampling(int *walker_x0,
         double dX = (walker_xF[walkerId] - walker_x0[walkerId]);
         double dY = (walker_yF[walkerId] - walker_y0[walkerId]);
         double dZ = (walker_zF[walkerId] - walker_z0[walkerId]);
-        double local_phase = dotProduct(k_X, k_Y, k_Z, dX, dY, dZ) * voxelResolution; 
+        double local_phase = dotProduct(k_X, k_Y, k_Z, dX, dY, dZ) * stepLength; 
         double magnitude_real_value = cos(local_phase);
            
         phase[walkerId] = magnitude_real_value * energy[walkerId];              
@@ -411,7 +411,7 @@ __global__ void PFG_measure_with_sampling_all_K ( int *walker_x0,
                                                   const uint blocksPerSample,
                                                   const uint trueWalkersPerSample,
                                                   const uint fakeWalkersPerSample,
-                                                  const double voxelResolution)
+                                                  const double stepLength)
 {
     // identify thread's walker
     int walkerId = threadIdx.x + blockIdx.x * blockDim.x;
@@ -432,7 +432,7 @@ __global__ void PFG_measure_with_sampling_all_K ( int *walker_x0,
         for(int kIdx = 0; kIdx < kValues; kIdx++)
         {
             offset = kIdx * (blockDim.x * gridDim.x);
-            local_phase = dotProduct(k_X[kIdx], k_Y[kIdx], k_Z[kIdx], dX, dY, dZ) * voxelResolution; 
+            local_phase = dotProduct(k_X[kIdx], k_Y[kIdx], k_Z[kIdx], dX, dY, dZ) * stepLength; 
             magnitude_real_value = cos(local_phase);
                
             phase[offset + walkerId] = magnitude_real_value * energy[walkerId];              
@@ -530,7 +530,7 @@ void NMR_PFGSE::simulation_cuda()
     int map_rows = this->model.getBitBlock()->getImageRows();
     int map_depth = this->model.getBitBlock()->getImageDepth();
     int shiftConverter = log2(this->model.getVoxelDivision());
-    double voxelResolution = this->model.getImageVoxelResolution();
+    double stepLength = this->model.getStepLength();
     uint numberOfSteps = this->model.getSimulationSteps() - this->stepsTaken;
     this->stepsTaken += numberOfSteps;
     cout << "[" << numberOfSteps << " RW-steps]... ";
@@ -876,7 +876,7 @@ void NMR_PFGSE::simulation_cuda()
                                                                 d_energy,
                                                                 d_phase,
                                                                 walkersPerKernel,
-                                                                voxelResolution,
+                                                                stepLength,
                                                                 k_X,
                                                                 k_Y,
                                                                 k_Z);
@@ -1164,7 +1164,7 @@ void NMR_PFGSE::simulation_cuda()
                                                                 d_energy,
                                                                 d_phase,
                                                                 lastWalkerPackSize,
-                                                                voxelResolution,
+                                                                stepLength,
                                                                 k_X,
                                                                 k_Y,
                                                                 k_Z);
@@ -1395,7 +1395,7 @@ void NMR_PFGSE::computeMktSmallPopulation(double **Mkt_samples, bool time_verbos
     /*
         Define parameters for CUDA kernel launch: blockDim, gridDim etc
     */
-    double voxelResolution = this->model.getImageVoxelResolution();
+    double stepLength = this->model.getStepLength();
     uint walkerSamples = this->model.getWalkerSamples();
     uint trueWalkersPerSample = this->model.getNumberOfWalkers() / walkerSamples;  
     
@@ -1558,7 +1558,7 @@ void NMR_PFGSE::computeMktSmallPopulation(double **Mkt_samples, bool time_verbos
                                                                         blocksPerSample,
                                                                         trueWalkersPerSample,
                                                                         fakeWalkersPerSample,
-                                                                        voxelResolution,
+                                                                        stepLength,
                                                                         k_X,
                                                                         k_Y,
                                                                         k_Z);
@@ -1665,7 +1665,7 @@ void NMR_PFGSE::computeMktSmallPopulation2(double **Mkt_samples, bool time_verbo
     /*
         Define parameters for CUDA kernel launch: blockDim, gridDim etc
     */
-    double voxelResolution = this->model.getImageVoxelResolution();
+    double stepLength = this->model.getStepLength();
     uint walkerSamples = this->model.getWalkerSamples();
     uint trueWalkersPerSample = this->model.getNumberOfWalkers() / walkerSamples;  
     
@@ -1843,7 +1843,7 @@ void NMR_PFGSE::computeMktSmallPopulation2(double **Mkt_samples, bool time_verbo
                                                                             blocksPerSample,
                                                                             trueWalkersPerSample,
                                                                             fakeWalkersPerSample,
-                                                                            voxelResolution);
+                                                                            stepLength);
 
     cudaDeviceSynchronize();
     kernel_time += omp_get_wtime() - tick;
@@ -1958,7 +1958,7 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
     /*
         Define parameters for CUDA kernel launch: blockDim, gridDim etc
     */
-    double voxelResolution = this->model.getImageVoxelResolution();
+    double stepLength = this->model.getStepLength();
     uint numberOfWalkers = this->model.getNumberOfWalkers();
     uint walkerSamples = this->model.getWalkerSamples();
     uint trueWalkersPerSample = numberOfWalkers / walkerSamples;  
@@ -2184,7 +2184,7 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
                                                                             blocksPerSample,
                                                                             trueWalkersPerSample,
                                                                             fakeWalkersPerSample,
-                                                                            voxelResolution,
+                                                                            stepLength,
                                                                             k_X,
                                                                             k_Y,
                                                                             k_Z);
@@ -2319,7 +2319,7 @@ void NMR_PFGSE::computeMktSmallSamples(double **Mkt_samples, bool time_verbose)
                                                                                 blocksPerSample,
                                                                                 trueWalkersPerSample,
                                                                                 fakeWalkersPerSample,
-                                                                                voxelResolution,
+                                                                                stepLength,
                                                                                 k_X,
                                                                                 k_Y,
                                                                                 k_Z);
@@ -2428,7 +2428,7 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
     /*
         Define parameters for CUDA kernel launch: blockDim, gridDim etc
     */
-    double voxelResolution = this->model.getImageVoxelResolution();
+    double stepLength = this->model.getStepLength();
     uint numberOfWalkers = this->model.getNumberOfWalkers();
     uint walkerSamples = this->model.getWalkerSamples();   
     uint blocksPerKernel = this->model.getRwnmrConfig().getBlocks();
@@ -2638,7 +2638,7 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
                                                                                 blocksPerSample,
                                                                                 trueWalkersPerSample,
                                                                                 fakeWalkersPerSample,
-                                                                                voxelResolution,
+                                                                                stepLength,
                                                                                 k_X,
                                                                                 k_Y,
                                                                                 k_Z);
@@ -2763,7 +2763,7 @@ void NMR_PFGSE::computeMktBigSamples(double **Mkt_samples, bool time_verbose)
                                                                                     blocksInLastKernel,
                                                                                     trueWalkersInLastKernel,
                                                                                     fakeWalkersInLastKernel,
-                                                                                    voxelResolution,
+                                                                                    stepLength,
                                                                                     k_X,
                                                                                     k_Y,
                                                                                     k_Z);
