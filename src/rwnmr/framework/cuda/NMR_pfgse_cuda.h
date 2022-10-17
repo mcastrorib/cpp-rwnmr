@@ -64,7 +64,7 @@ __global__ void PFG_measure(int *walker_x0,
                             double *energy,
                             double *phase,
                             const uint numberOfWalkers,
-                            const double voxelResolution,
+                            const double stepLength,
                             const double k_X,
                             const double k_Y,
                             const double k_Z,
@@ -81,7 +81,7 @@ __global__ void PFG_measure_with_sampling(int *walker_x0,
                                           const uint blocksPerSample,
                                           const uint walkersPerSample,
                                           const uint sampleTail,
-                                          const double voxelResolution,
+                                          const double stepLength,
                                           const double k_X,
                                           const double k_Y,
                                           const double k_Z);
@@ -101,7 +101,7 @@ __global__ void PFG_measure_with_sampling_all_K ( int *walker_x0,
                                                   const uint blocksPerSample,
                                                   const uint walkersPerSample,
                                                   const uint sampleTail,
-                                                  const double voxelResolution);
+                                                  const double stepLength);
 
 __global__ void PFG_reduce_with_sampling(double *MktCollector,
                                          double *phase); 

@@ -54,7 +54,7 @@ Model::Model(RwnmrConfig _rwNMR_config,
     (*this).setImageResolution(this->uCT_config.getResolution());
 
     (*this).initVoxelDivision(0);
-    (*this).initImageVoxelResolution();
+    (*this).initStepLength();
     if(this->uCT_config.getVoxelDivision() > 0) this->voxelDivisionApplied = true; 
 
     // set default time step measurement
@@ -78,15 +78,15 @@ void Model::initGiromagneticRatio(double _gamma, string _unit)
 }
 
 
-void Model::initImageVoxelResolution()
+void Model::initStepLength()
 {
-    (*this).setImageVoxelResolution((*this).getImageResolution() / (double) (*this).getVoxelDivision());
+    (*this).setStepLength((*this).getImageResolution() / (double) (*this).getVoxelDivision());
 }
 
 void Model::initTimeInterval()
 {
-    (*this).setTimeInterval(((*this).getImageVoxelResolution() * 
-                             (*this).getImageVoxelResolution()) / 
+    (*this).setTimeInterval(((*this).getStepLength() * 
+                             (*this).getStepLength()) / 
                              (6.0 * (*this).getDiffusionCoefficient()));
 }
 
@@ -105,7 +105,7 @@ void Model::applyVoxelDivision(uint _shifts)
     // reset resolution scales
     uint previousDivision = (*this).getVoxelDivision();
     (*this).initVoxelDivision(_shifts);
-    (*this).initImageVoxelResolution();
+    (*this).initStepLength();
 
     // // trying to maintain steps per echo
     (*this).initTimeInterval();
@@ -144,7 +144,7 @@ void Model::applyVoxelDivision(uint _shifts)
                 (*this->walkers)[idx].placeWalker(shiftX, shiftY, shiftZ);
 
                 // update collision penalty
-                (*this->walkers)[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+                (*this->walkers)[idx].computeDecreaseFactor(this->stepLength, this->diffusionCoefficient);
             }
 
             // Update progress bar
@@ -163,7 +163,7 @@ void Model::applyVoxelDivision(uint _shifts)
             (*this->walkers)[idx].placeWalker(shiftX, shiftY, shiftZ);
 
             // update collision penalty
-            (*this->walkers)[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+            (*this->walkers)[idx].computeDecreaseFactor(this->stepLength, this->diffusionCoefficient);
         }
 
         // Last update in progress bar
@@ -179,7 +179,7 @@ void Model::applyVoxelDivision(uint _shifts)
 void Model::initNumberOfStepsFromTime(double _time)
 {
     // _time = _time;
-    this->simulationSteps =  round( _time * (6 * this->diffusionCoefficient / (this->imageVoxelResolution * this->imageVoxelResolution))); 
+    this->simulationSteps =  round( _time * (6 * this->diffusionCoefficient / (this->stepLength * this->stepLength))); 
     
     // correct steps < steps per echo case (simulation becomes inaccurate but at least don't crash)
     if(this->simulationSteps < this->stepsPerEcho) this->simulationSteps = this->stepsPerEcho;
@@ -751,8 +751,8 @@ void Model::countInterfacePoreMatrix()
 
 void Model::updateSvpRatio()
 {
-    double voxelFacialArea = (*this).getImageVoxelResolution() * (*this).getImageVoxelResolution();
-    double voxelVolume = voxelFacialArea * (*this).getImageVoxelResolution();
+    double voxelFacialArea = (*this).getStepLength() * (*this).getStepLength();
+    double voxelVolume = voxelFacialArea * (*this).getStepLength();
     this->svpRatio = ((double) this->interfacePoreMatrix * voxelFacialArea) / ((double) this->numberOfPores * voxelVolume);
 }
 
@@ -1005,7 +1005,7 @@ void Model::createWalkers()
             this->walkers->push_back(temporaryWalker);
             if(this->rwNMR_config.getRhoType() == "uniform") (*this->walkers)[idx].setSurfaceRelaxivity(rho[0]);
             else if(this->rwNMR_config.getRhoType() == "sigmoid") (*this->walkers)[idx].setSurfaceRelaxivity(rho);
-            (*this->walkers)[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+            (*this->walkers)[idx].computeDecreaseFactor(this->stepLength, this->diffusionCoefficient);
             (*this->walkers)[idx].setRandomSeed(uint64_dist(Model::_rng));
         }
 
@@ -1021,7 +1021,7 @@ void Model::createWalkers()
         this->walkers->push_back(temporaryWalker);
         if(this->rwNMR_config.getRhoType() == "uniform") (*this->walkers)[idx].setSurfaceRelaxivity(rho[0]);
         else if(this->rwNMR_config.getRhoType() == "sigmoid") (*this->walkers)[idx].setSurfaceRelaxivity(rho);
-        (*this->walkers)[idx].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+        (*this->walkers)[idx].computeDecreaseFactor(this->stepLength, this->diffusionCoefficient);
         (*this->walkers)[idx].setRandomSeed(uint64_dist(Model::_rng)); 
     }
 
@@ -1333,7 +1333,7 @@ void Model::updateWalkersRelaxativity(vector<double> &sigmoid)
     {
         (*this->walkers)[id].updateXiRate(this->simulationSteps);
         (*this->walkers)[id].setSurfaceRelaxivity(sigmoid);
-        (*this->walkers)[id].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+        (*this->walkers)[id].computeDecreaseFactor(this->stepLength, this->diffusionCoefficient);
     }
 }
 
@@ -1343,7 +1343,7 @@ void Model::updateWalkersRelaxativity(double rho)
     {
         (*this->walkers)[id].updateXiRate(this->simulationSteps);
         (*this->walkers)[id].setSurfaceRelaxivity(rho);
-        (*this->walkers)[id].computeDecreaseFactor(this->imageVoxelResolution, this->diffusionCoefficient);
+        (*this->walkers)[id].computeDecreaseFactor(this->stepLength, this->diffusionCoefficient);
     }
 }
 
@@ -1421,7 +1421,7 @@ void Model::saveInfo(string filedir)
     fileObject << "------------------------------------------------------" << endl;
     fileObject << "Data path: " << (*this).getDbPath() + (*this).getName() << endl;
     fileObject << "Image path: " << this->uCT_config.getImgFile(0) << endl;
-    fileObject << "Image resolution (um/voxel): " << (*this).getImageVoxelResolution() << endl;
+    fileObject << "Image resolution (um/voxel): " << (*this).getStepLength() << endl;
     fileObject << "Diffusion coefficient (um^2/ms): " << (*this).getDiffusionCoefficient() << endl;
     fileObject << "Number of images: " << (*this).getNumberOfImages() << endl;
     fileObject << "Walkers pore occupancy in simulation: " << (*this).getWalkerOccupancy() * 100.0 << "%" << endl;
@@ -1478,7 +1478,7 @@ void Model::saveImageInfo(string filedir)
     fileObject << "depth(z): " << this->bitBlock->getImageDepth() << endl;
     fileObject << "resolution: " << this->imageResolution << endl;
     fileObject << "voxel shift: " << this->voxelDivision << endl;
-    fileObject << "step length: " << this->imageVoxelResolution << endl;
+    fileObject << "step length: " << this->stepLength << endl;
     fileObject << "porosity: " << this->porosity << endl;
     fileObject << "SVp: " << this->svpRatio << endl;
 
@@ -1595,7 +1595,7 @@ void Model::printDetails()
     cout << "------------------------------------------------------" << endl;
     cout << "Data path: " << this->dbPath + this->name << endl;
     cout << "Image path: " << this->uCT_config.getImgFile(0) << endl;
-    cout << "Image resolution (um/voxel): " << this->imageVoxelResolution << endl;
+    cout << "Image resolution (um/voxel): " << this->stepLength << endl;
     cout << "Diffusion coefficient (um^2/ms): " << this->diffusionCoefficient << endl;
     cout << "Number of images: " << this->numberOfImages << endl;
     cout << "Walkers pore occupancy in simulation: " << this->walkerOccupancy * 100.0 << "%" << endl;

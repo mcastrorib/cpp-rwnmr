@@ -225,7 +225,7 @@ void NMR_cpmg::createPenaltiesVector(vector<double> &_sigmoid)
         artificial_xirate = histogram.getBin(idx);
         toy.setXiRate(artificial_xirate);
         toy.setSurfaceRelaxivity(_sigmoid);
-        toy.computeDecreaseFactor(this->model.getImageVoxelResolution(), this->model.getDiffusionCoefficient());
+        toy.computeDecreaseFactor(this->model.getStepLength(), this->model.getDiffusionCoefficient());
         this->penalties[idx] = pow(toy.getDecreaseFactor(), (artificial_xirate * artificial_steps));
     }
 }
@@ -250,7 +250,7 @@ void NMR_cpmg::createPenaltiesVector(double rho)
         artificial_xirate = histogram.getBin(idx);
         toy.setXiRate(artificial_xirate);
         toy.setSurfaceRelaxivity(rho);
-        toy.computeDecreaseFactor(this->model.getImageVoxelResolution(), this->model.getDiffusionCoefficient());
+        toy.computeDecreaseFactor(this->model.getStepLength(), this->model.getDiffusionCoefficient());
         this->penalties[idx] = pow(toy.getDecreaseFactor(), (artificial_xirate * artificial_steps));
     }
 }

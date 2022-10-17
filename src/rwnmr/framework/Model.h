@@ -51,7 +51,7 @@ private:
     // image attributes
     uint numberOfImages;
     double imageResolution;
-    double imageVoxelResolution;    
+    double stepLength;    
     uint height;
     uint width;
     uint depth;
@@ -104,7 +104,7 @@ public:
 
         this->numberOfImages = _otherSimulation.numberOfImages;
         this->imageResolution = _otherSimulation.imageResolution;
-        this->imageVoxelResolution = _otherSimulation.imageVoxelResolution;
+        this->stepLength = _otherSimulation.stepLength;
         this->height = _otherSimulation.height;
         this->width = _otherSimulation.width;
         this->depth = _otherSimulation.depth;
@@ -176,7 +176,7 @@ public:
     void setBulkRelaxationTime(double _bt){ this->bulkRelaxationTime = _bt; }
     void setNumberOfImages(uint _n){ this->numberOfImages = _n; }
     void setImageResolution(double _r){ this->imageResolution = _r; }
-    void setImageVoxelResolution(double _vr){ this->imageVoxelResolution = _vr; }
+    void setStepLength(double _vr){ this->stepLength = _vr; }
     void setHeight(uint _h){ this->height = _h; }
     void setWidth(uint _w){ this->width = _w; }
     void setDepth(uint _d){ this->depth = _d; }
@@ -226,7 +226,7 @@ public:
     double getBulkRelaxationTime(){ return this->bulkRelaxationTime; }
     uint getNumberOfImages(){ return this->numberOfImages; }
     double getImageResolution(){ return this->imageResolution; }
-    double getImageVoxelResolution(){ return this->imageVoxelResolution; }  
+    double getStepLength(){ return this->stepLength; }  
     uint getHeight(){ return this->height; }
     uint getWidth(){ return this->width; }
     uint getDepth(){ return this->depth; }
@@ -248,7 +248,7 @@ public:
     void createBitBlockMap();
     void initSeed(bool _flag=false);
     void initGiromagneticRatio(double _gamma, string _unit = "rad");
-    void initImageVoxelResolution();
+    void initStepLength();
     void initTimeInterval();
     void initVoxelDivision(uint _shifts);
     void applyVoxelDivision(uint _shifts);
