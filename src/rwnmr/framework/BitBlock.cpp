@@ -79,7 +79,7 @@ void BitBlock::createBitBlocksArray_2D(Mat &_binaryMap)
                     // check if pixel is inside image resolution
                     if (mapPixel_x < (*this).getImageColumns() && mapPixel_y < (*this).getImageRows())
                     {
-                        Point3D pixel(mapPixel_x, mapPixel_y, 0);
+                        Pos3d pixel(mapPixel_x, mapPixel_y, 0);
 
                         if (!pixel.isPore(_binaryMap))
                         {
@@ -190,7 +190,7 @@ void BitBlock::createBitBlocksArray_3D(vector<Mat> &_binaryMap)
                             // check if pixel is inside image resolution
                             if (mapPixel_x < (*this).getImageColumns() && mapPixel_y < (*this).getImageRows() && mapPixel_z < (*this).getImageDepth())
                             {
-                                Point3D pixel(mapPixel_x, mapPixel_y, mapPixel_z);
+                                Pos3d pixel(mapPixel_x, mapPixel_y, mapPixel_z);
 
                                 if (!pixel.isPore(_binaryMap))
                                 {

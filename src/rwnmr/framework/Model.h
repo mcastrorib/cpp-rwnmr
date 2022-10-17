@@ -2,7 +2,7 @@
 #define MODEL_H_
 
 #include "Defs.h"
-#include "Point3D.h"
+#include "Pos3d.h"
 #include "BitBlock.h"
 #include "Walker.h"
 #include "CollisionHistogram.h"
@@ -38,7 +38,7 @@ private:
     uint numberOfWalkers;
     uint walkerSamples;
 
-    vector<Point3D> pores;
+    vector<Pos3d> pores;
     vector<uint> walkersIdxList;
     vector<Walker> *walkers;
 
@@ -158,9 +158,9 @@ public:
     void setWalkerOccupancy(double _wo){ this->walkerOccupancy = _wo; }
     void setNumberOfWalkers(uint _nw){ this->numberOfWalkers = _nw; }
     void setWalkerSamples(uint _ws){ this->walkerSamples = _ws; }
-    void setPores(vector<Point3D> _p){ this->pores = _p; }
-    void setPores(Point3D _p, uint _idx){ this->pores[_idx] = _p; }
-    void addPores(Point3D _p){ this->pores.push_back(_p); }
+    void setPores(vector<Pos3d> _p){ this->pores = _p; }
+    void setPores(Pos3d _p, uint _idx){ this->pores[_idx] = _p; }
+    void addPores(Pos3d _p){ this->pores.push_back(_p); }
     void clearPores(){ this->pores.clear(); }
     void setWalkersIdxList(vector<uint> _wid){ this->walkersIdxList = _wid; }
     void setWalkersIdxList(uint _wid, uint _idx){ this->walkersIdxList[_idx] = _wid; }
@@ -214,8 +214,8 @@ public:
     double getWalkerOccupancy(){ return this->walkerOccupancy; }
     uint getNumberOfWalkers(){ return this->numberOfWalkers; }
     uint getWalkerSamples(){ return this->walkerSamples; }
-    vector<Point3D> getPores(){ return this->pores; }
-    Point3D getPores(uint idx){ return this->pores[idx]; }
+    vector<Pos3d> getPores(){ return this->pores; }
+    Pos3d getPores(uint idx){ return this->pores[idx]; }
     vector<uint> getWalkersIdxList(){ return this->walkersIdxList; }
     uint getWalkersIdxList(uint idx){ return this->walkersIdxList[idx]; }
     vector<Walker> *getWalkers(){ return this->walkers; }
@@ -256,18 +256,18 @@ public:
     void buildTimeFramework(uint _steps);
     void buildTimeFramework(double _time);
     void initWalkers(void);
-    void initWalkers(Point3D _point, uint _numberOfWalkers);
-    void initWalkers(Point3D _point1, Point3D _point2, uint _numberOfWalkers);
+    void initWalkers(Pos3d _point, uint _numberOfWalkers);
+    void initWalkers(Pos3d _point1, Pos3d _point2, uint _numberOfWalkers);
     void initWalkers(uint _numberOfWalkers, bool _randomInsertion = false);
     void countPoresInBinaryMap();
     void countPoresInBitBlock();
-    void countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2);
+    void countPoresInCubicSpace(Pos3d _vertex1, Pos3d _vertex2);
     void updatePorosity();
     void countInterfacePoreMatrix();
     void updateSvpRatio();
     void updateNumberOfPores();
     void createPoreList();
-    void createPoreList(Point3D _vertex1, Point3D _vertex2);
+    void createPoreList(Pos3d _vertex1, Pos3d _vertex2);
     void freePoreList(){ if(this->pores.size() > 0) this->pores.clear();}
     void updateWalkerOccupancy();
     void createWalkersIdxList();
@@ -277,7 +277,7 @@ public:
     void placeWalkersUniformly();
     void placeWalkersByChance();
     void placeWalkersInSamePoint(uint x = 0, uint y = 0, uint z = 0);
-    void placeWalkersInCubicSpace(Point3D _vertex1, Point3D _vertex2);
+    void placeWalkersInCubicSpace(Pos3d _vertex1, Pos3d _vertex2);
 
     // histogram
     void initHistogramList();
@@ -317,7 +317,7 @@ public:
     void save(string _otherDir);
 
     uint pickRandomIndex(uint _minValue, uint _maxValue);
-    Point3D removeRandomPore(vector<Point3D> &_pores, uint _randomIndex);
+    Pos3d removeRandomPore(vector<Pos3d> &_pores, uint _randomIndex);
 
     void printDetails();
     void info();

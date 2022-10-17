@@ -3,7 +3,6 @@
 
 #include "cuda_runtime.h"
 #include "../Defs.h"
-#include "../Point3D.h"
 #include "../Walker.h"
 #include "../Model.h"
 #include "../NMR_cpmg.h"

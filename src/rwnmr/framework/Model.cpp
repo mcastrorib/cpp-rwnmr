@@ -25,7 +25,7 @@ Model::Model(RwnmrConfig _rwNMR_config,
 {
     // init vector objects
     vector<Mat> binaryMap();
-    vector<Point3D> pores();
+    vector<Pos3d> pores();
     vector<uint> walkersIdxList();
     this->walkers = new vector<Walker>;
     vector<CollisionHistogram> histogramList();
@@ -221,7 +221,7 @@ void Model::initWalkers(void)
             int center_x = (int) (*this).getWidth()/2;
             int center_y = (int) (*this).getHeight()/2;
             int center_z = (int) (*this).getDepth()/2;
-            Point3D center(center_x, center_y, center_z);
+            Pos3d center(center_x, center_y, center_z);
 
             // now set walkers
             (*this).initWalkers(center, this->rwNMR_config.getWalkers());
@@ -233,8 +233,8 @@ void Model::initWalkers(void)
             int center_y = (int) ((*this).getHeight() - 1)/2;
             int center_z = (int) ((*this).getDepth() - 1)/2;
             int deviation = (int) this->rwNMR_config.getPlacementDeviation();
-            Point3D point1(center_x - deviation, center_y - deviation, center_z - deviation);
-            Point3D point2(center_x + deviation, center_y + deviation, center_z + deviation);
+            Pos3d point1(center_x - deviation, center_y - deviation, center_z - deviation);
+            Pos3d point2(center_x + deviation, center_y + deviation, center_z + deviation);
 
             // now set walkers 
             (*this).initWalkers(point1, point2, this->rwNMR_config.getWalkers());
@@ -273,7 +273,7 @@ void Model::initWalkers(uint _numberOfWalkers, bool _randomInsertion)
     (*this).associateMapSimulation(); 
 }
 
-void Model::initWalkers(Point3D _point, uint _numberOfWalkers)
+void Model::initWalkers(Pos3d _point, uint _numberOfWalkers)
 {    
     (*this).setNumberOfWalkers(_numberOfWalkers);
     (*this).updateWalkerOccupancy();
@@ -285,7 +285,7 @@ void Model::initWalkers(Point3D _point, uint _numberOfWalkers)
     (*this).associateMapSimulation(); 
 }
 
-void Model::initWalkers(Point3D _point1, Point3D _point2, uint _numberOfWalkers)
+void Model::initWalkers(Pos3d _point1, Pos3d _point2, uint _numberOfWalkers)
 {    
     (*this).setNumberOfWalkers(_numberOfWalkers);
     (*this).updateWalkerOccupancy();
@@ -496,7 +496,7 @@ void Model::countPoresInBinaryMap()
                 {
                     // x coordinate corresponds to column in binary map Mat structure
                     // y coordinate corresponds to row in the binary map Mat structure
-                    Point3D detectedPore = {column, row, slice};
+                    Pos3d detectedPore = {column, row, slice};
                     pores.insert(pores.end(), detectedPore);
                     this->numberOfPores++;
                 }
@@ -565,7 +565,7 @@ void Model::countPoresInBitBlock()
     cout << "porosity: " << this->porosity << endl;
 }
 
-void Model::countPoresInCubicSpace(Point3D _vertex1, Point3D _vertex2)
+void Model::countPoresInCubicSpace(Pos3d _vertex1, Pos3d _vertex2)
 {
     double time = omp_get_wtime(); 
     cout << "- counting pore voxels in cubic space:" << endl;
@@ -804,7 +804,7 @@ void Model::createPoreList()
 
                 if (!this->bitBlock->checkIfBitIsWall(block, bit))
                 {
-                    Point3D detectedPore = {x, y, z};
+                    Pos3d detectedPore = {x, y, z};
                     this->pores.push_back(detectedPore);
                 }
             }
@@ -819,7 +819,7 @@ void Model::createPoreList()
     cout << " in " << time << " seconds." << endl; 
 }
 
-void Model::createPoreList(Point3D _vertex1, Point3D _vertex2)
+void Model::createPoreList(Pos3d _vertex1, Pos3d _vertex2)
 {
     double time = omp_get_wtime(); 
     cout << "- creating restricted pore list:" << endl;
@@ -893,7 +893,7 @@ void Model::createPoreList(Point3D _vertex1, Point3D _vertex2)
 
                 if (!this->bitBlock->checkIfBitIsWall(block, bit))
                 {
-                    Point3D detectedPore = {x, y, z};
+                    Pos3d detectedPore = {x, y, z};
                     this->pores.push_back(detectedPore);
                 }
             }
@@ -1058,7 +1058,7 @@ void Model::placeWalkersByChance()
     uint errorCount = 0;
     uint erroLimit = 1000;
     uint idx = 0;
-    Point3D point; 
+    Pos3d point; 
     bool validPoint = false;   
 
     std::uniform_int_distribution<std::mt19937::result_type> columnDist(0, this->bitBlock->getImageColumns());
@@ -1194,7 +1194,7 @@ void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
     }
 
     // checar se ponto é poro
-    Point3D point(_x, _y, _z);
+    Pos3d point(_x, _y, _z);
     bool validPoint;    
     if(dim3)
     {
@@ -1222,7 +1222,7 @@ void Model::placeWalkersInSamePoint(uint _x, uint _y, uint _z)
     }
 }
 
-void Model::placeWalkersInCubicSpace(Point3D _vertex1, Point3D _vertex2)
+void Model::placeWalkersInCubicSpace(Pos3d _vertex1, Pos3d _vertex2)
 {
     double time = omp_get_wtime();
     cout << "- placing walkers at selected space: " << endl;
@@ -1378,9 +1378,9 @@ uint Model::pickRandomIndex(uint _minValue, uint _maxValue)
     return dist(Model::_rng); 
 }
 
-Point3D Model::removeRandomPore(vector<Point3D> &_pores, uint _randomIndex)
+Pos3d Model::removeRandomPore(vector<Pos3d> &_pores, uint _randomIndex)
 {
-    Point3D randomPore = _pores[_randomIndex];
+    Pos3d randomPore = _pores[_randomIndex];
     std::swap(_pores[_randomIndex], _pores.back());
     _pores.pop_back();
     return randomPore;
