@@ -202,19 +202,9 @@ void Model::buildTimeFramework(double _time)
 
 void Model::readImage()
 {
-    if(this->uCT_config.getImgFiles().size() == this->uCT_config.getSlices())
-    {
-        this->numberOfImages = this->uCT_config.getSlices();
-        this->depth = this->uCT_config.getSlices();
-        (*this).assemblyImagePath();
-        (*this).loadRockImageFromList();
-    }
-    else
-    {
-        (*this).assemblyImagePath();
-        (*this).loadRockImage();
-    } 
-
+    this->numberOfImages = this->uCT_config.getSlices();
+    this->depth = this->uCT_config.getSlices();
+    (*this).loadImage();
     (*this).createBitBlockMap();
     (*this).countPoresInBitBlock();
     (*this).countInterfacePoreMatrix();
@@ -381,59 +371,7 @@ void Model::save(string _otherDir)
     cout << " in " << time << " seconds." << endl; 
 }
 
-void Model::loadRockImage()
-{
-    double time = omp_get_wtime();
-    cout << "- loading rock image:" << endl;
-
-    // reserve memory for binaryMap
-    this->binaryMap.reserve(numberOfImages);
-
-    // constant strings
-    string currentDirectory = this->imagePath.getPath();
-    string currentFileName = this->imagePath.getFilename();
-    string currentExtension = this->imagePath.getExtension();
-
-    // variable strings
-    string currentFileID;
-    string currentImagePath;
-
-    uint firstImage = this->imagePath.getFileID();
-    uint digits = this->imagePath.getDigits();
-
-    // create progress bar object
-    ProgressBar pBar((double) (this->numberOfImages));
-
-    for (uint slice = 0; slice < this->numberOfImages; slice++)
-    {
-        // identifying next image to be read
-        currentFileID = (*this).convertFileIDToString(firstImage + slice, digits);
-        currentImagePath = currentDirectory + currentFileName + currentFileID + currentExtension;
-
-        Mat rockImage = imread(currentImagePath, 1);
-
-        if (!rockImage.data)
-        {
-            cout << "Error: No image data in file " << currentImagePath << endl;
-            exit(1);
-        }
-
-        this->height = rockImage.rows;
-        this->width = rockImage.cols * rockImage.channels();
-
-        (*this).createBinaryMap(rockImage, slice);
-
-        // Update progress bar
-        pBar.update(1);
-        pBar.print();
-        
-    }
-
-    time = omp_get_wtime() - time;
-    cout << " in " << time << " seconds." << endl;
-}
-
-void Model::loadRockImageFromList()
+void Model::loadImage()
 {
     double time = omp_get_wtime();
     cout << "- loading rock image from list:" << endl;
@@ -1456,23 +1394,6 @@ uint Model::removeRandomIndexFromPool(vector<uint> &_pool, uint _randomIndex)
     return element;
 }
 
-void Model::assemblyImagePath()
-{
-    // User Input
-     ImagePath input;
-     input.setImages(this->uCT_config.getSlices());
-     input.setPath(this->uCT_config.getDirPath());
-     input.setFilename(this->uCT_config.getFilename());
-     input.setFileID(this->uCT_config.getFirstIdx());
-     input.setDigits(this->uCT_config.getDigits());
-     input.setExtension(this->uCT_config.getExtension());
-     input.updateCompletePath();
-
-     (*this).setImagePath(input);
-     (*this).setNumberOfImages(input.getImages());
-     (*this).setDepth((*this).getNumberOfImages());
-}
-
 string Model::createDirectoryForResults(string _path)
 {
     BaseFunctions::createDirectory(_path, this->name);
@@ -1499,7 +1420,7 @@ void Model::saveInfo(string filedir)
     fileObject << ">>> RWNMR SIMULATION PARAMETERS: " << (*this).getName() << endl;
     fileObject << "------------------------------------------------------" << endl;
     fileObject << "Data path: " << (*this).getDbPath() + (*this).getName() << endl;
-    fileObject << "Image path: " << (*this).getImagePath().getCompletePath() << endl;
+    fileObject << "Image path: " << this->uCT_config.getImgFile(0) << endl;
     fileObject << "Image resolution (um/voxel): " << (*this).getImageVoxelResolution() << endl;
     fileObject << "Diffusion coefficient (um^2/ms): " << (*this).getDiffusionCoefficient() << endl;
     fileObject << "Number of images: " << (*this).getNumberOfImages() << endl;
@@ -1551,7 +1472,7 @@ void Model::saveImageInfo(string filedir)
     }
 
     // write info 
-    fileObject << "image path: " << this->imagePath.getCompletePath() << endl;
+    fileObject << "image path: " << this->uCT_config.getImgFile(0) << endl;
     fileObject << "width(x): " << this->bitBlock->getImageColumns() << endl;
     fileObject << "height(y): " << this->bitBlock->getImageRows() << endl;
     fileObject << "depth(z): " << this->bitBlock->getImageDepth() << endl;
@@ -1673,7 +1594,7 @@ void Model::printDetails()
     cout << ">>> NMR SIMULATION 3D PARAMETERS: " << this->name << endl;
     cout << "------------------------------------------------------" << endl;
     cout << "Data path: " << this->dbPath + this->name << endl;
-    cout << "Image path: " << this->imagePath.getCompletePath() << endl;
+    cout << "Image path: " << this->uCT_config.getImgFile(0) << endl;
     cout << "Image resolution (um/voxel): " << this->imageVoxelResolution << endl;
     cout << "Diffusion coefficient (um^2/ms): " << this->diffusionCoefficient << endl;
     cout << "Number of images: " << this->numberOfImages << endl;
