@@ -25,6 +25,7 @@ void TestApp::select(string tag)
 	else if(tag == "CpmgConfig") this->test = new CpmgConfigTest((*this).getProjectRoot());
 	else if(tag == "MultitauConfig") this->test = new MultitauConfigTest((*this).getProjectRoot());
 	else if(tag == "PfgseConfig") this->test = new PfgseConfigTest((*this).getProjectRoot());
+	else if(tag == "Pos3d") this->test = new Pos3dTest((*this).getProjectRoot());
 }
 
 void TestApp::run()
