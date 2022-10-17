@@ -2,7 +2,7 @@
 #define BITBLOCK_H_
 
 #include "Defs.h"
-#include "Point3D.h"
+#include "Pos3d.h"
 
 // define 2D block properties
 #define ROWSPERBLOCK2D 8

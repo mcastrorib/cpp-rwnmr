@@ -1,9 +1,9 @@
-#ifndef POINT3D_H_
-#define POINT3D_H_
+#ifndef POS3D_H_
+#define POS3D_H_
 
 #include "Defs.h"
 
-class Point3D
+class Pos3d
 {
 private:
     int x;
@@ -13,9 +13,9 @@ private:
 public:
 
     // methods
-    Point3D() : x(0), y(0), z(0) {}
-    Point3D(int _x, int _y, int _z) : x(_x), y(_y), z(_z) {}
-    Point3D(const Point3D &other)
+    Pos3d() : x(0), y(0), z(0) {}
+    Pos3d(int _x, int _y, int _z) : x(_x), y(_y), z(_z) {}
+    Pos3d(const Pos3d &other)
     {
         this->x = other.x;
         this->y = other.y;
@@ -26,7 +26,7 @@ public:
     {
         uchar *mapPixel = _binaryMap[this->z].ptr<uchar>(this->y);
 
-        if (mapPixel[this->x] == 0)
+        if (mapPixel[this->x] == PORE_COLOR)
             return true;
         else
             return false;
@@ -36,7 +36,7 @@ public:
     {
         uchar *mapPixel = _binaryMap.ptr<uchar>(this->y);
 
-        if (mapPixel[this->x] == 0)
+        if (mapPixel[this->x] == PORE_COLOR)
             return true;
         else
             return false;

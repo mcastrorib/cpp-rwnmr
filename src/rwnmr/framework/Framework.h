@@ -1,7 +1,7 @@
 #ifndef FRAMEWORK_H_
 #define FRAMEWORK_H_
 
-#include "Point3D.h"
+#include "Pos3d.h"
 #include "Walker.h" 
 #include "BitBlock.h"
 #include "CollisionHistogram.h"

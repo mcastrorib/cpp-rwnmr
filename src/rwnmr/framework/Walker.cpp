@@ -127,7 +127,7 @@ void Walker::map_2D(BitBlock *_bitBlock)
 {
     computeNextDirection_2D();
     checkBorder_2D(_bitBlock);
-    Point3D nextPosition = computeNextPosition_2D();
+    Pos3d nextPosition = computeNextPosition_2D();
 
     //check if next position is pore wall
     if (checkNextPosition_2D(nextPosition, _bitBlock))
@@ -145,7 +145,7 @@ void Walker::walk_2D(BitBlock *_bitBlock)
 {
     computeNextDirection_2D();
     checkBorder_2D(_bitBlock);
-    Point3D nextPosition = computeNextPosition_2D();
+    Pos3d nextPosition = computeNextPosition_2D();
 
     if (checkNextPosition_2D(nextPosition, _bitBlock))
     {
@@ -163,7 +163,7 @@ void Walker::map_3D(BitBlock *_bitBlock)
 {
     computeNextDirection_3D();
     checkBorder_3D(_bitBlock);
-    Point3D nextPosition = computeNextPosition_3D();
+    Pos3d nextPosition = computeNextPosition_3D();
 
     //check if next position is pore wall
     if (checkNextPosition_3D(nextPosition, _bitBlock))
@@ -181,7 +181,7 @@ void Walker::walk_3D(BitBlock *_bitBlock)
 {
     computeNextDirection_3D();
     checkBorder_3D(_bitBlock);
-    Point3D nextPosition = computeNextPosition_3D();
+    Pos3d nextPosition = computeNextPosition_3D();
 
     if (checkNextPosition_3D(nextPosition, _bitBlock))
     {
