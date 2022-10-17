@@ -26,6 +26,11 @@ public:
 
 	virtual vector<TestResult> run();
 
+	TestResult convertToBits_Uint64();
+	TestResult convertToBits_Uint16();
+	TestResult convertToBits_Uint8();
+	TestResult convertBlock2dToStringTest();
+	TestResult convertBlock3dToStringTest();		
 	TestResult concatenateVectorsTest_Type();
 	TestResult concatenateVectorsTest_Class();
 	TestResult concatenateVectorsTest_OneIsEmpty();
