@@ -5,5 +5,6 @@
 #include "BaseFunctionsTest.h"
 #include "MemAllocatorTest.h"
 #include "ThreadsBalancerTest.h"
+#include "ImagePathTest.h"
 
 #endif

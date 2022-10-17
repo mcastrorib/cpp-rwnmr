@@ -176,24 +176,21 @@ void UctConfig::createImgFileList()
     }
 
 	// constant strings
-    string currentDirectory = (*this).getDirPath();
-    string currentFileName = (*this).getFilename();
-    string currentExtension = (*this).getExtension();
-	uint firstImage = (*this).getFirstIdx();
+    string dirname = (*this).getDirPath();
+    string fname = (*this).getFilename();
+    uint firstId = (*this).getFirstIdx();
     uint digits = (*this).getDigits();
 	uint slices = (*this).getSlices();
+    string extension = (*this).getExtension();
+	ImagePath paths(dirname, fname, firstId, digits, slices, extension);
 
     // variable strings
-    string currentFileID;
+    string currentId;
     string currentImagePath;    
 
     for (uint slice = 0; slice < slices; slice++)
     {
-        // identifying next image to be read
-        currentFileID = (*this).convertFileIDToString(firstImage + slice, digits);
-        currentImagePath = currentDirectory + currentFileName + currentFileID + currentExtension;
-
-        fileObject << currentImagePath << endl;
+        fileObject << paths.getImagePathFromList(slice) << endl;
     }	  
 
 	(*this).readImgFilesList(filepath);    

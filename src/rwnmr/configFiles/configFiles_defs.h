@@ -22,4 +22,6 @@
 #include <math.h>
 #include <omp.h>
 
+#include "../utils/Utils.h"
+
 #endif

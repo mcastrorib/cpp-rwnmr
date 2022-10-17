@@ -49,7 +49,6 @@ private:
     double bulkRelaxationTime;
 
     // image attributes
-    ImagePath imagePath;
     uint numberOfImages;
     double imageResolution;
     double imageVoxelResolution;    
@@ -103,7 +102,6 @@ public:
         this->giromagneticRatio = _otherSimulation.giromagneticRatio;
         this->bulkRelaxationTime = _otherSimulation.bulkRelaxationTime;
 
-        this->imagePath = _otherSimulation.imagePath;
         this->numberOfImages = _otherSimulation.numberOfImages;
         this->imageResolution = _otherSimulation.imageResolution;
         this->imageVoxelResolution = _otherSimulation.imageVoxelResolution;
@@ -176,7 +174,6 @@ public:
     void setDiffusionCoefficient(double _d){ this->diffusionCoefficient = _d; }
     void setGiromagneticRatio(double _g){ this->giromagneticRatio = _g; }
     void setBulkRelaxationTime(double _bt){ this->bulkRelaxationTime = _bt; }
-    void setImagePath(ImagePath _p){ this->imagePath = _p; }
     void setNumberOfImages(uint _n){ this->numberOfImages = _n; }
     void setImageResolution(double _r){ this->imageResolution = _r; }
     void setImageVoxelResolution(double _vr){ this->imageVoxelResolution = _vr; }
@@ -227,7 +224,6 @@ public:
     double getDiffusionCoefficient(){ return this->diffusionCoefficient; }
     double getGiromagneticRatio(){ return this->giromagneticRatio; }
     double getBulkRelaxationTime(){ return this->bulkRelaxationTime; }
-    ImagePath getImagePath(){ return this->imagePath; }
     uint getNumberOfImages(){ return this->numberOfImages; }
     double getImageResolution(){ return this->imageResolution; }
     double getImageVoxelResolution(){ return this->imageVoxelResolution; }  
@@ -247,8 +243,7 @@ public:
     // Class methods:
     // read
     void readImage();
-    void loadRockImage();
-    void loadRockImageFromList();
+    void loadImage();
     void createBinaryMap(Mat &_rockImage, uint slice);
     void createBitBlockMap();
     void initSeed(bool _flag=false);
@@ -326,7 +321,6 @@ public:
 
     void printDetails();
     void info();
-    void dummy(){ cout << "hey, I'm here dude." << endl;}
 
     inline string convertFileIDToString(uint id, uint digits)
     {

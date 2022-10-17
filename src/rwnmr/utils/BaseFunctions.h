@@ -30,75 +30,57 @@ class BaseFunctions
     BaseFunctions(){}
 	virtual ~BaseFunctions (){}
 
-    static void showblock(uint64_t x)
-    {
-        int lineCounter = 0;
-
-        for (int i = 0; i < (sizeof(uint64_t) * 8); i++)
-        {
-            (x & (1ull << i) ? cout << "1" : cout << "0");
-            cout << "  ";
-
-            if (lineCounter == 7)
-            {
-                cout << endl;
-                lineCounter = -1;
-            }
-
-            lineCounter++;
-        }
-        cout << endl;
-    }
-
     // small function to print int64_t in bits
-    static void showbits(uint64_t x)
+    static string convertUint64ToBitString(uint64_t x)
     {
+        string bstr = "";
         for (int i = (sizeof(uint64_t) * 8) - 1; i >= 0; i--)
         {
-            (x & (1ull << i) ? cout << "1" : cout << "0");
+            (x & (1ull << i) ? bstr += "1" : bstr += "0");
         }
-        cout << endl;
+        return bstr;
     }
 
     // small function to print int64_t in an 8 by 8 bitblock
-    static void showblock8x8(uint64_t x)
+    static string convertBlock2dToString(uint64_t x)
     {
+        string bstr = "";
         int lineCounter = 0;
-
+        
         for (int i = 0; i < (sizeof(uint64_t) * 8); i++)
         {
-            (x & (1ull << i) ? cout << "1" : cout << "0");
-            cout << "  ";
-
+            (x & (1ull << i) ? bstr += " 1" : bstr += " 0");
+            
             if (lineCounter == 7)
             {
-                cout << endl;
+                bstr +="\n";
                 lineCounter = -1;
             }
 
             lineCounter++;
         }
-        cout << endl;
+
+        return bstr;
     }
 
     // small function to print int64_t in an 4 by 4 by 4 cubic bitblock
-    static void showblock4x4x4(uint64_t x)
+    static string convertBlock3dToString(uint64_t x)
     {
+        string bstr = "";
         int lineCounter = 0;
         int baseCounter = 0;
 
         for (int i = 0; i < (sizeof(uint64_t) * 8); i++)
         {
-            (x & (1ull << i) ? cout << "1" : cout << "0");
-            cout << "  ";
-
+            (x & (1ull << i) ? bstr += " 1" : bstr += " 0");
+            
             if (lineCounter == 3)
             {
-                cout << endl;
+                bstr += "\n";
                 lineCounter = -1;
                 if (baseCounter == 15)
                 {
-                    cout << endl;
+                    bstr += "\n";
                     baseCounter = -1;
                 }
             }
@@ -106,7 +88,54 @@ class BaseFunctions
             lineCounter++;
             baseCounter++;
         }
-        cout << endl;
+        return bstr;
+    }
+
+    template <typename T>
+    static string convertToBits(T x)
+    {
+        string bstr = "";
+        for (int i = (sizeof(T) * 8) - 1; i >= 0; i--)
+        {
+            (x & (1ull << i) ? bstr += "1" : bstr += "0");
+        }
+        return bstr;
+    }
+
+
+    template <typename T>
+    static string convertBlockToBitString(T x, int dimX, int dimY=1, int dimZ=1)
+    {
+        string bstr = BaseFunctions::convertToBits(x);
+        if(dimX*dimY*dimZ != bstr.length()) 
+            return (string)"Error: bad dims";
+        
+        string finalStr = "";
+        int lineCounter = 0;
+        int baseCounter = 0;
+
+        for (int i = bstr.length(); i > 0; i--)
+        {
+            finalStr += " ";
+            finalStr += bstr.substr(i-1,1);
+
+            if (lineCounter == (dimX-1))
+            {
+                finalStr += "\n";
+                lineCounter = -1;
+                
+                if (baseCounter == (dimY - 1))
+                {
+                    finalStr += "\n";
+                    baseCounter = -1;
+                }
+
+                baseCounter++;
+            }
+
+            lineCounter++;
+        }
+        return finalStr;
     }
 
     static void printElapsedTime(double start, double finish)

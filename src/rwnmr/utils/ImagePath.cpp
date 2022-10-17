@@ -1,13 +1,4 @@
-// include C++ standard libraries
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <unistd.h>
-#include <cstdlib>
-
 #include "ImagePath.h"
-
-using namespace std;
 
 ImagePath::ImagePath(string _path, 
                      string _name, 
@@ -17,16 +8,25 @@ ImagePath::ImagePath(string _path,
                      string _extension) : path(_path),
                                           filename(_name),
                                           fileID(_fileID),
+                                          lastID(0),
                                           digits(_digits),
                                           images(_images),
                                           extension(_extension) 
 {
-    (*this).updateCompletePath();    
+    vector<string> imagesPathList();
+    (*this).updateLastID();
+    (*this).updateCompletePath();  
+    (*this).createImagesPathList();  
+}
+
+void ImagePath::updateLastID()
+{
+    (*this).setLastID((*this).getFileID() + (*this).getImages());
 }
 
 void ImagePath::updateCompletePath()
 {
-    (*this).updateNumberOfDigits();
+    // (*this).updateNumberOfDigits();
     (*this).setCompletePath(this->path + 
                             this->filename + 
                             (*this).convertFileIDToString(this->fileID, this->digits) + 
@@ -46,4 +46,20 @@ void ImagePath::updateNumberOfDigits()
     }
 
     (*this).setDigits(count);
+}
+
+void ImagePath::createImagesPathList()
+{
+    if(this->imagesPathList.size() > 0)
+        this->imagesPathList.clear();
+    
+    if((*this).getLastID() == 0) (*this).updateLastID();
+
+    for(uint s = (*this).getFileID(); s < (*this).getLastID(); s++)
+    {
+        this->imagesPathList.push_back(this->path + 
+                                       this->filename + 
+                                       (*this).convertFileIDToString(s, this->digits) + 
+                                       this->extension);
+    }
 }
