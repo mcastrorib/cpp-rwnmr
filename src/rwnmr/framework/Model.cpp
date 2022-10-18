@@ -8,12 +8,8 @@ Model::Model(RwnmrConfig _rwNMR_config,
                                                          uCT_config(_uCT_config),
                                                          simulationSteps(0),
                                                          numberOfEchoes(0),
-                                                         numberOfImages(0),
                                                          bitBlock(NULL),
                                                          walkers(NULL),
-                                                         width(0),
-                                                         height(0),
-                                                         depth(0),
                                                          boundaryCondition("noflux"),
                                                          numberOfPores(0),
                                                          porosity(-1.0),
@@ -85,8 +81,7 @@ void Model::initStepLength()
 
 void Model::initTimeInterval()
 {
-    (*this).setTimeInterval(((*this).getStepLength() * 
-                             (*this).getStepLength()) / 
+    (*this).setTimeInterval(((*this).getStepLength() * (*this).getStepLength()) / 
                              (6.0 * (*this).getDiffusionCoefficient()));
 }
 
@@ -202,25 +197,22 @@ void Model::buildTimeFramework(double _time)
 
 void Model::readImage()
 {
-    this->numberOfImages = this->uCT_config.getSlices();
-    this->depth = this->uCT_config.getSlices();
     (*this).loadImage();
     (*this).createBitBlockMap();
     (*this).countPoresInBitBlock();
     (*this).countInterfacePoreMatrix();
-
 }
 
 void Model::initWalkers(void)
 {
-    if(this->bitBlock->getNumberOfBlocks() > 0) // only set walkers, if image was loaded
+    if(this->bitBlock != NULL and this->bitBlock->getNumberOfBlocks() > 0) // only set walkers, if image was loaded
     {
         if(this->rwNMR_config.getWalkersPlacement() == "point")
         { 
             // define coords of central point
-            int center_x = (int) (*this).getWidth()/2;
-            int center_y = (int) (*this).getHeight()/2;
-            int center_z = (int) (*this).getDepth()/2;
+            int center_x = (int) this->bitBlock->getImageColumns()/2;
+            int center_y = (int) this->bitBlock->getImageRows()/2;
+            int center_z = (int) this->bitBlock->getImageDepth()/2;
             Pos3d center(center_x, center_y, center_z);
 
             // now set walkers
@@ -229,9 +221,9 @@ void Model::initWalkers(void)
         if (this->rwNMR_config.getWalkersPlacement() == "cubic")
         {   
             // define restriction points
-            int center_x = (int) ((*this).getWidth() - 1)/2;
-            int center_y = (int) ((*this).getHeight() - 1)/2;
-            int center_z = (int) ((*this).getDepth() - 1)/2;
+            int center_x = (int) (this->bitBlock->getImageColumns() - 1)/2;
+            int center_y = (int) (this->bitBlock->getImageRows() - 1)/2;
+            int center_z = (int) (this->bitBlock->getImageDepth() - 1)/2;
             int deviation = (int) this->rwNMR_config.getPlacementDeviation();
             Pos3d point1(center_x - deviation, center_y - deviation, center_z - deviation);
             Pos3d point2(center_x + deviation, center_y + deviation, center_z + deviation);
@@ -248,6 +240,7 @@ void Model::initWalkers(void)
     } else
     {
         cout << "error: image was not loaded yet" << endl;
+        exit(1);
     }
     
 }
@@ -377,15 +370,16 @@ void Model::loadImage()
     cout << "- loading rock image from list:" << endl;
 
     // reserve memory for binaryMap
-    this->binaryMap.reserve(this->numberOfImages);
+    uint numberOfImages = this->uCT_config.getSlices();
+    this->binaryMap.reserve(numberOfImages);
 
     // variable strings
     string currentImagePath;
 
     // create progress bar object
-    ProgressBar pBar((double) this->numberOfImages);
+    ProgressBar pBar((double) numberOfImages);
 
-    for (uint slice = 0; slice < this->numberOfImages; slice++)
+    for (uint slice = 0; slice < numberOfImages; slice++)
     {
         currentImagePath = this->uCT_config.getImgFile(slice);
 
@@ -396,9 +390,6 @@ void Model::loadImage()
             cout << "Error: No image data in file " << currentImagePath << endl;
             exit(1);
         }
-
-        this->height = rockImage.rows;
-        this->width = rockImage.cols * rockImage.channels();
 
         (*this).createBinaryMap(rockImage, slice);
 
@@ -418,17 +409,19 @@ void Model::createBinaryMap(Mat &_rockImage, uint slice)
     Mat emptyMap = Mat::zeros(_rockImage.rows, _rockImage.cols, CV_8UC1);
     binaryMap.push_back(emptyMap);
 
+    int height = _rockImage.rows;
+    int width = _rockImage.cols * _rockImage.channels();
     int channels = _rockImage.channels();
     uchar *rockImagePixel;
     uchar *binaryMapPixel;
 
-    for (int row = 0; row < this->height; ++row)
+    for (int row = 0; row < height; ++row)
     {
         rockImagePixel = _rockImage.ptr<uchar>(row);
         binaryMapPixel = this->binaryMap[slice].ptr<uchar>(row);
         int mapColumn = 0;
 
-        for (int column = 0; column < this->width; column += channels)
+        for (int column = 0; column < width; column += channels)
         {
             int currentChannel = 0;
             bool pixelIsPore = true;
@@ -463,53 +456,10 @@ void Model::createBitBlockMap()
     this->bitBlock->createBlockMap(this->binaryMap);
 
     // update image info
-    this->width = this->bitBlock->getImageColumns();
-    this->height = this->bitBlock->getImageRows();
-    this->depth = this->bitBlock->getImageDepth();
     this->binaryMap.clear();
 
     time = omp_get_wtime() - time;
     cout << " in " << time << " seconds." << endl;
-}
-
-// deprecated
-void Model::countPoresInBinaryMap()
-{
-    double time = omp_get_wtime(); 
-    cout << "counting ";
-
-    for (int slice = 0; slice < this->numberOfImages; slice++)
-    { // accept only char type matrices
-        CV_Assert(binaryMap[slice].depth() == CV_8U);
-
-        uint mapWidth = (uint)binaryMap[slice].cols;
-        uchar *binaryMapPixel;
-
-        for (int row = 0; row < height; ++row)
-        {
-            // psosition pointer at first element in current row
-            binaryMapPixel = binaryMap[slice].ptr<uchar>(row);
-
-            for (int column = 0; column < mapWidth; column++)
-            {
-                if (binaryMapPixel[column] == 0)
-                {
-                    // x coordinate corresponds to column in binary map Mat structure
-                    // y coordinate corresponds to row in the binary map Mat structure
-                    Pos3d detectedPore = {column, row, slice};
-                    pores.insert(pores.end(), detectedPore);
-                    this->numberOfPores++;
-                }
-            }
-        }
-    }
-
-    this->binaryMap.clear();
-    (*this).updatePorosity();
-
-    time = omp_get_wtime() - time;
-    cout << this->numberOfPores << " pore voxels in rock image...Ok. (" << time << " seconds)." << endl; 
-    cout << "porosity: " << this->porosity << endl;
 }
 
 void Model::countPoresInBitBlock()
@@ -1353,7 +1303,7 @@ void Model::associateMapSimulation()
 {
     if ((*this).getGpuUsage() == true)
     {
-        if (this->numberOfImages == 1)
+        if (this->uCT_config.getSlices() == 1)
         {
             mapSimulationPointer = &Model::mapSimulation_CUDA_2D_histograms;
         }
@@ -1423,7 +1373,7 @@ void Model::saveInfo(string filedir)
     fileObject << "Image path: " << this->uCT_config.getImgFile(0) << endl;
     fileObject << "Image resolution (um/voxel): " << (*this).getStepLength() << endl;
     fileObject << "Diffusion coefficient (um^2/ms): " << (*this).getDiffusionCoefficient() << endl;
-    fileObject << "Number of images: " << (*this).getNumberOfImages() << endl;
+    fileObject << "Number of images: " << (*this).getUctConfig().getSlices() << endl;
     fileObject << "Walkers pore occupancy in simulation: " << (*this).getWalkerOccupancy() * 100.0 << "%" << endl;
     
 
@@ -1597,7 +1547,7 @@ void Model::printDetails()
     cout << "Image path: " << this->uCT_config.getImgFile(0) << endl;
     cout << "Image resolution (um/voxel): " << this->stepLength << endl;
     cout << "Diffusion coefficient (um^2/ms): " << this->diffusionCoefficient << endl;
-    cout << "Number of images: " << this->numberOfImages << endl;
+    cout << "Number of images: " << (*this).getUctConfig().getSlices() << endl;
     cout << "Walkers pore occupancy in simulation: " << this->walkerOccupancy * 100.0 << "%" << endl;
     
 

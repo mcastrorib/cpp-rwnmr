@@ -41,9 +41,9 @@ void NMR_cpmg::checkInternalField()
 {
     if(this->internalField != NULL)
     {
-        if(this->model.getWidth() != this->internalField->getDimX() 
-           or this->model.getHeight() != this->internalField->getDimY() 
-           or this->model.getDepth() != this->internalField->getDimZ())
+        if(this->model.getBitBlock()->getImageColumns() != this->internalField->getDimX() 
+           or this->model.getBitBlock()->getImageRows() != this->internalField->getDimY() 
+           or this->model.getBitBlock()->getImageDepth() != this->internalField->getDimZ())
         {
             cout << "Internal field dimensions doesnt match image data." << endl;
             exit(1);
