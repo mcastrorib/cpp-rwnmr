@@ -20,6 +20,7 @@ private:
     double GRADIENT_VALUE;
     int GRADIENT_DIRECTION;
     string PATH_TO_FIELD;
+    bool INTERPOLATE_FIELD;
 
     // LAPLACE INVERSION
     double MIN_T2;
@@ -42,7 +43,7 @@ private:
     
 public:
     // default constructors
-    CpmgConfig():BaseConfig(), APPLY_BULK(false), TIME_VERBOSE(false), USE_T2_LOGSPACE(false), SAVE_MODE(false){};
+    CpmgConfig():BaseConfig(), APPLY_BULK(false), TIME_VERBOSE(false), INTERPOLATE_FIELD(false), USE_T2_LOGSPACE(false), SAVE_MODE(false){};
     CpmgConfig(const string configFile, const string croot);
 
     //copy constructors
@@ -66,6 +67,7 @@ public:
     void readGradientValue(string s);
     void readGradientDirection(string s);
     void readPathToField(string s);
+    void readInterpolateField(string s);
     void readMinT2(string s);
     void readMaxT2(string s);
     void readUseT2Logspace(string s);
@@ -91,6 +93,7 @@ public:
     void setGradientValue(double _v){ this->GRADIENT_VALUE = _v; }
     void setGradientDirection(int _v){ this->GRADIENT_DIRECTION = _v; }
     void setPathToField(string _s){ this->PATH_TO_FIELD = _s; }
+    void setInterpolateField(bool _b){ this->INTERPOLATE_FIELD = _b; }
     void setMinT2(double _v){ this->MIN_T2 = _v; }
     void setMaxT2(double _v){ this->MAX_T2 = _v; }
     void setUseT2Logspace(bool _v){ this->USE_T2_LOGSPACE = _v; }
@@ -118,6 +121,7 @@ public:
     double getGradientValue() { return this->GRADIENT_VALUE; }
     int getGradientDirection() { return this->GRADIENT_DIRECTION; }
     string getPathToField() { return this->PATH_TO_FIELD; }
+    bool getInterpolateField(){ return this->INTERPOLATE_FIELD; }
 
     double getMinT2(){ return this->MIN_T2; }
     double getMaxT2(){ return this->MAX_T2; }

@@ -92,7 +92,7 @@ vector<string> RwnmrConfig::checkConfig()
 	validState &= (*this).checkItem((*this).getBulkTime() > 0.0, (string)"BULK_TIME", missingParameters);
 	validState &= (*this).checkItem((*this).getStepsPerEcho() > 0, (string)"STEPS_PER_ECHO", missingParameters);
 	
-	vector<string> bcs = {"no-flux", "periodic", "mirror"};
+	vector<string> bcs = {"periodic", "mirror"};
 	validState &= (*this).checkItem(std::find(bcs.begin(), bcs.end(), (*this).getBC()) != bcs.end(), 
                       (string)"BC", missingParameters);
 		
@@ -265,16 +265,13 @@ void RwnmrConfig::readSeed(string s)
 
 void RwnmrConfig::readBC(string s)
 {
-	if(s == "periodic") 
-	{
-		this->BC = "periodic";
-	} else if(s == "mirror") 
+	if(s == "mirror") 
 	{
 		this->BC = "mirror";
 	} else if(s == "debug" or s == "test")
 	{
 		this->BC = "test";
-	} else this->BC = "noflux";
+	} else this->BC = "periodic";
 }
 
 // -- Saving

@@ -386,92 +386,6 @@ __device__ uint convertLocalToGlobal_2D(uint _localPos, uint _shiftConverter)
 // --------------
 // -- 3D
 
-// GPU kernel for NMR map simulation with 'noflux' boundary condition
-// in this kernel, each thread will behave as a unique walker
-__global__ void map_3D_noflux( int *walker_px,
-                               int *walker_py,
-                               int *walker_pz,
-                               uint *collisions,
-                               uint64_t *seed,
-                               const uint64_t *bitBlock,
-                               const uint bitBlockColumns,
-                               const uint bitBlockRows,
-                               const uint numberOfWalkers,
-                               const uint numberOfSteps,
-                               const int map_columns,
-                               const int map_rows,
-                               const int map_depth,
-                               const uint shift_convert)
-{
-
-    // identify thread's walker
-    int index = threadIdx.x + blockIdx.x * blockDim.x;
-
-    // Unique read from device global memory
-    int position_x, position_y, position_z;
-    uint thread_collisions;
-    uint64_t local_seed;
-
-    // thread variables for future movements
-    int next_x, next_y, next_z;
-    direction nextDirection = None;
-
-    if (index < numberOfWalkers)
-    {
-        // Unique read from device global memory
-        position_x = walker_px[index];
-        position_y = walker_py[index];
-        position_z = walker_pz[index];
-        thread_collisions = collisions[index];
-        local_seed = seed[index];
-
-        for (int step = 0; step < numberOfSteps; step++)
-        {
-            nextDirection = computeNextDirection_3D(local_seed);
-
-            nextDirection = checkBorder_3D(convertLocalToGlobal_3D(position_x, shift_convert),
-                                           convertLocalToGlobal_3D(position_y, shift_convert),
-                                           convertLocalToGlobal_3D(position_z, shift_convert),
-                                           nextDirection,
-                                           map_columns,
-                                           map_rows,
-                                           map_depth);
-
-            computeNextPosition_3D(position_x,
-                                   position_y,
-                                   position_z,
-                                   nextDirection,
-                                   next_x,
-                                   next_y,
-                                   next_z);
-
-            if (checkNextPosition_3D(convertLocalToGlobal_3D(next_x, shift_convert),
-                                     convertLocalToGlobal_3D(next_y, shift_convert),
-                                     convertLocalToGlobal_3D(next_z, shift_convert),
-                                     bitBlock, 
-                                     bitBlockColumns, 
-                                     bitBlockRows))
-            {
-                // position is pore space
-                position_x = next_x;
-                position_y = next_y;
-                position_z = next_z;
-            }
-            else
-            {
-                // position is pore wall
-                thread_collisions++;
-            }
-        }
-
-        // device global memory update
-        collisions[index] = thread_collisions;
-        walker_px[index] = position_x;
-        walker_py[index] = position_y;
-        walker_pz[index] = position_z;
-        seed[index] = local_seed;
-    }
-}
 
 // GPU kernel for NMR map simulation with 'periodic' boundary condition
 // in this kernel, each thread will behave as a unique walker
@@ -881,25 +795,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
             // kernel "map" launch
             for(uint sIdx = 0; sIdx < stepsList.size(); sIdx++)
             {
-                if(bc == "periodic")
-                {
-                    map_3D_periodic<<<blocksPerKernel, threadsPerBlock>>>( d_walker_px,
-                                                                           d_walker_py,
-                                                                           d_walker_pz,
-                                                                           d_collisions,
-                                                                           d_seed,
-                                                                           d_bitBlock,
-                                                                           bitBlockColumns,
-                                                                           bitBlockRows,
-                                                                           walkersPerKernel,
-                                                                           stepsList[sIdx],
-                                                                           map_columns,
-                                                                           map_rows,
-                                                                           map_depth,
-                                                                           shiftConverter);
-                
-                } 
-                else if(bc == "mirror")
+                if(bc == "mirror")
                 {
                     map_3D_mirror<<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
                                                                         d_walker_py,
@@ -917,22 +813,24 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                                                                         shiftConverter);
                 }
                 else 
-                {   
-                    map_3D_noflux<<<blocksPerKernel, threadsPerBlock>>>( d_walker_px,
-                                                                         d_walker_py,
-                                                                         d_walker_pz,
-                                                                         d_collisions,
-                                                                         d_seed,
-                                                                         d_bitBlock,
-                                                                         bitBlockColumns,
-                                                                         bitBlockRows,
-                                                                         walkersPerKernel,
-                                                                         stepsList[sIdx],
-                                                                         map_columns,
-                                                                         map_rows,
-                                                                         map_depth,
-                                                                         shiftConverter);
-                }
+                {
+                    map_3D_periodic<<<blocksPerKernel, threadsPerBlock>>>( d_walker_px,
+                                                                           d_walker_py,
+                                                                           d_walker_pz,
+                                                                           d_collisions,
+                                                                           d_seed,
+                                                                           d_bitBlock,
+                                                                           bitBlockColumns,
+                                                                           bitBlockRows,
+                                                                           walkersPerKernel,
+                                                                           stepsList[sIdx],
+                                                                           map_columns,
+                                                                           map_rows,
+                                                                           map_depth,
+                                                                           shiftConverter);
+                
+                } 
+                
                 cudaDeviceSynchronize();
             }
 
@@ -1040,24 +938,7 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
             // kernel "map" launch
             for(uint sIdx = 0; sIdx < stepsList.size(); sIdx++)
             {
-                if(bc == "periodic")
-                {
-                    map_3D_periodic<<<blocksPerKernel, threadsPerBlock>>>( d_walker_px,
-                                                                           d_walker_py,
-                                                                           d_walker_pz,
-                                                                           d_collisions,
-                                                                           d_seed,
-                                                                           d_bitBlock,
-                                                                           bitBlockColumns,
-                                                                           bitBlockRows,
-                                                                           lastWalkerPackSize,
-                                                                           stepsList[sIdx],
-                                                                           map_columns,
-                                                                           map_rows,
-                                                                           map_depth,
-                                                                           shiftConverter);
-                }
-                else if(bc == "mirror")
+                if(bc == "mirror")
                 {
                     map_3D_mirror<<<blocksPerKernel, threadsPerBlock>>>( d_walker_px,
                                                                          d_walker_py,
@@ -1074,22 +955,22 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
                                                                          map_depth,
                                                                          shiftConverter);
                 }
-                else
+                else 
                 {
-                    map_3D_noflux<<<blocksPerKernel, threadsPerBlock>>>( d_walker_px,
-                                                                         d_walker_py,
-                                                                         d_walker_pz,
-                                                                         d_collisions,
-                                                                         d_seed,
-                                                                         d_bitBlock,
-                                                                         bitBlockColumns,
-                                                                         bitBlockRows,
-                                                                         lastWalkerPackSize,
-                                                                         stepsList[sIdx],
-                                                                         map_columns,
-                                                                         map_rows,
-                                                                         map_depth,
-                                                                         shiftConverter);
+                    map_3D_periodic<<<blocksPerKernel, threadsPerBlock>>>( d_walker_px,
+                                                                           d_walker_py,
+                                                                           d_walker_pz,
+                                                                           d_collisions,
+                                                                           d_seed,
+                                                                           d_bitBlock,
+                                                                           bitBlockColumns,
+                                                                           bitBlockRows,
+                                                                           lastWalkerPackSize,
+                                                                           stepsList[sIdx],
+                                                                           map_columns,
+                                                                           map_rows,
+                                                                           map_depth,
+                                                                           shiftConverter);
                 }
                 cudaDeviceSynchronize();
             }

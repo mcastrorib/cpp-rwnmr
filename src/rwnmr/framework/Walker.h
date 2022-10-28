@@ -134,9 +134,7 @@ public:
     // Inline methods
     inline void resetPosition()
     {
-        this->currentPosition.setX(this->initialPosition.getX());
-        this->currentPosition.setY(this->initialPosition.getY());
-        this->currentPosition.setZ(this->initialPosition.getZ());
+        (*this).setCurrentPosition((*this).getCurrentPosition());
     };
 
     inline void resetCollisions()
@@ -489,7 +487,7 @@ public:
         this->currentPosition.setZ(_nextPosition.getZ());
     };
 
-    inline void placeWalker(uint x0 = 0, uint y0 = 0, uint z0 = 0)
+    inline void placeWalker(int x0 = 0, int y0 = 0, int z0 = 0)
     {
         this->initialPosition.setX(x0);
         this->initialPosition.setY(y0);
@@ -497,7 +495,14 @@ public:
         (*this).resetPosition();
     }
 
-    inline void printPosition()
+    inline void printInitialPosition()
+    {
+        cout << "{" << this->initialPosition.getX() 
+        << ", " << this->initialPosition.getY() 
+        << ", " << this->initialPosition.getZ() << "}" << endl;
+    };
+
+    inline void printCurrentPosition()
     {
         cout << "{" << this->currentPosition.getX() 
         << ", " << currentPosition.getY() 

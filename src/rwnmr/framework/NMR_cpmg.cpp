@@ -66,7 +66,6 @@ void NMR_cpmg::run()
     (*this).save();
 }
 
-
 void NMR_cpmg::buildName(string parent, string sufix)
 {
     int precisionVal = 2;

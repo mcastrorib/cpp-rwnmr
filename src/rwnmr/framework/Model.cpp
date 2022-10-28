@@ -256,7 +256,7 @@ void Model::initWalkers(uint _numberOfWalkers, bool _randomInsertion)
         (*this).createPoreList();
         (*this).createWalkersIdxList();
         (*this).placeWalkersUniformly(); 
-        (*this).freePoreList();
+        // (*this).freePoreList();
     } else
     {
         (*this).placeWalkersByChance();
@@ -886,7 +886,7 @@ void Model::createWalkersIdxList()
     // create progress bar object
     ProgressBar pBar(10);
     uint idx = 0;
-    std::uniform_int_distribution<std::mt19937::result_type> dist(0, (*this).getNumberOfPores());                
+    std::uniform_int_distribution<std::mt19937::result_type> dist(0, (*this).getNumberOfPores()-1);                
     for (uint pack = 0; pack < (walkerPacks - 1); pack++)
     {
         for (uint i = 0; i < packSize; i++)
@@ -1011,9 +1011,9 @@ void Model::placeWalkersByChance()
     Pos3d point; 
     bool validPoint = false;   
 
-    std::uniform_int_distribution<std::mt19937::result_type> columnDist(0, this->bitBlock->getImageColumns());
-    std::uniform_int_distribution<std::mt19937::result_type> rowDist(0, this->bitBlock->getImageRows());
-    std::uniform_int_distribution<std::mt19937::result_type> depthDist(0, this->bitBlock->getImageDepth());
+    std::uniform_int_distribution<std::mt19937::result_type> columnDist(0, this->bitBlock->getImageColumns()-1);
+    std::uniform_int_distribution<std::mt19937::result_type> rowDist(0, this->bitBlock->getImageRows()-1);
+    std::uniform_int_distribution<std::mt19937::result_type> depthDist(0, this->bitBlock->getImageDepth()-1);
         
     while(walkersInserted < this->numberOfWalkers && errorCount < erroLimit)
     {
@@ -1053,18 +1053,19 @@ void Model::placeWalkersUniformly()
     double time = omp_get_wtime();
     cout << "- placing walkers uniformly ";
 
-    if(this->pores.size() == 0)
-    {
-        cout << endl;
-        cout << "pores not listed." << endl;
-        return;
-    }
 
     // set omp variables for parallel loop throughout walker list
     const int num_cpu_threads = omp_get_max_threads();
     const int loop_size = this->numberOfWalkers;
     int loop_start, loop_finish;
     cout << "using " << num_cpu_threads << " cpu threads:" << endl;
+
+    if(this->pores.size() == 0)
+    {
+        cout << endl;
+        cout << "pores not listed." << endl;
+        return;
+    }
 
     ProgressBar pBar((double) num_cpu_threads);
     pBar.print();
@@ -1215,7 +1216,7 @@ void Model::placeWalkersInCubicSpace(Pos3d _vertex1, Pos3d _vertex2)
         ProgressBar pBar((double) this->numberOfWalkers);
         pBar.print();
 
-        std::uniform_int_distribution<std::mt19937::result_type> dist(0, selectedPores.size());
+        std::uniform_int_distribution<std::mt19937::result_type> dist(0, selectedPores.size()-1);
         for(uint id = 0; id < this->numberOfWalkers; id++)
         {   
     
