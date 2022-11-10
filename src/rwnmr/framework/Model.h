@@ -283,7 +283,6 @@ private:
         CUDA/GPU routines generate collision histograms
     */ 
     void mapSimulation_OMP(bool reset=true);
-    void mapSimulation_CUDA_2D_histograms(bool reset=true);
     void mapSimulation_CUDA_3D_histograms(bool reset=true);
 
 

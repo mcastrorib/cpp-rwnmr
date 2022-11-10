@@ -1306,7 +1306,8 @@ void Model::associateMapSimulation()
     {
         if (this->uCT_config.getSlices() == 1)
         {
-            mapSimulationPointer = &Model::mapSimulation_CUDA_2D_histograms;
+            cout << "Sorry, Map2D is not implemented in this version." << endl;
+            exit(1);
         }
         else
         {
