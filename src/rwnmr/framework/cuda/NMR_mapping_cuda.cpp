@@ -1,226 +1,5 @@
 #include "NMR_mapping_cuda.h"
 
-// GPU kernel for NMR map simulation with 'periodic' boundary condition
-// in this kernel, each thread will behave as a unique walker
-__global__ void map_3D_periodic(int *walker_px,
-                                int *walker_py,
-                                int *walker_pz,
-                                uint *collisions,
-                                uint64_t *seed,
-                                const uint64_t *bitBlock,
-                                const uint bitBlockColumns,
-                                const uint bitBlockRows,
-                                const uint numberOfWalkers,
-                                const uint numberOfSteps,
-                                const int map_columns,
-                                const int map_rows,
-                                const int map_depth,
-                                const uint shift_convert)
-{
-
-    // identify thread's walker
-    int walkerId = threadIdx.x + blockIdx.x * blockDim.x;
-
-    // Local variables for unique read from device global memory
-    int localPosX, localPosY, localPosZ;
-    int imgPosX, imgPosY, imgPosZ;
-    uint localCollisions;
-    uint64_t localSeed;
-
-    // thread variables for future movements
-    int localNextX, localNextY, localNextZ;
-    direction nextDirection = None;
-
-    // now begin the "walk" procedure de facto
-    if (walkerId < numberOfWalkers)
-    {
-        // Local variables for unique read from device global memory
-        localPosX = walker_px[walkerId];
-        localPosY = walker_py[walkerId];
-        localPosZ = walker_pz[walkerId];
-        localCollisions = collisions[walkerId];
-        localSeed = seed[walkerId];
-        
-        for(int step = 0; step < numberOfSteps; step++)
-        {
-            
-            nextDirection = computeNextDirection_3D(localSeed);            
-        
-            computeNextPosition_3D(localPosX,
-                                   localPosY,
-                                   localPosZ,
-                                   nextDirection,
-                                   localNextX,
-                                   localNextY,
-                                   localNextZ);
-
-            // update img position
-            imgPosX = convertLocalToGlobal_3D(localNextX, shift_convert) % map_columns;
-            if(imgPosX < 0) imgPosX += map_columns;
-
-            imgPosY = convertLocalToGlobal_3D(localNextY, shift_convert) % map_rows;
-            if(imgPosY < 0) imgPosY += map_rows;
-
-            imgPosZ = convertLocalToGlobal_3D(localNextZ, shift_convert) % map_depth;
-            if(imgPosZ < 0) imgPosZ += map_depth;
-
-            if (checkNextPosition_3D(imgPosX, 
-                                     imgPosY, 
-                                     imgPosZ, 
-                                     bitBlock, 
-                                     bitBlockColumns, 
-                                     bitBlockRows))
-            {
-                // update real position
-                localPosX = localNextX;
-                localPosY = localNextY;
-                localPosZ = localNextZ;                
-            }
-            else
-            {
-                // walker hits wall and comes back to the same position
-                // collisions count is incremented
-                localCollisions++;
-            }
-        }
-
-        // position and seed device global memory update
-        // must be done for each kernel
-        walker_px[walkerId] = localPosX;
-        walker_py[walkerId] = localPosY;
-        walker_pz[walkerId] = localPosZ;
-        collisions[walkerId] = localCollisions;
-        seed[walkerId] = localSeed;
-    }
-}
-
-// GPU kernel for NMR map simulation with 'mirror' boundary condition
-// in this kernel, each thread will behave as a unique walker
-__global__ void map_3D_mirror(int *walker_px,
-                              int *walker_py,
-                              int *walker_pz,
-                              uint *collisions,
-                              uint64_t *seed,
-                              const uint64_t *bitBlock,
-                              const uint bitBlockColumns,
-                              const uint bitBlockRows,
-                              const uint numberOfWalkers,
-                              const uint numberOfSteps,
-                              const int map_columns,
-                              const int map_rows,
-                              const int map_depth,
-                              const uint shift_convert)
-{
-    // identify thread's walker
-    int walkerId = threadIdx.x + blockIdx.x * blockDim.x;
-
-    // define local variables for unique read from device global memory
-    int globalPosX, globalPosY, globalPosZ;
-    int localPosX, localPosY, localPosZ;
-    int imgPosX, imgPosY, imgPosZ;
-    int mirror, antimirror;
-    uint localCollisions;
-    uint64_t localSeed;
-
-    // thread variables for future movements
-    int localNextX, localNextY, localNextZ;
-    direction nextDirection = None;
-
-    // now begin the "walk" procedure de facto
-    if (walkerId < numberOfWalkers)
-    {
-        // Local variables for unique read from device global memory
-        localPosX = walker_px[walkerId];
-        localPosY = walker_py[walkerId];
-        localPosZ = walker_pz[walkerId];
-        localCollisions = collisions[walkerId];
-        localSeed = seed[walkerId];
-            
-        for(int step = 0; step < numberOfSteps; step++)
-        {
-            
-            nextDirection = computeNextDirection_3D(localSeed);            
-        
-            computeNextPosition_3D(localPosX,
-                                   localPosY,
-                                   localPosZ,
-                                   nextDirection,
-                                   localNextX,
-                                   localNextY,
-                                   localNextZ);
-            
-            /* Update img position */
-            /*
-                coordinate X
-            */
-            globalPosX = convertLocalToGlobal_3D(localNextX, shift_convert);
-            imgPosX = globalPosX % map_columns;
-            if(imgPosX < 0) imgPosX += map_columns;
-
-            if(globalPosX > 0) mirror = (globalPosX / map_columns) % 2;
-            else mirror = ((-globalPosX - 1 + map_columns) / map_columns) % 2; 
-
-            antimirror = (mirror + 1) % 2;
-            imgPosX = (antimirror * imgPosX) + (mirror * (map_columns - 1 - imgPosX));    
-
-            /*
-                coordinate Y
-            */
-            globalPosY = convertLocalToGlobal_3D(localNextY, shift_convert);
-            imgPosY = globalPosY % map_rows;
-            if(imgPosY < 0) imgPosY += map_rows;
-
-            if(globalPosY > 0) mirror = (globalPosY / map_rows) % 2;
-            else mirror = ((-globalPosY - 1 + map_rows) / map_rows) % 2; 
-
-            antimirror = (mirror + 1) % 2;
-            imgPosY = (antimirror * imgPosY) + (mirror * (map_rows - 1 - imgPosY));
-
-            /*
-                coordinate Z
-            */
-            globalPosZ = convertLocalToGlobal_3D(localNextZ, shift_convert);
-            imgPosZ = globalPosZ % map_depth;
-            if(imgPosZ < 0) imgPosZ += map_depth;
-
-            if(globalPosZ > 0) mirror = (globalPosZ / map_depth) % 2;
-            else mirror = ((-globalPosZ - 1 + map_depth) / map_depth) % 2; 
-
-            antimirror = (mirror + 1) % 2;
-            imgPosZ = (antimirror * imgPosZ) + (mirror * (map_depth - 1 - imgPosZ));
-
-
-            if (checkNextPosition_3D(imgPosX, 
-                                     imgPosY, 
-                                     imgPosZ, 
-                                     bitBlock, 
-                                     bitBlockColumns, 
-                                     bitBlockRows))
-            {
-                // update real position
-                localPosX = localNextX;
-                localPosY = localNextY;
-                localPosZ = localNextZ;                
-            }
-            else
-            {
-                // walker hits wall and comes back to the same position
-                // collisions count is incremented
-                localCollisions++;
-            }
-        }
-
-        // position and seed device global memory update
-        // must be done for each kernel
-        walker_px[walkerId] = localPosX;
-        walker_py[walkerId] = localPosY;
-        walker_pz[walkerId] = localPosZ;
-        collisions[walkerId] = localCollisions;
-        seed[walkerId] = localSeed;
-    }
-}
-
-
 // function to call GPU kernel to execute
 // walker's "map" method in Graphics Processing Unit
 void Model::mapSimulation_CUDA_3D_histograms(bool reset)
@@ -410,37 +189,37 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
             {
                 if(bc == "mirror")
                 {
-                    map_3D_mirror<<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
-                                                                        d_walker_py,
-                                                                        d_walker_pz,
-                                                                        d_collisions,
-                                                                        d_seed,
-                                                                        d_bitBlock,
-                                                                        bitBlockColumns,
-                                                                        bitBlockRows,
-                                                                        walkersPerKernel,
-                                                                        stepsList[sIdx],
-                                                                        map_columns,
-                                                                        map_rows,
-                                                                        map_depth,
-                                                                        shiftConverter);
+                    rwMap<true><<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
+                                                                      d_walker_py,
+                                                                      d_walker_pz,
+                                                                      d_collisions,
+                                                                      d_seed,
+                                                                      d_bitBlock,
+                                                                      bitBlockColumns,
+                                                                      bitBlockRows,
+                                                                      walkersPerKernel,
+                                                                      stepsList[sIdx],
+                                                                      map_columns,
+                                                                      map_rows,
+                                                                      map_depth,
+                                                                      shiftConverter);
                 }
                 else 
                 {
-                    map_3D_periodic<<<blocksPerKernel, threadsPerBlock>>>( d_walker_px,
-                                                                           d_walker_py,
-                                                                           d_walker_pz,
-                                                                           d_collisions,
-                                                                           d_seed,
-                                                                           d_bitBlock,
-                                                                           bitBlockColumns,
-                                                                           bitBlockRows,
-                                                                           walkersPerKernel,
-                                                                           stepsList[sIdx],
-                                                                           map_columns,
-                                                                           map_rows,
-                                                                           map_depth,
-                                                                           shiftConverter);
+                    rwMap<false><<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
+                                                                       d_walker_py,
+                                                                       d_walker_pz,
+                                                                       d_collisions,
+                                                                       d_seed,
+                                                                       d_bitBlock,
+                                                                       bitBlockColumns,
+                                                                       bitBlockRows,
+                                                                       walkersPerKernel,
+                                                                       stepsList[sIdx],
+                                                                       map_columns,
+                                                                       map_rows,
+                                                                       map_depth,
+                                                                       shiftConverter);
                 
                 } 
                 
@@ -553,37 +332,37 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
             {
                 if(bc == "mirror")
                 {
-                    map_3D_mirror<<<blocksPerKernel, threadsPerBlock>>>( d_walker_px,
-                                                                         d_walker_py,
-                                                                         d_walker_pz,
-                                                                         d_collisions,
-                                                                         d_seed,
-                                                                         d_bitBlock,
-                                                                         bitBlockColumns,
-                                                                         bitBlockRows,
-                                                                         lastWalkerPackSize,
-                                                                         stepsList[sIdx],
-                                                                         map_columns,
-                                                                         map_rows,
-                                                                         map_depth,
-                                                                         shiftConverter);
+                    rwMap<true><<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
+                                                                      d_walker_py,
+                                                                      d_walker_pz,
+                                                                      d_collisions,
+                                                                      d_seed,
+                                                                      d_bitBlock,
+                                                                      bitBlockColumns,
+                                                                      bitBlockRows,
+                                                                      lastWalkerPackSize,
+                                                                      stepsList[sIdx],
+                                                                      map_columns,
+                                                                      map_rows,
+                                                                      map_depth,
+                                                                      shiftConverter);
                 }
                 else 
                 {
-                    map_3D_periodic<<<blocksPerKernel, threadsPerBlock>>>( d_walker_px,
-                                                                           d_walker_py,
-                                                                           d_walker_pz,
-                                                                           d_collisions,
-                                                                           d_seed,
-                                                                           d_bitBlock,
-                                                                           bitBlockColumns,
-                                                                           bitBlockRows,
-                                                                           lastWalkerPackSize,
-                                                                           stepsList[sIdx],
-                                                                           map_columns,
-                                                                           map_rows,
-                                                                           map_depth,
-                                                                           shiftConverter);
+                    rwMap<false><<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
+                                                                       d_walker_py,
+                                                                       d_walker_pz, 
+                                                                       d_collisions, 
+                                                                       d_seed, 
+                                                                       d_bitBlock, 
+                                                                       bitBlockColumns, 
+                                                                       bitBlockRows, 
+                                                                       lastWalkerPackSize, 
+                                                                       stepsList[sIdx], 
+                                                                       map_columns, 
+                                                                       map_rows, 
+                                                                       map_depth, 
+                                                                       shiftConverter);
                 }
                 cudaDeviceSynchronize();
             }
@@ -735,24 +514,26 @@ void Model::mapSimulation_CUDA_3D_histograms(bool reset)
     cout << "Done.\nelapsed time: " << elapsedTime * 1.0e-3 << " seconds" << endl;    
 }
 
-/////////////////////////////////////////////////////////////////////
-//////////////////////// DEVICE FUNCTIONS ///////////////////////////
-/////////////////////////////////////////////////////////////////////
+/*
 
-__device__ direction computeNextDirection_3D(uint64_t &seed)
+Device functions
+
+*/
+
+__device__ direction computeNextDirection_MAP(uint64_t &seed)
 {
     // generate random number using xorshift algorithm
     xorshift64_state xor_state;
     xor_state.a = seed;
-    seed = xorShift64_3D(&xor_state);
+    seed = xorShift64_MAP(&xor_state);
     uint64_t rand = seed;
 
     // set direction based on the random number
-    direction nextDirection = (direction)(mod6_3D(rand) + 1);
+    direction nextDirection = (direction)(mod6_MAP(rand) + 1);
     return nextDirection;
 }
 
-__device__ uint64_t xorShift64_3D(struct xorshift64_state *state)
+__device__ uint64_t xorShift64_MAP(struct xorshift64_state *state)
 {
     uint64_t x = state->a;
     x ^= x << 13;
@@ -761,7 +542,7 @@ __device__ uint64_t xorShift64_3D(struct xorshift64_state *state)
     return state->a = x;
 }
 
-__device__ uint64_t mod6_3D(uint64_t a)
+__device__ uint64_t mod6_MAP(uint64_t a)
 {
     while (a > 11)
     {
@@ -779,64 +560,7 @@ __device__ uint64_t mod6_3D(uint64_t a)
     return a;
 }
 
-__device__ direction checkBorder_3D(int walker_px,
-                                    int walker_py,
-                                    int walker_pz,
-                                    direction &nextDirection,
-                                    const int map_columns,
-                                    const int map_rows,
-                                    const int map_depth)
-{
-    switch (nextDirection)
-    {
-    case North:
-        if (walker_py == 0)
-        {
-            nextDirection = South;
-        }
-        break;
-
-    case South:
-
-        if (walker_py == map_rows - 1)
-        {
-            nextDirection = North;
-        }
-        break;
-
-    case West:
-        if (walker_px == 0)
-        {
-            nextDirection = East;
-        }
-        break;
-
-    case East:
-        if (walker_px == map_columns - 1)
-        {
-            nextDirection = West;
-        }
-        break;
-
-    case Up:
-        if (walker_pz == map_depth - 1)
-        {
-            nextDirection = Down;
-        }
-        break;
-
-    case Down:
-        if (walker_pz == 0)
-        {
-            nextDirection = Up;
-        }
-        break;
-    }
-
-    return nextDirection;
-}
-
-__device__ void computeNextPosition_3D(int &walker_px,
+__device__ void computeNextPosition_MAP(int &walker_px,
                                        int &walker_py,
                                        int &walker_pz,
                                        direction nextDirection,
@@ -876,21 +600,21 @@ __device__ void computeNextPosition_3D(int &walker_px,
     }
 }
 
-__device__ bool checkNextPosition_3D(int next_x,
+__device__ bool checkNextPosition_MAP(int next_x,
                                      int next_y,
                                      int next_z,
                                      const uint64_t *bitBlock,
                                      const int bitBlockColumns,
                                      const int bitBlockRows)
 {
-    int blockIndex = findBlockIndex_3D(next_x, next_y, next_z, bitBlockColumns, bitBlockRows);
-    int nextBit = findBitIndex_3D(next_x, next_y, next_z);
+    int blockIndex = findBlockIndex_MAP(next_x, next_y, next_z, bitBlockColumns, bitBlockRows);
+    int nextBit = findBitIndex_MAP(next_x, next_y, next_z);
     uint64_t nextBlock = bitBlock[blockIndex];
 
-    return (!checkIfBlockBitIsWall_3D(nextBlock, nextBit));
+    return (!checkIfBlockBitIsWall_MAP(nextBlock, nextBit));
 };
 
-__device__ int findBlockIndex_3D(int next_x, int next_y, int next_z, int bitBlockColumns, int bitBlockRows)
+__device__ int findBlockIndex_MAP(int next_x, int next_y, int next_z, int bitBlockColumns, int bitBlockRows)
 {
     // "x >> 2" is like "x / 4" in bitwise operation
     int block_x = next_x >> 2;
@@ -901,7 +625,7 @@ __device__ int findBlockIndex_3D(int next_x, int next_y, int next_z, int bitBloc
     return blockIndex;
 }
 
-__device__ int findBitIndex_3D(int next_x, int next_y, int next_z)
+__device__ int findBitIndex_MAP(int next_x, int next_y, int next_z)
 {
     // "x & (n - 1)" is lise "x % n" in bitwise operation
     int bit_x = next_x & (COLUMNSPERBLOCK3D - 1);
@@ -913,12 +637,40 @@ __device__ int findBitIndex_3D(int next_x, int next_y, int next_z)
     return bitIndex;
 }
 
-__device__ bool checkIfBlockBitIsWall_3D(uint64_t nextBlock, int nextBit)
+__device__ bool checkIfBlockBitIsWall_MAP(uint64_t nextBlock, int nextBit)
 {
     return ((nextBlock >> nextBit) & 1ull);
 }
 
-__device__ int convertLocalToGlobal_3D(int _localPos, uint _shiftConverter)
+__device__ int convertLocalToGlobal_MAP(int _localPos, uint _shiftConverter)
 {
     return (_localPos >> _shiftConverter);
+}
+
+__device__ int bcMapPeriodic_MAP(int _localPos, uint _shiftConverter, int _dimSize)
+{
+    int globalPos;
+    globalPos = ( convertLocalToGlobal_MAP(_localPos, _shiftConverter) ) % _dimSize;
+    globalPos += (((int) (globalPos < 0)) * _dimSize);
+    return globalPos;
+}
+
+__device__ int bcMapMirror_MAP(int _localPos, uint _shiftConverter, int _dimSize)
+{
+    int globalPos = convertLocalToGlobal_MAP(_localPos, _shiftConverter);
+    int imgPos = (globalPos % _dimSize); 
+    imgPos += (((int) (imgPos < 0)) * _dimSize);
+    int mirror = ((isPositive_MAP(globalPos)*globalPos) + (((int) !(globalPos > 0)) * (-globalPos-1+_dimSize)))/_dimSize; 
+    mirror = (mirror & 1);
+    return (((mirror + 1) & 1) * imgPos) + (mirror * (_dimSize - 1 - imgPos));
+}
+
+__device__ int isPositive_MAP(int x) 
+{
+   return !((x&(1<<31)) | !x);
+}
+
+__device__ int isZero_MAP(int x) 
+{
+   return !x;
 }

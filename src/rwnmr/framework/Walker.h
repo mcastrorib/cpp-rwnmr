@@ -134,7 +134,7 @@ public:
     // Inline methods
     inline void resetPosition()
     {
-        (*this).setCurrentPosition((*this).getCurrentPosition());
+        (*this).setCurrentPosition((*this).getInitialPosition());
     };
 
     inline void resetCollisions()

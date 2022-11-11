@@ -1,0 +1,7 @@
+Synthetic Rock Image: pixel_a=3voxels_r=1voxel
+- height: 	3
+- width: 	3
+- depth: 	3
+- volume: 	27
+- pores: 	1
+- porosity: 	0.037037
