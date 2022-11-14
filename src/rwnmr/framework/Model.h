@@ -49,12 +49,8 @@ private:
     double bulkRelaxationTime;
 
     // image attributes
-    uint numberOfImages;
     double imageResolution;
     double stepLength;    
-    uint height;
-    uint width;
-    uint depth;
     vector<Mat> binaryMap;
     BitBlock *bitBlock;
     string boundaryCondition;
@@ -102,12 +98,8 @@ public:
         this->giromagneticRatio = _otherSimulation.giromagneticRatio;
         this->bulkRelaxationTime = _otherSimulation.bulkRelaxationTime;
 
-        this->numberOfImages = _otherSimulation.numberOfImages;
         this->imageResolution = _otherSimulation.imageResolution;
         this->stepLength = _otherSimulation.stepLength;
-        this->height = _otherSimulation.height;
-        this->width = _otherSimulation.width;
-        this->depth = _otherSimulation.depth;
         this->binaryMap = _otherSimulation.binaryMap;
         this->bitBlock = _otherSimulation.bitBlock;
         this->boundaryCondition = _otherSimulation.boundaryCondition;
@@ -174,12 +166,8 @@ public:
     void setDiffusionCoefficient(double _d){ this->diffusionCoefficient = _d; }
     void setGiromagneticRatio(double _g){ this->giromagneticRatio = _g; }
     void setBulkRelaxationTime(double _bt){ this->bulkRelaxationTime = _bt; }
-    void setNumberOfImages(uint _n){ this->numberOfImages = _n; }
     void setImageResolution(double _r){ this->imageResolution = _r; }
     void setStepLength(double _vr){ this->stepLength = _vr; }
-    void setHeight(uint _h){ this->height = _h; }
-    void setWidth(uint _w){ this->width = _w; }
-    void setDepth(uint _d){ this->depth = _d; }
     void setBinaryMap(vector<Mat> _bm){ this->binaryMap = _bm; }
     void setBinaryMap(Mat _bm, uint _idx){ this->binaryMap[_idx] = _bm; }
     void addBinaryMap(Mat _bm){ this->binaryMap.push_back(_bm); }
@@ -224,12 +212,8 @@ public:
     double getDiffusionCoefficient(){ return this->diffusionCoefficient; }
     double getGiromagneticRatio(){ return this->giromagneticRatio; }
     double getBulkRelaxationTime(){ return this->bulkRelaxationTime; }
-    uint getNumberOfImages(){ return this->numberOfImages; }
     double getImageResolution(){ return this->imageResolution; }
     double getStepLength(){ return this->stepLength; }  
-    uint getHeight(){ return this->height; }
-    uint getWidth(){ return this->width; }
-    uint getDepth(){ return this->depth; }
     vector<Mat> getBinaryMap(){ return this->binaryMap; }
     Mat getBinaryMap(uint idx){ return this->binaryMap[idx]; }
     BitBlock *getBitBlock(){ return this->bitBlock; }
@@ -259,7 +243,6 @@ public:
     void initWalkers(Pos3d _point, uint _numberOfWalkers);
     void initWalkers(Pos3d _point1, Pos3d _point2, uint _numberOfWalkers);
     void initWalkers(uint _numberOfWalkers, bool _randomInsertion = false);
-    void countPoresInBinaryMap();
     void countPoresInBitBlock();
     void countPoresInCubicSpace(Pos3d _vertex1, Pos3d _vertex2);
     void updatePorosity();
@@ -300,7 +283,6 @@ private:
         CUDA/GPU routines generate collision histograms
     */ 
     void mapSimulation_OMP(bool reset=true);
-    void mapSimulation_CUDA_2D_histograms(bool reset=true);
     void mapSimulation_CUDA_3D_histograms(bool reset=true);
 
 

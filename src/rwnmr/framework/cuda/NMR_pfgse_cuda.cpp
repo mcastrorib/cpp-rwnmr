@@ -2,95 +2,6 @@
 
 // GPU kernel for NMR simulation - a.k.a. walker's relaxation/demagnetization
 // in this kernel, each thread will behave as a unique walker
-__global__ void PFG_map_noflux(  int *walker_px,
-                                 int *walker_py,
-                                 int *walker_pz,
-                                 uint *collisions,
-                                 uint64_t *seed,
-                                 const uint64_t *bitBlock,
-                                 const uint bitBlockColumns,
-                                 const uint bitBlockRows,
-                                 const uint numberOfWalkers,
-                                 const uint numberOfSteps,
-                                 const int map_columns,
-                                 const int map_rows,
-                                 const int map_depth,
-                                 const int shift_convert)
-{
-    // identify thread's walker
-    int walkerId = threadIdx.x + blockIdx.x * blockDim.x;
-
-    // Local variables for unique read from device global memory
-    int localPosX, localPosY, localPosZ;
-    uint localCollisions;
-    uint64_t localSeed;
-
-    // thread variables for future movements
-    int next_x, next_y, next_z;
-    direction nextDirection = None;
-
-    // now begin the "walk" procedure de facto
-    if (walkerId < numberOfWalkers)
-    {
-        // Local variables for unique read from device global memory
-        localPosX = walker_px[walkerId];
-        localPosY = walker_py[walkerId];
-        localPosZ = walker_pz[walkerId];
-        localCollisions = collisions[walkerId];
-        localSeed = seed[walkerId];
-        
-        for(int step = 0; step < numberOfSteps; step++)
-        {
-            nextDirection = computeNextDirection_PFG(localSeed);
-        
-            nextDirection = checkBorder_PFG(convertLocalToGlobal_PFG(localPosX, shift_convert),
-                                            convertLocalToGlobal_PFG(localPosY, shift_convert),
-                                            convertLocalToGlobal_PFG(localPosZ, shift_convert),
-                                            nextDirection,
-                                            map_columns,
-                                            map_rows,
-                                            map_depth);
-
-            computeNextPosition_PFG(localPosX,
-                                    localPosY,
-                                    localPosZ,
-                                    nextDirection,
-                                    next_x,
-                                    next_y,
-                                    next_z);
-
-            if (checkNextPosition_PFG(convertLocalToGlobal_PFG(next_x, shift_convert), 
-                                      convertLocalToGlobal_PFG(next_y, shift_convert), 
-                                      convertLocalToGlobal_PFG(next_z, shift_convert), 
-                                      bitBlock, 
-                                      bitBlockColumns, 
-                                      bitBlockRows))
-            {
-                // position is valid
-                localPosX = next_x;
-                localPosY = next_y;
-                localPosZ = next_z;
-            }
-            else
-            {
-                // walker hits wall and comes back to the same position
-                // collisions count is incremented
-                localCollisions++;
-            }
-        }
-
-        // position and seed device global memory update
-        // must be done for each kernel
-        walker_px[walkerId] = localPosX;
-        walker_py[walkerId] = localPosY;
-        walker_pz[walkerId] = localPosZ;
-        collisions[walkerId] = localCollisions;
-        seed[walkerId] = localSeed;
-    }
-}
-
-// GPU kernel for NMR simulation - a.k.a. walker's relaxation/demagnetization
-// in this kernel, each thread will behave as a unique walker
 __global__ void PFG_map_periodic(int *walker_px,
                                  int *walker_py,
                                  int *walker_pz,
@@ -748,24 +659,8 @@ void NMR_PFGSE::simulation_cuda()
         tick = omp_get_wtime();
         for(uint step = 0; step < steps.size(); step++)
         {
-            if(bc == "periodic")
-            {
-                PFG_map_periodic<<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
-                                                                       d_walker_py,
-                                                                       d_walker_pz,
-                                                                       d_collisions,
-                                                                       d_seed,
-                                                                       d_bitBlock,
-                                                                       bitBlockColumns,
-                                                                       bitBlockRows,
-                                                                       walkersPerKernel,
-                                                                       steps[step],
-                                                                       map_columns,
-                                                                       map_rows,
-                                                                       map_depth,
-                                                                       shiftConverter);                                
-            }
-            else if(bc == "mirror")
+            
+            if(bc == "mirror")
             {
                 PFG_map_mirror<<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
                                                                      d_walker_py,
@@ -781,23 +676,23 @@ void NMR_PFGSE::simulation_cuda()
                                                                      map_rows,
                                                                      map_depth,
                                                                      shiftConverter);                
-            }
+            } 
             else
             {
-                PFG_map_noflux<<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
-                                                                     d_walker_py,
-                                                                     d_walker_pz,
-                                                                     d_collisions,
-                                                                     d_seed,
-                                                                     d_bitBlock,
-                                                                     bitBlockColumns,
-                                                                     bitBlockRows,
-                                                                     walkersPerKernel,
-                                                                     steps[step],
-                                                                     map_columns,
-                                                                     map_rows,
-                                                                     map_depth,
-                                                                     shiftConverter);
+                PFG_map_periodic<<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
+                                                                       d_walker_py,
+                                                                       d_walker_pz,
+                                                                       d_collisions,
+                                                                       d_seed,
+                                                                       d_bitBlock,
+                                                                       bitBlockColumns,
+                                                                       bitBlockRows,
+                                                                       walkersPerKernel,
+                                                                       steps[step],
+                                                                       map_columns,
+                                                                       map_rows,
+                                                                       map_depth,
+                                                                       shiftConverter);                                
             }
             cudaDeviceSynchronize();  
         }
@@ -1035,25 +930,8 @@ void NMR_PFGSE::simulation_cuda()
         tick = omp_get_wtime();
         for(uint step = 0; step < steps.size(); step++)
         {
-            if(bc == "periodic")
-            {
-                PFG_map_periodic<<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
-                                                                       d_walker_py,
-                                                                       d_walker_pz,
-                                                                       d_collisions,
-                                                                       d_seed,
-                                                                       d_bitBlock,
-                                                                       bitBlockColumns,
-                                                                       bitBlockRows,
-                                                                       lastWalkerPackSize,
-                                                                       steps[step],
-                                                                       map_columns,
-                                                                       map_rows,
-                                                                       map_depth,
-                                                                       shiftConverter);
             
-            }
-            else if(bc == "mirror")
+            if(bc == "mirror")
             {
                 PFG_map_mirror<<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
                                                                      d_walker_py,
@@ -1073,20 +951,21 @@ void NMR_PFGSE::simulation_cuda()
             }
             else
             {
-                PFG_map_noflux<<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
-                                                                     d_walker_py,
-                                                                     d_walker_pz,
-                                                                     d_collisions,
-                                                                     d_seed,
-                                                                     d_bitBlock,
-                                                                     bitBlockColumns,
-                                                                     bitBlockRows,
-                                                                     lastWalkerPackSize,
-                                                                     steps[step],
-                                                                     map_columns,
-                                                                     map_rows,
-                                                                     map_depth,
-                                                                     shiftConverter);
+                PFG_map_periodic<<<blocksPerKernel, threadsPerBlock>>>(d_walker_px,
+                                                                       d_walker_py,
+                                                                       d_walker_pz,
+                                                                       d_collisions,
+                                                                       d_seed,
+                                                                       d_bitBlock,
+                                                                       bitBlockColumns,
+                                                                       bitBlockRows,
+                                                                       lastWalkerPackSize,
+                                                                       steps[step],
+                                                                       map_columns,
+                                                                       map_rows,
+                                                                       map_depth,
+                                                                       shiftConverter);
+            
             }
             cudaDeviceSynchronize();  
         }

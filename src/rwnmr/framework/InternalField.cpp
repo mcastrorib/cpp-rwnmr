@@ -153,21 +153,6 @@ void InternalField::readDataFromFile(string _file)
 	datafile.seekg(0, datafile.beg);
 	datafile.read((char *)this->data, fsize*sizeof(double));
 
-	// double inData;
-	// long index;
-	// for(int z = 0; z < (*this).getDimZ(); z++)
-	// {
-	// 	for(int y = 0; y < (*this).getDimY(); y++)
-	// 	{		
-	// 		for(int x = 0; x < (*this).getDimX(); x++)
-	// 		{					
-	// 			index = (*this).getIndex(x, y, z);
-	// 			datafile.read((char *) &inData, sizeof(double));				
-	// 			(*this).fillData(index, inData);
-	// 		}
-	// 	}
-	// }
-
 	datafile.close();
 
 	if(!datafile.good()) 

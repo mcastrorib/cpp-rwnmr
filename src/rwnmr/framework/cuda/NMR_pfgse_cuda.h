@@ -10,21 +10,6 @@
 
 
 // Kernel declarations
-__global__ void PFG_map_noflux(  int *walker_px,
-                                 int *walker_py,
-                                 int *walker_pz,
-                                 uint *collisions,
-                                 uint64_t *seed,
-                                 const uint64_t *bitBlock,
-                                 const uint bitBlockColumns,
-                                 const uint bitBlockRows,
-                                 const uint numberOfWalkers,
-                                 const uint numberOfSteps,
-                                 const int map_columns,
-                                 const int map_rows,
-                                 const int map_depth,
-                                 const int shift_convert);
-
 __global__ void PFG_map_periodic(int *walker_px,
                                  int *walker_py,
                                  int *walker_pz,

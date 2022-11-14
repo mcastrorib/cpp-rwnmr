@@ -118,6 +118,9 @@ public:
 
     // -- Simulations
     void run_simulation();
+    void trilinearInterpolation();
+    void bcMaps(int shiftConverter, int dimSize);
+    void bcMapsExectime(int shiftConverter, int dimSize);
     void image_simulation_cuda();
 	void image_simulation_omp();
 	void createPenaltiesVector(vector<double> &_sigmoid);

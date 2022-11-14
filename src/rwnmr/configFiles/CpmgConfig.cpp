@@ -16,6 +16,7 @@ CpmgConfig::CpmgConfig(const string configFile,
                          const string croot) : BaseConfig(croot, configFile),
                                                APPLY_BULK(false), 
                                                TIME_VERBOSE(false), 
+                                               INTERPOLATE_FIELD(false),
                                                USE_T2_LOGSPACE(false), 
                                                SAVE_MODE(false)
 {
@@ -37,6 +38,7 @@ CpmgConfig::CpmgConfig(const CpmgConfig &otherConfig)
     this->GRADIENT_VALUE = otherConfig.GRADIENT_VALUE;
     this->GRADIENT_DIRECTION = otherConfig.GRADIENT_DIRECTION;
     this->PATH_TO_FIELD = otherConfig.PATH_TO_FIELD;
+    this->INTERPOLATE_FIELD = otherConfig.INTERPOLATE_FIELD;
 
     this->MIN_T2 = otherConfig.MIN_T2;
     this->MAX_T2 = otherConfig.MAX_T2;
@@ -120,7 +122,8 @@ void CpmgConfig::readConfigFile(const string configFile)
             else if(token == "RESIDUAL_FIELD") (*this).readResidualField(content);
             else if(token == "GRADIENT_VALUE") (*this).readGradientValue(content);
             else if(token == "GRADIENT_DIRECTION") (*this).readGradientDirection(content);
-            else if(token == "PATH_TO_FIELD") (*this).readPathToField(content);            
+            else if(token == "PATH_TO_FIELD") (*this).readPathToField(content);    
+            else if(token == "INTERPOLATE_FIELD") (*this).readInterpolateField(content);        
             else if(token == "MIN_T2") (*this).readMinT2(content);
             else if(token == "MAX_T2") (*this).readMaxT2(content);
             else if(token == "USE_T2_LOGSPACE") (*this).readUseT2Logspace(content);
@@ -188,6 +191,12 @@ void CpmgConfig::readPathToField(string s)
 {
     if(s.length() > 2 and s.substr(0,2) == "./") (*this).setPathToField((*this).getProjectRoot() + s);
 	else (*this).setPathToField(s);
+}
+
+void CpmgConfig::readInterpolateField(string s)
+{
+    if(s == "true") (*this).setInterpolateField(true);
+    else (*this).setInterpolateField(false);
 }
 
 void CpmgConfig::readMinT2(string s)

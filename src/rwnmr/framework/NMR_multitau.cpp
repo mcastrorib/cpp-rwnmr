@@ -100,7 +100,8 @@ void NMR_multitau::setCPMG(uint index)
 {
     (*this).setExposureTime(index);
     (*this).getCPMG()->buildModelTimeFramework(false);
-    
+    cout << "te[" << index << "] = " << this->model.getTimeInterval()*this->model.getStepsPerEcho();
+    cout << " spe: " << this->model.getStepsPerEcho() << endl;
     int precisionVal = 3;
     string te = std::to_string((*this).getRequiredStep(index) * (*this).getModel().getTimeInterval());
     string sufix = "_te=" + te.substr(0, std::to_string((*this).getRequiredStep(index) * (*this).getModel().getTimeInterval()).find(".") + precisionVal + 1);

@@ -1,0 +1,2 @@
+poreID, Type, posX, posY, posZ, dimX, dimY, dimZ, Size
+0, spherical, 1, 1, 1, 1, 1, 1, 1
