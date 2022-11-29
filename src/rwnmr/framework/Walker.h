@@ -297,9 +297,9 @@ public:
         }
     };
 
-    inline bool checkNextPosition_2D(Pos3d _nextPosition, Mat &_binaryMap)
+    inline bool checkNextPosition_2D(Pos3d _nextPosition, Mat &_binaryMap, uchar _poreColor)
     {
-        return (_nextPosition.isPore(_binaryMap));
+        return (_nextPosition.isPore(_binaryMap, _poreColor));
     };
 
     inline bool checkNextPosition_2D(Pos3d _nextPosition, BitBlock *_bitBlock)
@@ -464,9 +464,9 @@ public:
         }
     };
 
-    inline bool checkNextPosition_3D(Pos3d _nextPosition, vector<Mat> &_binaryMap)
+    inline bool checkNextPosition_3D(Pos3d _nextPosition, vector<Mat> &_binaryMap, uchar _poreColor)
     {
-        return (_nextPosition.isPore(_binaryMap));
+        return (_nextPosition.isPore(_binaryMap, _poreColor));
     };
 
     inline bool checkNextPosition_3D(Pos3d _nextPosition, BitBlock *_bitBlock)

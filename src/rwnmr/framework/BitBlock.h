@@ -84,12 +84,12 @@ public:
         }
     }
 
-    void createBlockMap(vector<Mat> &_binaryMap);
+    void createBlockMap(vector<Mat> &_binaryMap, uchar _poreColor);
     void setBlockMapDimensions_2D(Mat &_binaryMap);
-    void createBitBlocksArray_2D(Mat &_binaryMap);
+    void createBitBlocksArray_2D(Mat &_binaryMap, uchar poreColor);
     void saveBitBlockArray_2D(string filename);
     void setBlockMapDimensions_3D(vector<Mat> &_binaryMap);
-    void createBitBlocksArray_3D(vector<Mat> &_binaryMap);
+    void createBitBlocksArray_3D(vector<Mat> &_binaryMap, uchar poreColor);
     void saveBitBlockArray_3D(string filename);
 
     // inline methods

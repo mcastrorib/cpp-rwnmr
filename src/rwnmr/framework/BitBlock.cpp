@@ -16,17 +16,17 @@ BitBlock::BitBlock(const BitBlock &_bitBlock)
     this->blockDepth = _bitBlock.blockDepth;
 }
 
-void BitBlock::createBlockMap(vector<Mat> &_binaryMap)
+void BitBlock::createBlockMap(vector<Mat> &_binaryMap, uchar poreColor)
 {
     if (_binaryMap.size() == 1)
     {
         setBlockMapDimensions_2D(_binaryMap[0]);
-        createBitBlocksArray_2D(_binaryMap[0]);
+        createBitBlocksArray_2D(_binaryMap[0], poreColor);
     }
     else
     {
         setBlockMapDimensions_3D(_binaryMap);
-        createBitBlocksArray_3D(_binaryMap);
+        createBitBlocksArray_3D(_binaryMap, poreColor);
     }
 }
 
@@ -58,7 +58,7 @@ void BitBlock::setBlockMapDimensions_2D(Mat &_binaryMap)
     (*this).allocBlocks((*this).getNumberOfBlocks());
 }
 
-void BitBlock::createBitBlocksArray_2D(Mat &_binaryMap)
+void BitBlock::createBitBlocksArray_2D(Mat &_binaryMap, uchar poreColor)
 {
     uint64_t newBlock;
 
@@ -81,7 +81,7 @@ void BitBlock::createBitBlocksArray_2D(Mat &_binaryMap)
                     {
                         Pos3d pixel(mapPixel_x, mapPixel_y, 0);
 
-                        if (!pixel.isPore(_binaryMap))
+                        if (!pixel.isPore(_binaryMap, poreColor))
                         {
                             int bit = (bit_y * COLUMNSPERBLOCK2D) + bit_x;
                             newBlock |= (1ull << bit);
@@ -161,7 +161,7 @@ void BitBlock::setBlockMapDimensions_3D(vector<Mat> &_binaryMap)
     (*this).allocBlocks((*this).getNumberOfBlocks());
 }
 
-void BitBlock::createBitBlocksArray_3D(vector<Mat> &_binaryMap)
+void BitBlock::createBitBlocksArray_3D(vector<Mat> &_binaryMap, uchar poreColor)
 {
     uint64_t newBlock;
 
@@ -192,7 +192,7 @@ void BitBlock::createBitBlocksArray_3D(vector<Mat> &_binaryMap)
                             {
                                 Pos3d pixel(mapPixel_x, mapPixel_y, mapPixel_z);
 
-                                if (!pixel.isPore(_binaryMap))
+                                if (!pixel.isPore(_binaryMap, poreColor))
                                 {
                                     int bit = (bit_z * (ROWSPERBLOCK3D * COLUMNSPERBLOCK3D)) // depth
                                               + (bit_y * COLUMNSPERBLOCK3D)                  // height

@@ -3,7 +3,7 @@
 using namespace std;
 
 // default constructors
-UctConfig::UctConfig(const string configFile, const string croot) : BaseConfig(croot, configFile)
+UctConfig::UctConfig(const string configFile, const string croot) : BaseConfig(croot, configFile), PORE_COLOR(0)
 {
 	(*this).setImgFilesList("Empty");
 	vector<string> IMG_FILES();
@@ -26,6 +26,7 @@ UctConfig::UctConfig(const UctConfig &otherConfig)
     this->SLICES = otherConfig.SLICES;
     this->RESOLUTION = otherConfig.RESOLUTION;
     this->VOXEL_DIVISION = otherConfig.VOXEL_DIVISION;
+    this->PORE_COLOR = otherConfig.PORE_COLOR;
 	this->IMG_FILES_LIST = otherConfig.IMG_FILES_LIST;
 	this->IMG_FILES = otherConfig.IMG_FILES;
 }
@@ -80,6 +81,7 @@ void UctConfig::readConfigFile(const string configFile)
 			else if(token == "SLICES") (*this).readSlices(content);
 			else if(token == "RESOLUTION") (*this).readResolution(content);
 			else if(token == "VOXEL_DIVISION") (*this).readVoxelDivision(content);
+            else if(token == "PORE_COLOR") (*this).readPoreColor(content);
 			else if(token == "IMG_FILES_LIST") (*this).readImgFilesList(content);			
 		}
     } 
@@ -126,6 +128,13 @@ void UctConfig::readResolution(string s)
 void UctConfig::readVoxelDivision(string s)
 {
 	this->VOXEL_DIVISION = std::stoi(s);
+}
+
+void UctConfig::readPoreColor(string s)
+{
+    uint8_t color = (uint8_t) std::stoi(s);
+	if(color > 255) this->PORE_COLOR = 255;
+    else this->PORE_COLOR = color;
 }
 
 void UctConfig::readImgFilesList(string s)
