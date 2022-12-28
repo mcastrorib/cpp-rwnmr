@@ -3,5 +3,6 @@
 
 #include "Pos3dTest.h"
 #include "NMR_cpmgTest.h"
+#include "MapFilterTest.h"
 
 #endif

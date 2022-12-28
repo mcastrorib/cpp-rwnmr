@@ -34,7 +34,7 @@ TestResult RwnmrConfigTest::readConfigFileTest()
         Assert::assertEquals(this->config->getD0(), (double) 2.5) and
         Assert::assertEquals(this->config->getGiromagneticRatio(), (double) 42.576) and
         Assert::assertEquals(this->config->getGiromagneticUnit(), (string)"mhertz") and
-        Assert::assertEquals(this->config->getBulkTime(), (double)2800.0) and
+        Assert::assertEquals(this->config->getBulkTime(), (double) 2800.0) and
         Assert::assertEquals(this->config->getRhoType(), (string)"uniform") and
         Assert::assertVectorEquals(this->config->getRho(), (vector<double>) {10.0}) and
         Assert::assertEquals(this->config->getWalkers(), (uint) 1000) and
@@ -42,14 +42,18 @@ TestResult RwnmrConfigTest::readConfigFileTest()
         Assert::assertEquals(this->config->getWalkersPlacement(), (string)"random") and
         Assert::assertEquals(this->config->getPlacementDeviation(), (uint) 1) and
         Assert::assertEquals(this->config->getStepsPerEcho(), (uint) 4) and
-        Assert::assertEquals(this->config->getSeed(), (uint64_t) 43) and
-        Assert::assertEquals(this->config->getBC(), (string)"mirror") and
+        Assert::assertEquals(this->config->getSeed(), (uint64_t) 10) and
+        Assert::assertEquals(this->config->getBC(), (string)"periodic") and
         Assert::assertEquals(this->config->getSaveImgInfo(), (bool) false) and
         Assert::assertEquals(this->config->getSaveBinImg(), (bool) false) and
         Assert::assertEquals(this->config->getSaveWalkers(), (bool) false) and
         Assert::assertEquals(this->config->getHistograms(), (uint) 1) and
         Assert::assertEquals(this->config->getHistogramSize(), (uint) 256) and
         Assert::assertEquals(this->config->getHistogramScale(), (string)"linear") and
+        Assert::assertEquals(this->config->getMapTime(), (double) 100.0) and
+        Assert::assertEquals(this->config->getMapSteps(), (uint) 123) and
+        Assert::assertEquals(this->config->getMapFilter(), (double) 1.0) and
+        Assert::assertEquals(this->config->getMapTol(), (double) 0.05) and
         Assert::assertEquals(this->config->getOpenMPUsage(), (bool) true) and 
         Assert::assertEquals(this->config->getOpenMPThreads(), (uint) 4) and
         Assert::assertEquals(this->config->getGPUUsage(), (bool) true) and

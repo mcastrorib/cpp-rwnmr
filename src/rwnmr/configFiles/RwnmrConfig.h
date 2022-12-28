@@ -33,6 +33,10 @@ private:
     uint HISTOGRAMS;  
     uint HISTOGRAM_SIZE;
     string HISTOGRAM_SCALE;
+    double MAP_TIME;
+    uint MAP_STEPS;
+    double MAP_FILTER;
+    double MAP_TOL;
 
     // -- OPENMP MODE
     bool OPENMP_USAGE;
@@ -49,6 +53,10 @@ private:
 public:
     // default constructors
     RwnmrConfig() : BaseConfig(),
+                    MAP_TIME(0.0),
+                    MAP_STEPS(0),
+                    MAP_FILTER(0),
+                    MAP_TOL(0.01),
                     SAVE_IMG_INFO(false), 
                     SAVE_BINIMG(false), 
                     SAVE_WALKERS(false), 
@@ -58,6 +66,7 @@ public:
                     REDUCE_IN_GPU(true),
                     WALKER_SAMPLES(1)
     {};
+
     RwnmrConfig(const string configFile, const string croot);
 
     //copy constructors
@@ -93,6 +102,10 @@ public:
     void readHistograms(string s);  
     void readHistogramSize(string s);
     void readHistogramScale(string s);
+    void readMapTime(string s);
+    void readMapSteps(string s);
+    void readMapFilter(string s);
+    void readMapTol(string s);    
 
     // -- OpenMP
     void readOpenMPUsage(string s);
@@ -142,6 +155,10 @@ public:
     void setHistograms(uint s){ this->HISTOGRAMS = s;}  
     void setHistogramSize(uint s){ this->HISTOGRAM_SIZE = s;}
     void setHistogramScale(string s){ this->HISTOGRAM_SCALE = s;}
+    void setMapTime(double s){ this->MAP_TIME = s;}
+    void setMapSteps(uint s){ this->MAP_STEPS = s;}
+    void setMapFilter(double s){ this->MAP_FILTER = s;}
+    void setMapTol(double s){ this->MAP_TOL = s;}
 
     // -- OpenMP
     void setOpenMPUsage(bool s){ this->OPENMP_USAGE = s;}
@@ -186,6 +203,10 @@ public:
     uint getHistograms(){ return this->HISTOGRAMS;}
     uint getHistogramSize(){ return this->HISTOGRAM_SIZE;}
     string getHistogramScale(){ return this->HISTOGRAM_SCALE;}
+    double getMapTime(){ return this->MAP_TIME; }
+    uint getMapSteps(){ return this->MAP_STEPS; }
+    double getMapFilter(){ return this->MAP_FILTER; }
+    double getMapTol(){ return this->MAP_TOL; }
 
     // -- OpenMP
     bool getOpenMPUsage(){ return this->OPENMP_USAGE;}
