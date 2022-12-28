@@ -165,7 +165,6 @@ void NMR_multitau::saveCPMG()
 
 void NMR_multitau::run()
 {
-    // first of all, reset conditions and map with highest time value
     double tick = omp_get_wtime();
     
     for(uint index = 0; index < (*this).getRequiredSteps().size(); index++)
