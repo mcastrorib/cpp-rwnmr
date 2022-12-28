@@ -7,6 +7,7 @@
 #include "CollisionHistogram.h"
 #include "InternalField.h"
 #include "Model.h" 
+#include "MapFilter.h"
 #include "NMR_cpmg.h"
 #include "NMR_pfgse.h"
 #include "NMR_multitau.h"
