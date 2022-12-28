@@ -19,7 +19,7 @@ MapFilter::MapFilter(Model &_model, uint _mapSteps, double _filter, double _tol)
 void MapFilter::initThreshold(double _filter)
 {
     if(_filter > 0.0) 
-        this->threshold = (1.0+(*this).getTol()) * (3.0 * pow(0.5, (double) this->model.getVoxelDivision())) / (4.0 * _filter);
+        this->threshold = (1.0+(*this).getTol()) * (3.0 * (1.0/(double) this->model.getVoxelDivision())) / (4.0 * _filter);
     else 
         this->threshold = _filter;
 }
@@ -56,6 +56,7 @@ void MapFilter::runMapSimulation(uint steps)
     cout << "- Initial map time: " << this->model.getTimeInterval()*this->model.getSimulationSteps() << " ms ";
     cout << "[" << this->model.getSimulationSteps() << " RW-steps]" << endl;
     this->model.mapSimulation();
+    this->model.updateWalkersRelaxativity(this->model.getRwnmrConfig().getRho()[0]);
     (*this).sortWalkersInModel();
 }
 
@@ -83,7 +84,7 @@ void MapFilter::filter()
         randomIdx = dist(Model::_rng);
         (*walkers)[i].setInitialPosition((*walkers)[randomIdx].getInitialPosition());
     }
-
+    
     walkers = NULL;
 }
 

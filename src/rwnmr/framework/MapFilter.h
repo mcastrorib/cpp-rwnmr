@@ -28,7 +28,7 @@ public:
 
     Model &getModel(){ return this->model; }
     double getMapTime(){ return this->mapTime;}
-    double getMapSteps(){ return this->mapSteps;}
+    uint getMapSteps(){ return this->mapSteps;}
     double getThreshold(){ return this->threshold;}
     double getTol(){ return this->tol;}
 

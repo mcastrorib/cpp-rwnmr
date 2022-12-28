@@ -33,6 +33,13 @@ public:
 
 	vector<mptr> getTestCases(){ return this->testCases; }
 	mptr getTestCase(int i){ return this->testCases[i]; }
+
+    void printWalkerInfo(Walker w)
+    {
+        cout << w.getInitialPositionX() << ", " << w.getInitialPositionY() << ", " << w.getInitialPositionZ();
+        cout << ", " << w.getCurrentPositionX() << ", " << w.getCurrentPositionY() << ", " << w.getCurrentPositionZ();
+        cout << ", " << w.getXiRate() << ", " << w.getCollisions() << ", " << w.getInitialSeed() << endl; 
+    }
 };
 
 #endif
