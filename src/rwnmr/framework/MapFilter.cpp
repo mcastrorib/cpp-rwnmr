@@ -1,17 +1,19 @@
 #include "MapFilter.h"
 
-MapFilter::MapFilter(Model &_model, double _mapTime, double _filter, double _tol) : model(_model),
-                                                                                    mapTime(_mapTime),
-                                                                                    mapSteps(0),
-                                                                                    tol(_tol)              
+MapFilter::MapFilter(Model &_model, double _mapTime, double _filter, double _tol, uint _it) : model(_model),
+                                                                                              mapTime(_mapTime), 
+                                                                                              mapSteps(0), 
+                                                                                              tol(_tol), 
+                                                                                              iterations(_it)              
 {
     (*this).initThreshold(_filter);
 }
 
-MapFilter::MapFilter(Model &_model, uint _mapSteps, double _filter, double _tol) : model(_model),
-                                                                                    mapTime(0.0),
-                                                                                    mapSteps(_mapSteps),
-                                                                                    tol(_tol)              
+MapFilter::MapFilter(Model &_model, uint _mapSteps, double _filter, double _tol, uint _it) : model(_model),
+                                                                                              mapTime(0), 
+                                                                                              mapSteps(_mapSteps), 
+                                                                                              tol(_tol), 
+                                                                                              iterations(_it)              
 {
     (*this).initThreshold(_filter);
 }
@@ -47,7 +49,19 @@ void MapFilter::runMapSimulation(double time)
     cout << "- Initial map time: " << this->model.getTimeInterval()*this->model.getSimulationSteps() << " ms ";
     cout << "[" << this->model.getSimulationSteps() << " RW-steps]" << endl;
     this->model.mapSimulation();
+    this->model.updateWalkersRelaxativity(this->model.getRwnmrConfig().getRho()[0]);
     (*this).sortWalkersInModel();
+
+    if((*this).getThreshold() > 0.0)
+    {
+        for(uint it = 0; it < (*this).getIterations(); it++)
+        {   
+            (*this).filter();
+            this->model.mapSimulation();
+            this->model.updateWalkersRelaxativity(this->model.getRwnmrConfig().getRho()[0]);
+            (*this).sortWalkersInModel();
+        }    
+    }
 }
 
 void MapFilter::runMapSimulation(uint steps)
@@ -58,6 +72,17 @@ void MapFilter::runMapSimulation(uint steps)
     this->model.mapSimulation();
     this->model.updateWalkersRelaxativity(this->model.getRwnmrConfig().getRho()[0]);
     (*this).sortWalkersInModel();
+
+    if((*this).getThreshold() > 0.0)
+    {
+        for(uint it = 0; it < (*this).getIterations(); it++)
+        {   
+            (*this).filter();
+            this->model.mapSimulation();
+            this->model.updateWalkersRelaxativity(this->model.getRwnmrConfig().getRho()[0]);
+            (*this).sortWalkersInModel();
+        }    
+    }
 }
 
 void MapFilter::sortWalkersInModel()

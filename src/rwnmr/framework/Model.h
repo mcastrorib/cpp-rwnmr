@@ -267,7 +267,7 @@ public:
     void createHistogram();
     void createHistogram(uint histID, uint _steps);
     void updateHistogram();
-
+    
     // cost function methods
     void updateWalkersRelaxativity(vector<double> &parameters);
     void updateWalkersRelaxativity(double rho);

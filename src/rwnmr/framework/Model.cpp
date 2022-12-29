@@ -1282,7 +1282,6 @@ void Model::updateWalkersRelaxativity(double rho)
     }
 }
 
-
 // associate methods
 void Model::associateMapSimulation()
 {

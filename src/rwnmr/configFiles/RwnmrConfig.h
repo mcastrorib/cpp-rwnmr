@@ -37,6 +37,7 @@ private:
     uint MAP_STEPS;
     double MAP_FILTER;
     double MAP_TOL;
+    uint MAP_ITERATIONS;
 
     // -- OPENMP MODE
     bool OPENMP_USAGE;
@@ -57,6 +58,7 @@ public:
                     MAP_STEPS(0),
                     MAP_FILTER(0),
                     MAP_TOL(0.01),
+                    MAP_ITERATIONS(1),
                     SAVE_IMG_INFO(false), 
                     SAVE_BINIMG(false), 
                     SAVE_WALKERS(false), 
@@ -105,7 +107,8 @@ public:
     void readMapTime(string s);
     void readMapSteps(string s);
     void readMapFilter(string s);
-    void readMapTol(string s);    
+    void readMapTol(string s);  
+    void readMapIterations(string s);  
 
     // -- OpenMP
     void readOpenMPUsage(string s);
@@ -159,6 +162,7 @@ public:
     void setMapSteps(uint s){ this->MAP_STEPS = s;}
     void setMapFilter(double s){ this->MAP_FILTER = s;}
     void setMapTol(double s){ this->MAP_TOL = s;}
+    void setMapIterations(uint s){ this->MAP_ITERATIONS = s;}
 
     // -- OpenMP
     void setOpenMPUsage(bool s){ this->OPENMP_USAGE = s;}
@@ -207,6 +211,7 @@ public:
     uint getMapSteps(){ return this->MAP_STEPS; }
     double getMapFilter(){ return this->MAP_FILTER; }
     double getMapTol(){ return this->MAP_TOL; }
+    uint getMapIterations(){ return this->MAP_ITERATIONS; }
 
     // -- OpenMP
     bool getOpenMPUsage(){ return this->OPENMP_USAGE;}
