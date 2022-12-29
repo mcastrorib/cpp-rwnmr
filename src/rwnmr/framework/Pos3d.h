@@ -22,21 +22,20 @@ public:
         this->z = other.z;
     }
 
-    inline bool isPore(vector<Mat> &_binaryMap)
+    inline bool isPore(vector<Mat> &_binaryMap, uchar _poreColor)
     {
         uchar *mapPixel = _binaryMap[this->z].ptr<uchar>(this->y);
-
-        if (mapPixel[this->x] == PORE_COLOR)
+        if (mapPixel[this->x] == _poreColor)
             return true;
         else
             return false;
     };
 
-    inline bool isPore(Mat &_binaryMap)
+    inline bool isPore(Mat &_binaryMap, uchar _poreColor)
     {
         uchar *mapPixel = _binaryMap.ptr<uchar>(this->y);
 
-        if (mapPixel[this->x] == PORE_COLOR)
+        if (mapPixel[this->x] == _poreColor)
             return true;
         else
             return false;

@@ -56,10 +56,6 @@ typedef enum Direction
 } direction;
 #endif
 
-#ifndef PORE_COLOR
-#define PORE_COLOR 0
-#endif
-
 #define NORTH 1
 #define WEST 2
 #define SOUTH 3

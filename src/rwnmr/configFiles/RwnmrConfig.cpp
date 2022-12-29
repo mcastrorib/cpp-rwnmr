@@ -4,6 +4,11 @@ using namespace std;
 
 // default constructors
 RwnmrConfig::RwnmrConfig(const string configFile, const string croot) : BaseConfig(croot, configFile), 
+																		MAP_TIME(0.0),
+																		MAP_STEPS(0),
+																		MAP_FILTER(0),
+																		MAP_TOL(0.01),
+																		MAP_ITERATIONS(1),
 																	    SAVE_IMG_INFO(false), 
 																		SAVE_BINIMG(false), 
 																		SAVE_WALKERS(false), 
@@ -46,6 +51,11 @@ RwnmrConfig::RwnmrConfig(const RwnmrConfig &otherConfig)
     this->HISTOGRAMS = otherConfig.HISTOGRAMS;  
     this->HISTOGRAM_SIZE = otherConfig.HISTOGRAM_SIZE;
     this->HISTOGRAM_SCALE = otherConfig.HISTOGRAM_SCALE;
+	this->MAP_TIME = otherConfig.MAP_TIME;
+	this->MAP_STEPS = otherConfig.MAP_STEPS;
+	this->MAP_FILTER = otherConfig.MAP_FILTER;
+	this->MAP_TOL = otherConfig.MAP_TOL;	
+	this->MAP_ITERATIONS = otherConfig.MAP_ITERATIONS;
 
     // -- OPENMP MODE
     this->OPENMP_USAGE = otherConfig.OPENMP_USAGE;
@@ -107,7 +117,12 @@ vector<string> RwnmrConfig::checkConfig()
 	validState &= (*this).checkItem((*this).getBlocks() > 0, (string)"CUDA_BLOCKS", missingParameters);
 	validState &= (*this).checkItem((*this).getThreadsPerBlock() > 0, (string)"CUDA_THREADSPERBLOCK", missingParameters);
 	validState &= (*this).checkItem((*this).getEchoesPerKernel() > 0, (string)"CUDA_ECHOESPERKERNEL", missingParameters);
-	validState &= (*this).checkItem((*this).getMaxRWSteps() > 0, (string)"CUDA_MAXRWSTEPSPERKERNEL", missingParameters);	
+	validState &= (*this).checkItem((*this).getMaxRWSteps() > 0, (string)"CUDA_MAXRWSTEPSPERKERNEL", missingParameters);
+
+	validState &= (*this).checkItem((*this).getMapTime() >= 0.0, (string)"MAP_TIME", missingParameters);
+	validState &= (*this).checkItem((*this).getMapSteps() >= 0, (string)"MAP_STEPS", missingParameters);
+	validState &= (*this).checkItem((*this).getMapFilter() >= 0.0, (string)"MAP_FILTER", missingParameters);
+	validState &= (*this).checkItem((*this).getMapTol() >= 0.0, (string)"MAP_TOL", missingParameters);
 
     (*this).setReady(validState);   
     return missingParameters;
@@ -159,6 +174,11 @@ void RwnmrConfig::readConfigFile(const string configFile)
 			else if(token == "HISTOGRAMS") (*this).readHistograms(content);
 			else if(token == "HISTOGRAM_SIZE") (*this).readHistogramSize(content);
 			else if(token == "HISTOGRAM_SCALE") (*this).readHistogramScale(content);
+			else if(token == "MAP_TIME") (*this).readMapTime(content);
+			else if(token == "MAP_STEPS") (*this).readMapSteps(content);
+			else if(token == "MAP_FILTER") (*this).readMapFilter(content);
+			else if(token == "MAP_TOL") (*this).readMapTol(content);
+			else if(token == "MAP_ITERATIONS") (*this).readMapIterations(content);
 			else if(token == "OPENMP_USAGE") (*this).readOpenMPUsage(content);
 			else if(token == "OPENMP_THREADS") (*this).readOpenMPThreads(content);
 			else if(token == "GPU_USAGE") (*this).readGPUUsage(content);
@@ -308,6 +328,31 @@ void RwnmrConfig::readHistogramScale(string s)
 {
 	if(s == "log") this->HISTOGRAM_SCALE = "log";
 	else this->HISTOGRAM_SCALE = "linear";
+}
+
+void RwnmrConfig::readMapTime(string s)
+{
+	this->MAP_TIME = std::stod(s);
+}
+
+void RwnmrConfig::readMapSteps(string s)
+{
+	this->MAP_STEPS = std::stoi(s);
+}
+
+void RwnmrConfig::readMapFilter(string s)
+{
+	this->MAP_FILTER = std::stod(s);
+}
+
+void RwnmrConfig::readMapTol(string s)
+{
+	this->MAP_TOL = std::stod(s);
+}
+
+void RwnmrConfig::readMapIterations(string s)
+{
+	this->MAP_ITERATIONS = std::stoi(s);
 }
 
 // -- OpenMP

@@ -372,9 +372,10 @@ void Model::loadImage()
     // reserve memory for binaryMap
     uint numberOfImages = this->uCT_config.getSlices();
     this->binaryMap.reserve(numberOfImages);
-
+    
     // variable strings
     string currentImagePath;
+    Mat rockImage;
 
     // create progress bar object
     ProgressBar pBar((double) numberOfImages);
@@ -383,7 +384,7 @@ void Model::loadImage()
     {
         currentImagePath = this->uCT_config.getImgFile(slice);
 
-        Mat rockImage = imread(currentImagePath, 1);
+        rockImage = cv::Mat(cv::imread(currentImagePath, cv::IMREAD_GRAYSCALE));
 
         if (!rockImage.data)
         {
@@ -410,41 +411,24 @@ void Model::createBinaryMap(Mat &_rockImage, uint slice)
     binaryMap.push_back(emptyMap);
 
     int height = _rockImage.rows;
-    int width = _rockImage.cols * _rockImage.channels();
-    int channels = _rockImage.channels();
-    uchar *rockImagePixel;
+    int width = _rockImage.cols;
+    uchar *imagePixel;
     uchar *binaryMapPixel;
 
     for (int row = 0; row < height; ++row)
     {
-        rockImagePixel = _rockImage.ptr<uchar>(row);
+        imagePixel = _rockImage.ptr<uchar>(row);
         binaryMapPixel = this->binaryMap[slice].ptr<uchar>(row);
-        int mapColumn = 0;
 
-        for (int column = 0; column < width; column += channels)
+        for (int column = 0; column < width; column++)
         {
-            int currentChannel = 0;
-            bool pixelIsPore = true;
 
-            while (currentChannel < channels && pixelIsPore != false)
+            if(imagePixel[column] != this->uCT_config.getPoreColor())
             {
-
-                if (rockImagePixel[column + currentChannel] != 0)
-                {
-                    pixelIsPore = false;
-                }
-
-                currentChannel++;
+                binaryMapPixel[column] = 255;
             }
-
-            if (pixelIsPore == false)
-            {
-                binaryMapPixel[mapColumn] = 255;
-            }
-
-            mapColumn++;
-        }
-    };
+        } 
+    }    
 }
 
 void Model::createBitBlockMap()
@@ -453,7 +437,7 @@ void Model::createBitBlockMap()
     cout << "- creating (bit)block map:" << endl;
     if(this->bitBlock == NULL)
         this->bitBlock = new BitBlock();
-    this->bitBlock->createBlockMap(this->binaryMap);
+    this->bitBlock->createBlockMap(this->binaryMap, 0);
 
     // update image info
     this->binaryMap.clear();
@@ -1297,7 +1281,6 @@ void Model::updateWalkersRelaxativity(double rho)
         (*this->walkers)[id].computeDecreaseFactor(this->stepLength, this->diffusionCoefficient);
     }
 }
-
 
 // associate methods
 void Model::associateMapSimulation()

@@ -17,6 +17,7 @@ private:
     uint SLICES;
     double RESOLUTION;
     uint VOXEL_DIVISION;
+    uint8_t PORE_COLOR;
     string IMG_FILES_LIST;
     vector<string> IMG_FILES;
 
@@ -47,6 +48,7 @@ public:
     void readSlices(string s); 
     void readResolution(string s);
     void readVoxelDivision(string s);
+    void readPoreColor(string s);
     void readImgFilesList(string s);
     void readImgFiles();
 
@@ -59,6 +61,7 @@ public:
     void setSlices(uint s){ this->SLICES = s; }
     void setResolution(double s){ this->RESOLUTION = s; }
     void setVoxelDivision(uint s){ this->VOXEL_DIVISION = s; }
+    void setPoreColor(uint s){ this->PORE_COLOR = s; }
     void setImgFilesList(string s){ this->IMG_FILES_LIST = s; }
     void setImgFiles(vector<string> s){ this->IMG_FILES = s; }
 
@@ -72,6 +75,7 @@ public:
     uint getSlices(){ return this->SLICES;} 
     double getResolution(){ return this->RESOLUTION;}
     uint getVoxelDivision(){ return this->VOXEL_DIVISION;}
+    uint8_t getPoreColor(){ return this->PORE_COLOR;}
     string getImgFilesList(){ return this->IMG_FILES_LIST;}
     vector<string> getImgFiles(){ return this->IMG_FILES;}
     string getImgFile(uint idx){ return this->IMG_FILES[idx];}

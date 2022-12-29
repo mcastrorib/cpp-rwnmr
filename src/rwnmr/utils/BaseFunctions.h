@@ -138,6 +138,11 @@ class BaseFunctions
         return finalStr;
     }
 
+    static uint8_t convertRGBtoGrayscale(uint8_t red, uint8_t green, uint8_t blue)
+    {
+        return ((red * 7 / 255) << 5) + ((green * 7 / 255) << 2) + (blue * 3 / 255);   
+    }
+
     static void printElapsedTime(double start, double finish)
     {
         cout << "\t\tElapsed time: ";

@@ -40,6 +40,24 @@ void rwnmrApp::buildEssentials()
     cout << endl << "-- Setting random walkers" << endl;
     (*this).getModel().initWalkers();
 
+    // Create collision map and filtering
+    if(rwNMR_Config.getMapTime() > 0.0)
+    {
+        cout << endl << "-- Creating and filtering collisions map" << endl;
+        MapFilter mf((*this).getModel(), rwNMR_Config.getMapTime(), rwNMR_Config.getMapFilter(), rwNMR_Config.getMapTol());
+        cout << "mf threshold is " << mf.getThreshold() << endl;
+        mf.run();
+        mf.filter();
+        mf.run();
+    } else if(rwNMR_Config.getMapSteps() > 0)
+    {
+        cout << endl << "-- Creating and filtering collisions map" << endl;
+        MapFilter mf((*this).getModel(), rwNMR_Config.getMapSteps(), rwNMR_Config.getMapFilter(), rwNMR_Config.getMapTol(), rwNMR_Config.getMapIterations());
+        cout << "mf threshold is " << mf.getThreshold() << endl;    
+        mf.run();
+    }   
+
+
     // Save image info
     cout << endl << "-- Saving uCT-image info" << endl;
     (*this).getModel().save();

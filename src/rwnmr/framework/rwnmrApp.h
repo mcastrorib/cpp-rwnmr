@@ -3,6 +3,7 @@
 
 #include "Defs.h"
 #include "Model.h"
+#include "MapFilter.h"
 #include "NMR_cpmg.h"
 #include "NMR_multitau.h"
 #include "NMR_pfgse.h"

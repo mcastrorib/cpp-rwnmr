@@ -26,6 +26,7 @@ void TestApp::select(string tag)
 	else if(tag == "MultitauConfig") this->test = new MultitauConfigTest((*this).getProjectRoot());
 	else if(tag == "PfgseConfig") this->test = new PfgseConfigTest((*this).getProjectRoot());
 	else if(tag == "Pos3d") this->test = new Pos3dTest((*this).getProjectRoot());
+	else if(tag == "MapFilter") this->test = new MapFilterTest((*this).getProjectRoot());
 	else if(tag == "NMR_cpmg") this->test = new NMR_cpmgTest((*this).getProjectRoot());
 }
 

@@ -33,6 +33,7 @@ TestResult Pos3dTest::isPoreTest_ZerosMat2d()
     int cols = 2;
     Mat img = Mat::zeros(rows, cols, CV_8UC1);
     vector<bool> pores;
+    uchar poreColor = 0;
     
     for(int y = 0; y < rows; y++)
     {
@@ -40,7 +41,7 @@ TestResult Pos3dTest::isPoreTest_ZerosMat2d()
         {
             pos.setX(x);
             pos.setY(y);
-            pores.push_back(pos.isPore(img));
+            pores.push_back(pos.isPore(img, poreColor));
         }
     }
 
@@ -57,6 +58,7 @@ TestResult Pos3dTest::isPoreTest_OnesMat2d()
     int cols = 3;
     Mat img = Mat::ones(rows, cols, CV_8UC1);
     vector<bool> pores;
+    uchar poreColor = 0;
     
     for(int y = 0; y < rows; y++)
     {
@@ -64,7 +66,7 @@ TestResult Pos3dTest::isPoreTest_OnesMat2d()
         {
             pos.setX(x);
             pos.setY(y);
-            pores.push_back(pos.isPore(img));
+            pores.push_back(pos.isPore(img, poreColor));
         }
     }
 
@@ -81,6 +83,7 @@ TestResult Pos3dTest::isPoreTest_EyeMat2d()
     int cols = 3;
     Mat img = Mat::eye(rows, cols, CV_8UC1);
     vector<bool> pores;
+    uchar poreColor = 0;
     
     for(int y = 0; y < rows; y++)
     {
@@ -88,7 +91,7 @@ TestResult Pos3dTest::isPoreTest_EyeMat2d()
         {
             pos.setX(x);
             pos.setY(y);
-            pores.push_back(pos.isPore(img));
+            pores.push_back(pos.isPore(img, poreColor));
         }
     }
 
@@ -101,6 +104,7 @@ TestResult Pos3dTest::isPoreTest_ZerosMat3d()
 {
 	TestResult result("Pos3d::isPore[3d](cv::Mat::zeros)");
     Pos3d pos;
+    uchar poreColor = 0;
     int rows = 2; 
     int cols = 2;
     int depth = 2;
@@ -118,7 +122,7 @@ TestResult Pos3dTest::isPoreTest_ZerosMat3d()
                 pos.setX(x);
                 pos.setY(y);
                 pos.setZ(z);
-                pores.push_back(pos.isPore(img));
+                pores.push_back(pos.isPore(img,poreColor));
             }
         }
     }
@@ -134,6 +138,7 @@ TestResult Pos3dTest::isPoreTest_OnesMat3d()
 {
 	TestResult result("Pos3d::isPore[3d](cv::Mat::ones)");
     Pos3d pos;
+    uchar poreColor = 0;
     int rows = 2; 
     int cols = 3;
     int depth = 4;
@@ -151,7 +156,7 @@ TestResult Pos3dTest::isPoreTest_OnesMat3d()
                 pos.setX(x);
                 pos.setY(y);
                 pos.setZ(z);
-                pores.push_back(pos.isPore(img));
+                pores.push_back(pos.isPore(img, poreColor));
             }
         }
     }
@@ -172,6 +177,7 @@ TestResult Pos3dTest::isPoreTest_EyeMat3d()
 {
 	TestResult result("Pos3d::isPore[3d](cv::Mat::eye)");
     Pos3d pos;
+    uchar poreColor = 0;
     int rows = 2; 
     int cols = 2;
     int depth = 2;
@@ -189,7 +195,7 @@ TestResult Pos3dTest::isPoreTest_EyeMat3d()
                 pos.setX(x);
                 pos.setY(y);
                 pos.setZ(z);
-                pores.push_back(pos.isPore(img));
+                pores.push_back(pos.isPore(img, poreColor));
             }
         }
     }

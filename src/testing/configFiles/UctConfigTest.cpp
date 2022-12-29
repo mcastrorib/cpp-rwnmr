@@ -39,7 +39,8 @@ TestResult UctConfigTest::readConfigFileTest()
 	   Assert::assertEquals(this->config->getSlices(), (uint) 7) and
 	   Assert::assertEquals(this->config->getFirstIdx(), (uint) 0) and
 	   Assert::assertEquals(this->config->getResolution(), (double) 1.0) and
-	   Assert::assertEquals(this->config->getVoxelDivision(), (uint) 0)
+	   Assert::assertEquals(this->config->getVoxelDivision(), (uint) 1) and
+	   Assert::assertEquals(this->config->getPoreColor(), (uint8_t) 0) 
 	) result.setSuccess(true);
 	else result.setSuccess(false); 
 
