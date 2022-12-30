@@ -45,15 +45,11 @@ void rwnmrApp::buildEssentials()
     {
         cout << endl << "-- Creating and filtering collisions map" << endl;
         MapFilter mf((*this).getModel(), rwNMR_Config.getMapTime(), rwNMR_Config.getMapFilter(), rwNMR_Config.getMapTol());
-        cout << "mf threshold is " << mf.getThreshold() << endl;
-        mf.run();
-        mf.filter();
         mf.run();
     } else if(rwNMR_Config.getMapSteps() > 0)
     {
         cout << endl << "-- Creating and filtering collisions map" << endl;
-        MapFilter mf((*this).getModel(), rwNMR_Config.getMapSteps(), rwNMR_Config.getMapFilter(), rwNMR_Config.getMapTol(), rwNMR_Config.getMapIterations());
-        cout << "mf threshold is " << mf.getThreshold() << endl;    
+        MapFilter mf((*this).getModel(), rwNMR_Config.getMapSteps(), rwNMR_Config.getMapFilter(), rwNMR_Config.getMapTol(), rwNMR_Config.getMapIterations());   
         mf.run();
     }   
 

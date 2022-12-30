@@ -4,7 +4,9 @@ MapFilter::MapFilter(Model &_model, double _mapTime, double _filter, double _tol
                                                                                               mapTime(_mapTime), 
                                                                                               mapSteps(0), 
                                                                                               tol(_tol), 
-                                                                                              iterations(_it)              
+                                                                                              iterations(_it),
+                                                                                              thresholdIndex(0),
+                                                                                              filteredPercentual(0.0)              
 {
     (*this).initThreshold(_filter);
 }
@@ -13,7 +15,9 @@ MapFilter::MapFilter(Model &_model, uint _mapSteps, double _filter, double _tol,
                                                                                               mapTime(0), 
                                                                                               mapSteps(_mapSteps), 
                                                                                               tol(_tol), 
-                                                                                              iterations(_it)              
+                                                                                              iterations(_it),
+                                                                                              thresholdIndex(0),
+                                                                                              filteredPercentual(0.0)              
 {
     (*this).initThreshold(_filter);
 }
@@ -28,30 +32,30 @@ void MapFilter::initThreshold(double _filter)
 
 void MapFilter::run()
 {
+    if((*this).getMapTime() == 0.0 and (*this).getMapSteps() == 0)
+        return;
+
     if((*this).getMapTime() > 0.0)
     { 
-        (*this).runMapSimulation((*this).getMapTime());
-        return;
-    }
-
-    if((*this).getMapSteps() > 0)
+        this->model.buildTimeFramework((*this).getMapTime()); 
+    } else 
     {
-        (*this).runMapSimulation((*this).getMapSteps());
-        return;
+        this->model.buildTimeFramework((*this).getMapSteps());
     }
 
+    (*this).runMapSimulation();     
     return;
 }
 
-void MapFilter::runMapSimulation(double time)
+void MapFilter::runMapSimulation()
 {
-    this->model.buildTimeFramework((*this).getMapTime()); 
     cout << "- Initial map time: " << this->model.getTimeInterval()*this->model.getSimulationSteps() << " ms ";
     cout << "[" << this->model.getSimulationSteps() << " RW-steps]" << endl;
     this->model.mapSimulation();
     this->model.updateWalkersRelaxativity(this->model.getRwnmrConfig().getRho()[0]);
     (*this).sortWalkersInModel();
-
+    (*this).findThresholdIndex(this->model.getWalkers(), (*this).getThreshold());
+            
     if((*this).getThreshold() > 0.0)
     {
         for(uint it = 0; it < (*this).getIterations(); it++)
@@ -60,29 +64,11 @@ void MapFilter::runMapSimulation(double time)
             this->model.mapSimulation();
             this->model.updateWalkersRelaxativity(this->model.getRwnmrConfig().getRho()[0]);
             (*this).sortWalkersInModel();
+            (*this).findThresholdIndex(this->model.getWalkers(), (*this).getThreshold());
+            (*this).computeFilteredPercentual(this->model.getWalkers(), (*this).getThresholdIndex());         
+            cout << "it: " << it+1 << "/" << (*this).getIterations() << ": " << 100.0*(*this).getFilteredPercentual() << "\% filtered." << endl; 
         }    
-    }
-}
-
-void MapFilter::runMapSimulation(uint steps)
-{
-    this->model.buildTimeFramework((*this).getMapSteps()); 
-    cout << "- Initial map time: " << this->model.getTimeInterval()*this->model.getSimulationSteps() << " ms ";
-    cout << "[" << this->model.getSimulationSteps() << " RW-steps]" << endl;
-    this->model.mapSimulation();
-    this->model.updateWalkersRelaxativity(this->model.getRwnmrConfig().getRho()[0]);
-    (*this).sortWalkersInModel();
-
-    if((*this).getThreshold() > 0.0)
-    {
-        for(uint it = 0; it < (*this).getIterations(); it++)
-        {   
-            (*this).filter();
-            this->model.mapSimulation();
-            this->model.updateWalkersRelaxativity(this->model.getRwnmrConfig().getRho()[0]);
-            (*this).sortWalkersInModel();
-        }    
-    }
+    }    
 }
 
 void MapFilter::sortWalkersInModel()
@@ -95,16 +81,15 @@ void MapFilter::sortWalkersInModel()
 void MapFilter::filter()
 {
     vector<Walker> *walkers = this->model.getWalkers();
-    uint thidx = (*this).findThresholdIndex(walkers, (*this).getThreshold());
-    if(thidx >= walkers->size() - 1) 
+    if((*this).getThresholdIndex() >= walkers->size() - 1) 
     {
         cout << "Warning: no walkers below filtering xirate." << endl;
         return;
     }
 
     uint randomIdx;
-    std::uniform_int_distribution<std::mt19937::result_type> dist(thidx, walkers->size()-1);
-    for(uint i = 0; i < thidx; i++)
+    std::uniform_int_distribution<std::mt19937::result_type> dist((*this).getThresholdIndex(), walkers->size()-1);
+    for(uint i = 0; i < (*this).getThresholdIndex(); i++)
     {
         randomIdx = dist(Model::_rng);
         (*walkers)[i].setInitialPosition((*walkers)[randomIdx].getInitialPosition());
@@ -113,16 +98,21 @@ void MapFilter::filter()
     walkers = NULL;
 }
 
-uint MapFilter::findThresholdIndex(vector<Walker> *walkers, double threshold)
+void MapFilter::findThresholdIndex(vector<Walker> *walkers, double threshold)
 {
     uint thidx = 0;
-    while(thidx < walkers->size() and (*walkers)[thidx].getXiRate() > threshold)
+    while(thidx+1 < walkers->size() and (*walkers)[thidx].getXiRate() > threshold)
     {
         thidx++;
     }
-    return thidx;
+    (*this).setThresholdIndex(thidx);
 }
 
+void MapFilter::computeFilteredPercentual(vector<Walker> *walkers, uint thidx)
+{
+    double size = (double) walkers->size();
+    (*this).setFilteredPercentual((double) (thidx + 1) / size);
+}
 
 
 
