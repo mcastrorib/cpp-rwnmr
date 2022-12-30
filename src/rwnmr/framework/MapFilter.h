@@ -14,18 +14,21 @@ private:
     double threshold;
     double tol;
     uint iterations;
+    uint thresholdIndex;
+    double filteredPercentual;
 
 public:	
 	MapFilter(Model &_model, double _mapTime, double _mfilter, double _mtol, uint _its = 1);
     MapFilter(Model &_model, uint mapSteps, double _mfilter, double _mtol, uint _its = 1);
 	virtual ~MapFilter(){}
+    
     void initThreshold(double _filter);
     void run();
     void filter();
-    void runMapSimulation(double time);
-    void runMapSimulation(uint steps);
+    void runMapSimulation();
     void sortWalkersInModel();
-    uint findThresholdIndex(vector<Walker> *w, double th);
+    void findThresholdIndex(vector<Walker> *w, double th);
+    void computeFilteredPercentual(vector<Walker> *w, uint thidx);
 
     Model &getModel(){ return this->model; }
     double getMapTime(){ return this->mapTime;}
@@ -33,6 +36,9 @@ public:
     double getThreshold(){ return this->threshold;}
     double getTol(){ return this->tol;}
     uint getIterations(){ return this->iterations; }
+    uint getThresholdIndex(){ return this->thresholdIndex; }
+    double getFilteredPercentual(){ return this->filteredPercentual;}
+    
 
     void setModel(Model &_model){ this->model = _model; }
     void setMapTime(double t){ this->mapTime = t; }
@@ -40,6 +46,8 @@ public:
     void setThreshold(double t){ this->threshold = t; }
     void setTol(double t){ this->tol = t; }
     void setIterations(uint t){ this->iterations = t; }
+    void setThresholdIndex(uint i){ this->thresholdIndex = i; }
+    void setFilteredPercentual(double p){ this->filteredPercentual = p; }
 };
 
 #endif
