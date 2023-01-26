@@ -65,7 +65,6 @@ public:
 
     vector<string> checkConfig();
     void readConfigFile(const string configFile);
-    void createTimeSamples();
     
     // -- Read methods
     void readApplyBulk(string s);

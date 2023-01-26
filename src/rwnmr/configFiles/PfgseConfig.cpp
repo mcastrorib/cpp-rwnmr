@@ -17,7 +17,6 @@ PfgseConfig::PfgseConfig(const string configFile, const string croot) : BaseConf
     string defaultFile = (*this).getProjectRoot() + PFGSE_CONFIG_DEFAULT;
     if(configFile != (defaultFile)) (*this).readConfigFile(configFile);
     else (*this).readConfigFile(defaultFile);	
-    (*this).createTimeSamples();
 }
 
 //copy constructors
@@ -208,62 +207,6 @@ void PfgseConfig::readTimeSequence(string s)
     else this->TIME_SEQ = "manual";
 }
 
-void PfgseConfig::readTimeSamples(string s)
-{
-    this->TIME_SAMPLES = std::stoi(s);
-}
-
-void PfgseConfig::readTimeValues(string s)
-{
-    if(this->TIME_VALUES.size() > 0) this->TIME_VALUES.clear();
-    if(this->TIME_SEQ == "manual")
-    {
-        // parse vector
-		if(s.compare(0, 1, "{") == 0 and s.compare(s.length() - 1, 1, "}") == 0)
-		{
-			string strvec = s.substr(1, s.length() - 2);
-			string delimiter = ",";
-			size_t pos = 0;
-			string token, content;
-			while ((pos = strvec.find(delimiter)) != std::string::npos) 
-	    	{
-				token = strvec.substr(0, pos);
-				content = strvec.substr(pos + delimiter.length(), strvec.length());
-				strvec.erase(0, pos + delimiter.length());
-
-				// add value to RHO attribute
-				this->TIME_VALUES.push_back(std::stod(token));
-			}
-			// add value to RHO attribute
-			this->TIME_VALUES.push_back(std::stod(strvec));
-		}
-    } 
-}
-
-void PfgseConfig::createTimeSamples()
-{
-    if(this->TIME_SEQ == "log")
-    {
-        // set logspace vector
-        this->TIME_VALUES = (*this).logspace(this->TIME_MIN, this->TIME_MAX, this->TIME_SAMPLES);        
-    } 
-    else if(this->TIME_SEQ == "linear")
-    {
-        // set linspace vector
-        this->TIME_VALUES = (*this).linspace(this->TIME_MIN, this->TIME_MAX, this->TIME_SAMPLES);
-        
-    } 
-    else if(this->TIME_SEQ == "manual")
-    {
-        // Sort island individuals by fitness
-        sort(this->TIME_VALUES.begin(), 
-             this->TIME_VALUES.end(), 
-             [](double const &a, double &b) 
-             { return a < b; });
-    }    
-}
-
-
 void PfgseConfig::readTimeMin(string s)
 {
     this->TIME_MIN = std::stod(s);
@@ -272,6 +215,37 @@ void PfgseConfig::readTimeMin(string s)
 void PfgseConfig::readTimeMax(string s)
 {
     this->TIME_MAX = std::stod(s);
+}
+
+void PfgseConfig::readTimeSamples(string s)
+{
+    this->TIME_SAMPLES = std::stoi(s);
+}
+
+void PfgseConfig::readTimeValues(string s)
+{
+    if(this->TIME_VALUES.size() > 0) this->TIME_VALUES.clear();
+    // parse vector
+    if(s.compare(0, 1, "{") == 0 and s.compare(s.length() - 1, 1, "}") == 0)
+    {
+        string strvec = s.substr(1, s.length() - 2);
+        string delimiter = ",";
+        size_t pos = 0;
+        string token, content;
+        while ((pos = strvec.find(delimiter)) != std::string::npos) 
+        {
+            token = strvec.substr(0, pos);
+            content = strvec.substr(pos + delimiter.length(), strvec.length());
+            strvec.erase(0, pos + delimiter.length());
+
+            // add value to RHO attribute
+            this->TIME_VALUES.push_back(std::stod(token));
+        }
+        // add value to RHO attribute
+        this->TIME_VALUES.push_back(std::stod(strvec));
+    }
+
+    std::sort(this->TIME_VALUES.begin(), this->TIME_VALUES.end());
 }
 
 void PfgseConfig::readApplyScaleFactor(string s)

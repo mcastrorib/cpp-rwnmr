@@ -24,6 +24,7 @@ private:
 	vector<Vector3d> vecK;
 	vector<double> rhs;	
 	int gradientPoints;
+	vector<uint> requiredSteps;
 	vector<double> exposureTimes;
 	double exposureTime;
 	double pulseWidth;
@@ -69,6 +70,8 @@ public:
 	vector<Vector3d> getVecK(){ return this->vecK; }
 	vector<double> getRhs() {return this->rhs; }
 	double getRhs(uint idx){ return this->rhs[idx];}
+	vector<uint> getRequiredSteps(){ return this->requiredSteps; }
+	uint getRequiredStep(uint idx){ return this->requiredSteps[idx]; }
 	int getGradientPoints() { return this->gradientPoints; }
 	vector<double> getExposureTimes() {return this->exposureTimes; }
 	double getExposureTime(uint _idx) {return this->exposureTimes[_idx]; }
@@ -129,6 +132,10 @@ public:
 	void addRhs(double _val){ this->rhs.push_back(_val); }
 	void clearRhs(){ this->rhs.clear(); }
 	void setGradientPoints(int _p){ this->gradientPoints = _p; }
+	void setRequiredSteps(vector<uint> _vec){ this->requiredSteps = _vec; }
+	void setRequiredSteps(uint _val, uint idx){ this->requiredSteps[idx] = _val; }
+	void addRequiredSteps(uint _val){ this->requiredSteps.push_back(_val); }
+	void clearRequiredSteps(){ this->exposureTimes.clear(); }
 	void setExposureTimes(vector<double> _vec){ this->exposureTimes = _vec; }
 	void setExposureTime(double _val, uint idx){ this->exposureTimes[idx] = _val; }
 	void addExposureTime(double _val){ this->exposureTimes.push_back(_val); }
@@ -191,6 +198,7 @@ public:
 	void setStepsTaken(uint _v){ this->stepsTaken = _v; }
 	void setCurrentTime(int _v){ this->currentTime = _v; }
 
+	void initExposureTimes();
 	void buildModelTimeFramework();
 	void correctExposureTimes();
 	void runInitialMapSimulation();
@@ -259,6 +267,15 @@ public:
 	
 	void resetCurrentTime() { this->currentTime = 0; }
 	void incrementCurrentTime() { this->currentTime++; }
+
+	void printTimeFramework()
+	{
+		for(uint i = 0; i<this->exposureTimes.size(); i++)
+		{
+			cout << "t[" << i << "] = " << this->exposureTimes[i] << " ms, ";
+			cout << this->requiredSteps[i] << " rw-steps" << endl;
+		}
+	}
 
 private:
 	void simulation_cuda();

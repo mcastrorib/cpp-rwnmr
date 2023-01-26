@@ -76,6 +76,15 @@ public:
 	void writeWalkers();
 	void writeHistogram();
 	void writeHistogramList();	
+
+	void printTimeFramework()
+	{
+		for(uint i = 0; i<this->signalTimes.size(); i++)
+		{
+			cout << "t[" << i << "] = " << this->signalTimes[i] << " ms, ";
+			cout << this->requiredSteps[i] << " rw-steps" << endl;
+		}
+	}
 };
 
 #endif

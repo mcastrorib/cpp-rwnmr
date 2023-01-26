@@ -19,6 +19,7 @@ NMR_PFGSE::NMR_PFGSE(Model &_model,
 												  DsatAdjustSamples(0)
 {
 	// vectors object init
+    vector<uint> requiredSteps();
 	vector<double> exposureTimes();
 	vector<double> gradient();
 	vector<double> rawNoise();
@@ -36,7 +37,6 @@ NMR_PFGSE::NMR_PFGSE(Model &_model,
 	this->gradientY = gradientMax.getY();
 	this->gradientZ = gradientMax.getZ();	
 	this->gradientPoints = this->PFGSE_config.getGradientSamples();
-	this->exposureTimes = this->PFGSE_config.getTimeValues(); 
 	this->pulseWidth = this->PFGSE_config.getPulseWidth();
 	(*this).setApplyBulkRelaxation(this->PFGSE_config.getApplyBulk());
 	(*this).setNoiseAmp(this->PFGSE_config.getNoiseAmp());
@@ -48,6 +48,43 @@ NMR_PFGSE::NMR_PFGSE(Model &_model,
 	// new
 	(*this).setName();
 	(*this).createDirectoryForData();
+	(*this).initExposureTimes(); 
+    (*this).printTimeFramework();
+}
+
+void NMR_PFGSE::initExposureTimes()
+{
+    double timeMin = (*this).getPfgseConfig().getTimeMin();
+    double timeMax = (*this).getPfgseConfig().getTimeMax();
+    int timePoints = (*this).getPfgseConfig().getTimeSamples();
+    string scale = (*this).getPfgseConfig().getTimeSequence();
+
+    vector<double> times;
+    if(scale == "manual") times = (*this).getPfgseConfig().getTimeValues();
+    else if(scale == "log") times = MathFunctions::logspace(log10(timeMin), log10(timeMax), timePoints);
+    else times = MathFunctions::linspace(timeMin, timeMax, timePoints);
+
+    double timeInterval = (*this).getModel().getTimeInterval();
+    if((*this).getRequiredSteps().size() != 0) (*this).clearRequiredSteps();
+    if((*this).getExposureTimes().size() != 0) (*this).clearExposureTimes();
+    uint minSteps = 0;
+    for(uint idx = 0; idx < times.size(); idx++)
+    {
+        int steps = std::ceil(times[idx]/timeInterval);
+        if(steps % 2 != 0) steps++;
+        if(steps > minSteps)
+        {
+            (*this).addRequiredSteps(steps);
+            minSteps = steps;
+        } else
+        {
+            steps = minSteps + 2;
+            (*this).addRequiredSteps(steps);
+            minSteps = steps;
+        }
+
+        (*this).addExposureTime(steps*timeInterval);
+    }
 }
 
 void NMR_PFGSE::set()
@@ -66,8 +103,8 @@ void NMR_PFGSE::run()
 	double tick = omp_get_wtime();
 	cout << endl << "-- Pre-processing:" << endl;
 	(*this).resetCurrentTime();
-	(*this).correctExposureTimes();
-	(*this).runInitialMapSimulation();
+	// (*this).correctExposureTimes();
+	// (*this).runInitialMapSimulation();
 	(*this).resetModel();
 	(*this).presave();
 	cout << "-- Done in " << omp_get_wtime() - tick << " seconds." << endl;
