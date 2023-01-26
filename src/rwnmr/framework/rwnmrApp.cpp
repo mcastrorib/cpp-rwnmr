@@ -44,7 +44,7 @@ void rwnmrApp::buildEssentials()
     if(rwNMR_Config.getMapTime() > 0.0)
     {
         cout << endl << "-- Creating and filtering collisions map" << endl;
-        MapFilter mf((*this).getModel(), rwNMR_Config.getMapTime(), rwNMR_Config.getMapFilter(), rwNMR_Config.getMapTol());
+        MapFilter mf((*this).getModel(), rwNMR_Config.getMapTime(), rwNMR_Config.getMapFilter(), rwNMR_Config.getMapTol(), rwNMR_Config.getMapIterations());
         mf.run();
     } else if(rwNMR_Config.getMapSteps() > 0)
     {
