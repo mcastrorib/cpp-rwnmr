@@ -68,9 +68,10 @@ void NMR_PFGSE::initExposureTimes()
     if((*this).getRequiredSteps().size() != 0) (*this).clearRequiredSteps();
     if((*this).getExposureTimes().size() != 0) (*this).clearExposureTimes();
     uint minSteps = 0;
+    double tol = 0.01*timeInterval;
     for(uint idx = 0; idx < times.size(); idx++)
     {
-        int steps = std::ceil(times[idx]/timeInterval);
+        int steps = std::ceil(times[idx]/timeInterval - tol);
         if(steps % 2 != 0) steps++;
         if(steps > minSteps)
         {
@@ -87,11 +88,11 @@ void NMR_PFGSE::initExposureTimes()
     }
 }
 
-void NMR_PFGSE::set()
+void NMR_PFGSE::build(uint timeSample)
 {
 	// (*this).setName();
 	// (*this).createDirectoryForData();
-	(*this).buildModelTimeFramework();
+	(*this).buildModelTimeFramework(timeSample);
 	(*this).buildVectorMkt();
 	(*this).buildVectorLHS();
 	(*this).buildVectorRHS();
@@ -114,7 +115,7 @@ void NMR_PFGSE::run()
 	{
 		interiorTick = omp_get_wtime();
 		(*this).setExposureTime((*this).getExposureTime(timeSample));
-		(*this).set();
+		(*this).build(timeSample);
 		(*this).runSequence();
 
 		// D(t) extraction
@@ -314,9 +315,16 @@ void NMR_PFGSE::buildVectorK()
 	}
 }
 
-void NMR_PFGSE::buildModelTimeFramework()
+void NMR_PFGSE::buildModelTimeFramework(uint timeSample)
 {
+	if(timeSample > this->requiredSteps.size() or timeSample > this->exposureTimes.size())
+	{
+		cout << "PFGSE exposure times not set." << endl;
+		exit(1);
+	}
+
 	cout << endl << "-- Exposure time: " << this->exposureTime << " ms";
+	this->model.setStepsPerEcho((*this).getRequiredStep(timeSample));
 	this->model.buildTimeFramework(this->exposureTime);
 	cout << " [" << this->model.getSimulationSteps() << " RW-steps]" << endl;
 }
@@ -1296,14 +1304,14 @@ void NMR_PFGSE::reset(double newBigDelta)
 {
 	(*this).clear();
 	(*this).setExposureTime(newBigDelta);
-	(*this).set();
+	(*this).build();
 	(*this).buildThresholdFromSamples(this->gradientPoints);
 }
 
 void NMR_PFGSE::reset()
 {
 	(*this).clear();
-	(*this).set();
+	(*this).build();
 	(*this).buildThresholdFromSamples(this->gradientPoints);
 }
 

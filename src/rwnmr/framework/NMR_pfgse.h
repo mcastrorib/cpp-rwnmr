@@ -199,7 +199,7 @@ public:
 	void setCurrentTime(int _v){ this->currentTime = _v; }
 
 	void initExposureTimes();
-	void buildModelTimeFramework();
+	void buildModelTimeFramework(uint _idx);
 	void correctExposureTimes();
 	void runInitialMapSimulation();
 	void buildGradientVector(double _GF, int _GPoints);
@@ -230,7 +230,7 @@ public:
 	void computeMktSmallPopulation2(double **Mkt_samples, bool time_verbose);
 	void computeMktSmallSamples(double **Mkt_samples, bool time_verbose);
 	void computeMktBigSamples(double **Mkt_samples, bool time_verbose);
-	void set();
+	void build(uint timeSample = 0);
 	void run();
 	void runSequence();
 	void runSequenceWithoutSampling();
