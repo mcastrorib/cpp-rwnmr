@@ -20,7 +20,7 @@ NMR_multitau::NMR_multitau( Model &_model,
     (*this).createName();
     (*this).createDirectoryForData();
     (*this).setTauSequence();
-    (*this).printTimeFramework();
+    // (*this).printTimeFramework();
 }
 
 

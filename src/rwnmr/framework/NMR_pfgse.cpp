@@ -49,7 +49,7 @@ NMR_PFGSE::NMR_PFGSE(Model &_model,
 	(*this).setName();
 	(*this).createDirectoryForData();
 	(*this).initExposureTimes(); 
-    (*this).printTimeFramework();
+    // (*this).printTimeFramework();
 }
 
 void NMR_PFGSE::initExposureTimes()
