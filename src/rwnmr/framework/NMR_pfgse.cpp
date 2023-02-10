@@ -46,7 +46,7 @@ NMR_PFGSE::NMR_PFGSE(Model &_model,
 	(*this).buildVectorK();
 
 	// new
-	(*this).setName();
+	(*this).createName();
 	(*this).createDirectoryForData();
 	(*this).initExposureTimes(); 
     // (*this).printTimeFramework();
@@ -242,9 +242,27 @@ void NMR_PFGSE::correctExposureTimes()
 	}
 }
 
-void NMR_PFGSE::setName()
+void NMR_PFGSE::createName()
 {
-	this->name = "/NMR_pfgse";
+    int precisionVal = 2;
+    string tauMin, tauMax, points;
+    string scale = (*this).getPfgseConfig().getTimeSequence();
+    if(scale == "manual")
+    {
+        vector<double> tauValues = (*this).getPfgseConfig().getTimeValues();
+        tauMin = std::to_string(tauValues[0]);
+        tauMax = std::to_string(tauValues[tauValues.size()-1]);
+        points = std::to_string(tauValues.size());
+    } else
+    {
+        tauMin = std::to_string((*this).getPfgseConfig().getTimeMin());
+        tauMax = std::to_string((*this).getPfgseConfig().getTimeMax());
+        points = std::to_string((*this).getPfgseConfig().getTimeSamples());
+    }
+
+    string trimmedTauMin = tauMin.substr(0, std::to_string((*this).getPfgseConfig().getTimeMin()).find(".") + precisionVal + 1);
+    string trimmedTauMax = tauMax.substr(0, std::to_string((*this).getPfgseConfig().getTimeMax()).find(".") + precisionVal + 1);
+	(*this).setName("/NMR_pfgse_min=" + trimmedTauMin + "ms_max=" + trimmedTauMax + "ms_pts=" + points + "_scale=" + scale);
 }
 
 void NMR_PFGSE::createDirectoryForData()

@@ -260,7 +260,7 @@ public:
 	void writeWalkers();
 	void writeHistogram();
 	void writeHistogramList();
-	void setName();
+	void createName();
 	void createDirectoryForData();
 	void createResultsFile();
 
